@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { ArrowLeft, Lightbulb } from "lucide-react";
+import { ArrowLeft, Lightbulb, Building2 } from "lucide-react";
 import { CITIES, type CityEntry, type CityTier } from "@/data/cities";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
@@ -36,34 +36,15 @@ function buildRounds(tier: CityTier, rng: Rng): Round[] {
   }));
 }
 
-/** Skyline silhouette with a generic fallback while real PNGs are missing. */
+/**
+ * Skyline silhouette rendered strictly from the round's image file
+ * (public/skylines/<id>.png). Missing file → plain glowing icon, no text.
+ */
 function SkylineImage({ city }: { city: CityEntry }) {
   const [failed, setFailed] = useState(false);
 
   if (failed) {
-    // generic placeholder skyline — gives no hint about the city
-    return (
-      <svg viewBox="0 0 400 120" className="w-full h-full" aria-label="City skyline placeholder">
-        <g fill="#00ff41" opacity={0.75}>
-          <rect x="10"  y="60" width="28" height="60" />
-          <rect x="44"  y="35" width="22" height="85" />
-          <rect x="72"  y="70" width="30" height="50" />
-          <rect x="108" y="20" width="18" height="100" />
-          <rect x="132" y="55" width="26" height="65" />
-          <rect x="164" y="40" width="14" height="80" />
-          <polygon points="185,120 197,15 209,120" />
-          <rect x="216" y="65" width="30" height="55" />
-          <rect x="252" y="30" width="20" height="90" />
-          <rect x="278" y="75" width="26" height="45" />
-          <rect x="310" y="45" width="24" height="75" />
-          <rect x="340" y="60" width="18" height="60" />
-          <rect x="364" y="80" width="26" height="40" />
-        </g>
-        <text x="200" y="112" textAnchor="middle" fill="#0a4a1c" fontSize="9" fontFamily="monospace">
-          DROP PNG IN /public/skylines/
-        </text>
-      </svg>
-    );
+    return <Building2 size={56} className="text-arcade-neon-green/40" aria-label="Skyline unavailable" />;
   }
 
   return (
