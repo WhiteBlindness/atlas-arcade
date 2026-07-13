@@ -1,32 +1,42 @@
 "use client";
 
 import { useEffect } from "react";
-import { Globe2, Zap, Flag, TrendingUp } from "lucide-react";
+import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
+import { useT, type TKey } from "@/lib/i18n";
 import { ArcadeHeader } from "@/components/ui/ArcadeHeader";
 import { GameCard } from "@/components/ui/GameCard";
 import { GameErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys } from "@/components/games";
+import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap } from "@/components/games";
 
-const GAMES = [
-  { slug: "globle" as GameSlug,          title: "GEORADAR",         description: "Mystery country. Guess by distance. Hot or cold?",        Icon: Globe2    },
-  { slug: "capital-invaders" as GameSlug, title: "CAPITAL STRIKE",  description: "Match capitals to countries before time runs out.",        Icon: Zap       },
-  { slug: "flag-rush" as GameSlug,        title: "FLAG FRENZY",     description: "Name the flag. Fast. Faster. Don't miss.",                Icon: Flag      },
-  { slug: "peaks-valleys" as GameSlug,    title: "PEAKS & VALLEYS", description: "Higher or lower? Compare oddly mismatched world stats.",   Icon: TrendingUp },
+interface GameEntry {
+  slug: GameSlug;
+  title: string;
+  descKey: TKey;
+  Icon: typeof Globe2;
+  comingSoon?: boolean;
+}
+
+const GAMES: GameEntry[] = [
+  { slug: "globle",           title: "GEORADAR",          descKey: "descGloble",    Icon: Globe2 },
+  { slug: "capital-invaders", title: "CAPITAL STRIKE",    descKey: "descCapital",   Icon: Zap },
+  { slug: "flag-rush",        title: "FLAG FRENZY",       descKey: "descFlag",      Icon: Flag },
+  { slug: "peaks-valleys",    title: "PEAKS & VALLEYS",   descKey: "descPeaks",     Icon: TrendingUp },
+  { slug: "tectonic-snap",    title: "TECTONIC SNAP",     descKey: "descTectonic",  Icon: Puzzle },
+  { slug: "frontier-faceoff", title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords,    comingSoon: true },
+  { slug: "one-strike",       title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull,     comingSoon: true },
+  { slug: "urban-legends",    title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2, comingSoon: true },
 ];
 
 export default function HomePage() {
-  const { user, openModal } = useAuthStore();
+  const { user } = useAuthStore();
   const { activeGame, highScores, startGame, exitGame, loadHighScores } = useGameStore();
+  const t = useT();
 
   useEffect(() => {
     if (user) loadHighScores();
   }, [user, loadHighScores]);
-
-  const handlePlay = (slug: GameSlug) => {
-    startGame(slug);
-  };
 
   if (activeGame === "globle")
     return <GameErrorBoundary onExit={exitGame}><GlobleGame onExit={exitGame} /></GameErrorBoundary>;
@@ -36,28 +46,31 @@ export default function HomePage() {
     return <GameErrorBoundary onExit={exitGame}><FlagRush onExit={exitGame} /></GameErrorBoundary>;
   if (activeGame === "peaks-valleys")
     return <GameErrorBoundary onExit={exitGame}><PeaksValleys onExit={exitGame} /></GameErrorBoundary>;
+  if (activeGame === "tectonic-snap")
+    return <GameErrorBoundary onExit={exitGame}><TectonicSnap onExit={exitGame} /></GameErrorBoundary>;
 
   return (
     <div className="min-h-screen flex flex-col">
       <ArcadeHeader />
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 gap-12">
+      <main className="flex-1 flex flex-col items-center px-4 py-10 gap-10">
         <div className="text-center space-y-3">
-          <h2 className="font-pixel text-2xl text-arcade-neon-green neon-text-green tracking-widest">SELECT GAME</h2>
+          <h2 className="font-pixel text-2xl text-arcade-neon-green neon-text-green tracking-widest">{t("selectGame")}</h2>
           {!user && (
-            <p className="font-pixel text-[9px] text-gray-600 animate-blink">▶ SIGN IN TO SAVE SCORES ◀</p>
+            <p className="font-pixel text-[9px] text-gray-600 animate-blink">{t("signInHint")}</p>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-          {GAMES.map(({ slug, title, description, Icon }) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+          {GAMES.map(({ slug, title, descKey, Icon, comingSoon }) => (
             <GameCard
               key={slug}
               slug={slug}
               title={title}
-              description={description}
+              description={t(descKey)}
               Icon={Icon}
               highScore={highScores[slug]}
-              onPlay={() => handlePlay(slug)}
+              comingSoon={comingSoon}
+              onPlay={() => startGame(slug)}
             />
           ))}
         </div>

@@ -25,3 +25,8 @@ export const PeaksValleys = dynamic(() => import("./PeaksValleys"), {
   loading: () => <Loader color="text-arcade-neon-green" />,
   ssr: false,
 });
+
+export const TectonicSnap = dynamic(() => import("./TectonicSnap"), {
+  loading: () => <Loader color="text-arcade-neon-cyan" />,
+  ssr: false,
+});

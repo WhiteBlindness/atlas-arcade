@@ -3,7 +3,15 @@
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
 
-export type GameSlug = "globle" | "capital-invaders" | "flag-rush" | "peaks-valleys";
+export type GameSlug =
+  | "globle"
+  | "capital-invaders"
+  | "flag-rush"
+  | "peaks-valleys"
+  | "tectonic-snap"
+  | "frontier-faceoff"
+  | "one-strike"
+  | "urban-legends";
 
 interface GameStore {
   activeGame: GameSlug | null;
