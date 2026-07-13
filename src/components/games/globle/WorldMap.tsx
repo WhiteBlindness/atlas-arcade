@@ -59,7 +59,7 @@ function animateViewBox(
 export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
   const [paths, setPaths] = useState<GeoPathEntry[]>([]);
   const [viewBox, setViewBox] = useState(`0 0 ${W} ${H}`);
-  const holdTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const tokenRef = useRef<CancelToken>({ cancelled: false });
 
   useEffect(() => {

@@ -137,7 +137,7 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>("input");
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const savedRef = useRef(false);
 
   const isExhausted = ptr + 1 >= deck.length;
