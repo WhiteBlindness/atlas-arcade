@@ -43,3 +43,4 @@ dev.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+start.log
