@@ -71,3 +71,11 @@ export function seededPick<T>(arr: readonly T[], rng: Rng): T {
 export function seededSample<T>(arr: readonly T[], n: number, rng: Rng): T[] {
   return seededShuffle(arr, rng).slice(0, Math.min(n, arr.length));
 }
+
+/**
+ * RNG for a game session: daily mode → globally shared seeded sequence,
+ * anything else → plain Math.random.
+ */
+export function gameRng(slug: string, mode: "daily" | "arcade" | null | undefined): Rng {
+  return mode === "daily" ? createDailyRng(slug) : Math.random;
+}

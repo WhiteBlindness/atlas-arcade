@@ -13,11 +13,18 @@ export type GameSlug =
   | "one-strike"
   | "urban-legends";
 
+export type GameMode = "daily" | "arcade";
+
 interface GameStore {
   activeGame: GameSlug | null;
+  mode: GameMode | null;
+  /** game awaiting Daily/Arcade choice in the pre-game modal */
+  pendingGame: GameSlug | null;
   sessionScore: number;
   highScores: Partial<Record<GameSlug, number>>;
-  startGame: (slug: GameSlug) => void;
+  openModeSelect: (slug: GameSlug) => void;
+  closeModeSelect: () => void;
+  startGame: (slug: GameSlug, mode: GameMode) => void;
   exitGame: () => void;
   addScore: (points: number) => void;
   loadHighScores: () => Promise<void>;
@@ -25,11 +32,15 @@ interface GameStore {
 
 export const useGameStore = create<GameStore>((set) => ({
   activeGame: null,
+  mode: null,
+  pendingGame: null,
   sessionScore: 0,
   highScores: {},
 
-  startGame: (slug) => set({ activeGame: slug, sessionScore: 0 }),
-  exitGame: () => set({ activeGame: null, sessionScore: 0 }),
+  openModeSelect: (slug) => set({ pendingGame: slug }),
+  closeModeSelect: () => set({ pendingGame: null }),
+  startGame: (slug, mode) => set({ activeGame: slug, mode, pendingGame: null, sessionScore: 0 }),
+  exitGame: () => set({ activeGame: null, mode: null, sessionScore: 0 }),
   addScore: (points) => set((s) => ({ sessionScore: s.sessionScore + points })),
 
   loadHighScores: async () => {

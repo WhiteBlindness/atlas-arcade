@@ -6,6 +6,7 @@ import { CITIES, type CityEntry, type CityTier } from "@/data/cities";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
+import { createDailyRng, seededShuffle, type Rng } from "@/lib/daily";
 
 const ROUNDS = 6;
 // index = clues revealed (0-3): guessing blind off the skyline pays the most
@@ -23,21 +24,15 @@ interface Round {
   options: CityEntry[];
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function buildRounds(tier: CityTier): Round[] {
+function buildRounds(tier: CityTier, rng: Rng): Round[] {
   const pool = CITIES.filter((c) => c.tier === tier);
-  const picked = shuffle(pool).slice(0, ROUNDS);
+  const picked = seededShuffle(pool, rng).slice(0, ROUNDS);
   return picked.map((city) => ({
     city,
-    options: shuffle([city, ...shuffle(pool.filter((c) => c.id !== city.id)).slice(0, 3)]),
+    options: seededShuffle(
+      [city, ...seededShuffle(pool.filter((c) => c.id !== city.id), rng).slice(0, 3)],
+      rng
+    ),
   }));
 }
 
@@ -100,8 +95,11 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
 
   const startTier = useCallback((t: CityTier) => {
     sfx.click();
+    // daily mode: seed includes the tier so each tier has its own shared daily run
+    const mode = useGameStore.getState().mode;
+    const rng: Rng = mode === "daily" ? createDailyRng(`urban-legends:${t}`) : Math.random;
     setTier(t);
-    setRounds(buildRounds(t));
+    setRounds(buildRounds(t, rng));
     setIdx(0);
     setCluesShown(0);
     setScore(0);

@@ -7,6 +7,7 @@ import { COUNTRY_META } from "@/data/countryMeta";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
+import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 
 // Sudden death: the timer shrinks as the streak grows. One wrong answer ends the run.
 const BASE_TIME = 6;
@@ -24,22 +25,13 @@ interface Question {
   optionLabels?: string[]; // for reverse-capital: capital names aligned with options
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 const flagUrl = (alpha2: string) => `https://flagcdn.com/w160/${alpha2}.webp`;
 
-function makeQuestion(pool: Country[]): Question {
-  const kind: QuestionKind = (["capital", "flag", "reverse-capital"] as const)[Math.floor(Math.random() * 3)];
-  const correct = pool[Math.floor(Math.random() * pool.length)];
-  const distractors = shuffle(pool.filter((c) => c.numeric !== correct.numeric)).slice(0, 3);
-  const options = shuffle([correct, ...distractors]);
+function makeQuestion(pool: Country[], rng: Rng): Question {
+  const kind = seededPick(["capital", "flag", "reverse-capital"] as const, rng);
+  const correct = seededPick(pool, rng);
+  const distractors = seededShuffle(pool.filter((c) => c.numeric !== correct.numeric), rng).slice(0, 3);
+  const options = seededShuffle([correct, ...distractors], rng);
 
   if (kind === "capital") {
     return { kind, prompt: COUNTRY_META[correct.numeric].capital, correct, options };
@@ -60,7 +52,9 @@ function makeQuestion(pool: Country[]): Question {
 export default function OneStrike({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
-  const [question, setQuestion] = useState<Question>(() => makeQuestion(pool));
+  // persistent rng: in daily mode the whole question sequence is shared globally
+  const rngRef = useRef<Rng>(gameRng("one-strike", useGameStore.getState().mode));
+  const [question, setQuestion] = useState<Question>(() => makeQuestion(pool, rngRef.current));
   const [streak, setStreak] = useState(0);
   const [score, setScore] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
@@ -95,7 +89,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
     const id = setTimeout(() => {
       if (!wasCorrect) setStatus("done");
       else {
-        setQuestion(makeQuestion(pool));
+        setQuestion(makeQuestion(pool, rngRef.current));
         setChosen(null);
       }
     }, wasCorrect ? 500 : 1400);

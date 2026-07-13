@@ -6,6 +6,7 @@ import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
+import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
 
 const QUESTION_TIME = 8;
 const TOTAL_FLAGS = 20;
@@ -16,18 +17,18 @@ interface FlagQuestion {
   options: Country[];
 }
 
-function buildQuestions(): FlagQuestion[] {
+function buildQuestions(rng: Rng): FlagQuestion[] {
   const pool = COUNTRIES.filter((c) => COUNTRY_META[c.numeric]);
-  const selected = [...pool].sort(() => Math.random() - 0.5).slice(0, TOTAL_FLAGS);
+  const selected = seededShuffle(pool, rng).slice(0, TOTAL_FLAGS);
   return selected.map((country) => {
-    const distractors = pool
-      .filter((c) => c.numeric !== country.numeric)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
+    const distractors = seededShuffle(
+      pool.filter((c) => c.numeric !== country.numeric),
+      rng
+    ).slice(0, 3);
     return {
       country,
       alpha2: COUNTRY_META[country.numeric].alpha2,
-      options: [...distractors, country].sort(() => Math.random() - 0.5),
+      options: seededShuffle([...distractors, country], rng),
     };
   });
 }
@@ -36,7 +37,9 @@ const flagUrl = (alpha2: string) => `https://flagcdn.com/w160/${alpha2}.webp`;
 
 export default function FlagRush({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
-  const [questions] = useState<FlagQuestion[]>(buildQuestions);
+  const [questions] = useState<FlagQuestion[]>(() =>
+    buildQuestions(gameRng("flag-rush", useGameStore.getState().mode))
+  );
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);

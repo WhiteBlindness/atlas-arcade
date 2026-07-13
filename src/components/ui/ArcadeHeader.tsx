@@ -2,6 +2,7 @@
 
 import { useAuthStore } from "@/store/authStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useCoinStore } from "@/store/coinStore";
 import { useT, LANGS } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
 import { LogOut, User, Volume2, VolumeX } from "lucide-react";
@@ -9,6 +10,7 @@ import { LogOut, User, Volume2, VolumeX } from "lucide-react";
 export function ArcadeHeader() {
   const { user, openModal, signOut } = useAuthStore();
   const { lang, sound, setLang, toggleSound } = useSettingsStore();
+  const coins = useCoinStore((s) => s.coins);
   const t = useT();
 
   return (
@@ -38,6 +40,20 @@ export function ArcadeHeader() {
             </span>
           ))}
         </div>
+
+        {/* Coin counter */}
+        {coins !== null && (
+          <div
+            className="flex items-center gap-1.5 px-2 py-1.5 border border-arcade-neon-yellow/60"
+            title="Arcade coins — 1 per Arcade Mode run, refills daily"
+          >
+            <span
+              className="inline-block w-3 h-3 rounded-full border border-yellow-700"
+              style={{ background: "radial-gradient(circle at 35% 35%, #ffe600, #b8860b)" }}
+            />
+            <span className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">{coins}</span>
+          </div>
+        )}
 
         {/* Audio toggle */}
         <button

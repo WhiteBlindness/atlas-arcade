@@ -5,6 +5,7 @@ import { COUNTRIES, type Country } from "@/data/countries";
 import { haversine, bearing, distanceToHex, calculateScore } from "@/lib/geo";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
+import { gameRng, seededPick } from "@/lib/daily";
 import { WorldMap } from "./globle/WorldMap";
 import { GuessInput } from "./globle/GuessInput";
 import { GuessHistory } from "./globle/GuessHistory";
@@ -31,13 +32,12 @@ function heatLabel(km: number): { text: string; color: string } {
   return           { text: "COLD",         color: "#6688cc" };
 }
 
-function pickRandom(): Country {
-  return COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
-}
-
 export default function GlobleGame({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
-  const [mystery] = useState<Country>(pickRandom);
+  // daily mode → same mystery country for every player today
+  const [mystery] = useState<Country>(() =>
+    seededPick(COUNTRIES, gameRng("globle", useGameStore.getState().mode))
+  );
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [status, setStatus] = useState<"playing" | "won" | "lost">("playing");
   const [zoomTarget, setZoomTarget] = useState<number | undefined>();

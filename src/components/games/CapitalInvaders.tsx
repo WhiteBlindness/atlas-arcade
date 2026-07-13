@@ -6,6 +6,7 @@ import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
+import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
 
 const QUESTION_TIME = 7;
 const TOTAL_QUESTIONS = 10;
@@ -17,25 +18,27 @@ interface Question {
   options: Country[];
 }
 
-function buildQuestions(): Question[] {
+function buildQuestions(rng: Rng): Question[] {
   const pool = COUNTRIES.filter((c) => COUNTRY_META[c.numeric]);
-  const selected = [...pool].sort(() => Math.random() - 0.5).slice(0, TOTAL_QUESTIONS);
+  const selected = seededShuffle(pool, rng).slice(0, TOTAL_QUESTIONS);
   return selected.map((correct) => {
-    const distractors = pool
-      .filter((c) => c.numeric !== correct.numeric)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
+    const distractors = seededShuffle(
+      pool.filter((c) => c.numeric !== correct.numeric),
+      rng
+    ).slice(0, 3);
     return {
       correct,
       capital: COUNTRY_META[correct.numeric].capital,
-      options: [...distractors, correct].sort(() => Math.random() - 0.5),
+      options: seededShuffle([...distractors, correct], rng),
     };
   });
 }
 
 export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
-  const [questions] = useState<Question[]>(buildQuestions);
+  const [questions] = useState<Question[]>(() =>
+    buildQuestions(gameRng("capital-invaders", useGameStore.getState().mode))
+  );
   const [idx, setIdx] = useState(0);
   const [lives, setLives] = useState(START_LIVES);
   const [score, setScore] = useState(0);

@@ -7,6 +7,8 @@ import { useGameStore, type GameSlug } from "@/store/gameStore";
 import { useT, type TKey } from "@/lib/i18n";
 import { ArcadeHeader } from "@/components/ui/ArcadeHeader";
 import { GameCard } from "@/components/ui/GameCard";
+import { ModeSelectModal } from "@/components/ui/ModeSelectModal";
+import { OutOfCoinsModal } from "@/components/ui/OutOfCoinsModal";
 import { GameErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends } from "@/components/games";
 
@@ -31,7 +33,7 @@ const GAMES: GameEntry[] = [
 
 export default function HomePage() {
   const { user } = useAuthStore();
-  const { activeGame, highScores, startGame, exitGame, loadHighScores } = useGameStore();
+  const { activeGame, highScores, openModeSelect, exitGame, loadHighScores } = useGameStore();
   const t = useT();
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function HomePage() {
               Icon={Icon}
               highScore={highScores[slug]}
               comingSoon={comingSoon}
-              onPlay={() => startGame(slug)}
+              onPlay={() => openModeSelect(slug)}
             />
           ))}
         </div>
@@ -85,6 +87,9 @@ export default function HomePage() {
           © ATLAS ARCADE — {new Date().getFullYear()}
         </p>
       </main>
+
+      <ModeSelectModal />
+      <OutOfCoinsModal />
     </div>
   );
 }

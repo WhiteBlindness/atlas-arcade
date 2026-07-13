@@ -13,14 +13,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) loadCoins();
+      loadCoins(); // guests get a local daily allowance too
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_, session) => {
         setUser(session?.user ?? null);
-        if (session?.user) loadCoins();
-        else resetCoins();
+        resetCoins();
+        loadCoins();
       }
     );
 

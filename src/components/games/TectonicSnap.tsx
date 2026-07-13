@@ -9,6 +9,7 @@ import { CONTINENT_ROUNDS } from "@/data/continents";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
+import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 800;
@@ -47,19 +48,10 @@ interface RoundData {
   pieces: Piece[];
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 const NAME_TO_NUMERIC = new Map(COUNTRIES.map((c) => [c.name, c.numeric]));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildRound(world: any, roundIdx: number): RoundData {
+function buildRound(world: any, roundIdx: number, rng: Rng): RoundData {
   const round = CONTINENT_ROUNDS[roundIdx];
   const memberIds = new Set(
     round.countries
@@ -86,11 +78,11 @@ function buildRound(world: any, roundIdx: number): RoundData {
     })
     .filter((e) => e.d && !isNaN(e.cx));
 
-  const missing = shuffle(entries).slice(0, Math.min(PIECES_PER_ROUND, entries.length));
+  const missing = seededShuffle(entries, rng).slice(0, Math.min(PIECES_PER_ROUND, entries.length));
   const missingIds = new Set(missing.map((m) => m.id));
   const fixed = entries.filter((e) => !missingIds.has(e.id)).map(({ id, d }) => ({ id, d }));
 
-  return { label: round.label, fixed, pieces: shuffle(missing) };
+  return { label: round.label, fixed, pieces: seededShuffle(missing, rng) };
 }
 
 export default function TectonicSnap({ onExit }: { onExit: () => void }) {
@@ -107,13 +99,15 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
 
   const svgRef = useRef<SVGSVGElement>(null);
   const savedRef = useRef(false);
+  // one rng for the whole session so daily rounds stay deterministic in order
+  const rngRef = useRef<Rng>(gameRng("tectonic-snap", useGameStore.getState().mode));
 
   useEffect(() => {
     let alive = true;
     setPhase("loading");
     fetchWorld().then((world) => {
       if (!alive) return;
-      setRound(buildRound(world, roundIdx));
+      setRound(buildRound(world, roundIdx, rngRef.current));
       setPlaced(new Set());
       setPhase("play");
     });

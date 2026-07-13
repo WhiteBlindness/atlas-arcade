@@ -8,6 +8,7 @@ import { COUNTRIES, COUNTRY_BY_NUMERIC } from "@/data/countries";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
+import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 480;
@@ -34,17 +35,8 @@ interface BorderQuestion {
   neighborPaths: string[]; // silhouettes of ALL its neighbors (unlabeled)
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildQuestions(world: any): BorderQuestion[] {
+function buildQuestions(world: any, rng: Rng): BorderQuestion[] {
   const geometries = world.objects.countries.geometries;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const feats = (feature(world, world.objects.countries) as any).features as any[];
@@ -61,17 +53,17 @@ function buildQuestions(world: any): BorderQuestion[] {
     if (ns.length >= 1) candidates.push({ idx: i, neighborIdx: ns });
   });
 
-  const picked = shuffle(candidates).slice(0, TOTAL_QUESTIONS);
+  const picked = seededShuffle(candidates, rng).slice(0, TOTAL_QUESTIONS);
 
   return picked.map(({ idx, neighborIdx }) => {
     const targetId = idAt(idx);
     const neighborIds = neighborIdx.map(idAt);
-    const answer = neighborIds[Math.floor(Math.random() * neighborIds.length)];
+    const answer = seededPick(neighborIds, rng);
 
     const wrongPool = COUNTRIES
       .map((c) => c.numeric)
       .filter((n) => n !== targetId && !neighborIds.includes(n));
-    const distractors = shuffle(wrongPool).slice(0, 3);
+    const distractors = seededShuffle(wrongPool, rng).slice(0, 3);
 
     // local projection fitted around target + neighbors
     const group = { type: "FeatureCollection" as const, features: [feats[idx], ...neighborIdx.map((n) => feats[n])] };
@@ -81,7 +73,7 @@ function buildQuestions(world: any): BorderQuestion[] {
     return {
       target: targetId,
       answer,
-      options: shuffle([answer, ...distractors]),
+      options: seededShuffle([answer, ...distractors], rng),
       targetPath: pathGen(feats[idx]) ?? "",
       neighborPaths: neighborIdx.map((n) => pathGen(feats[n]) ?? ""),
     };
@@ -107,7 +99,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
     let alive = true;
     fetchWorld().then((world) => {
       if (!alive) return;
-      setQuestions(buildQuestions(world));
+      setQuestions(buildQuestions(world, gameRng("frontier-faceoff", useGameStore.getState().mode)));
       setStatus("playing");
     });
     return () => { alive = false; };

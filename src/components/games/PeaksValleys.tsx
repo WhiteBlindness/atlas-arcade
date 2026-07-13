@@ -5,17 +5,9 @@ import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
 import { PEAKS_ENTRIES, type PeaksEntry, type PeaksCategory } from "@/data/peaksValleys";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
+import { gameRng, seededShuffle } from "@/lib/daily";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 function pointsFor(streak: number) {
   return 100 + streak * 50;
@@ -132,7 +124,9 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
 
 export default function PeaksValleys({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
-  const [deck] = useState<PeaksEntry[]>(() => shuffle([...PEAKS_ENTRIES]));
+  const [deck] = useState<PeaksEntry[]>(() =>
+    seededShuffle(PEAKS_ENTRIES, gameRng("peaks-valleys", useGameStore.getState().mode))
+  );
   const [ptr, setPtr] = useState(0);
   const [phase, setPhase] = useState<Phase>("input");
   const [score, setScore] = useState(0);
