@@ -99,7 +99,7 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Map + overlays */}
-        <div className="flex-1 min-h-64 lg:min-h-0 relative">
+        <div className="flex-1 min-h-[48vh] lg:min-h-0 relative">
           <WorldMap
             colorMap={colorMap}
             mysteryNumeric={status !== "playing" ? mystery.numeric : undefined}
