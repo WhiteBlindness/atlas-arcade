@@ -30,3 +30,18 @@ export const TectonicSnap = dynamic(() => import("./TectonicSnap"), {
   loading: () => <Loader color="text-arcade-neon-cyan" />,
   ssr: false,
 });
+
+export const FrontierFaceOff = dynamic(() => import("./FrontierFaceOff"), {
+  loading: () => <Loader color="text-arcade-neon-magenta" />,
+  ssr: false,
+});
+
+export const OneStrike = dynamic(() => import("./OneStrike"), {
+  loading: () => <Loader color="text-arcade-neon-yellow" />,
+  ssr: false,
+});
+
+export const UrbanLegends = dynamic(() => import("./UrbanLegends"), {
+  loading: () => <Loader color="text-arcade-neon-green" />,
+  ssr: false,
+});

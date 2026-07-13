@@ -8,7 +8,7 @@ import { useT, type TKey } from "@/lib/i18n";
 import { ArcadeHeader } from "@/components/ui/ArcadeHeader";
 import { GameCard } from "@/components/ui/GameCard";
 import { GameErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap } from "@/components/games";
+import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends } from "@/components/games";
 
 interface GameEntry {
   slug: GameSlug;
@@ -24,9 +24,9 @@ const GAMES: GameEntry[] = [
   { slug: "flag-rush",        title: "FLAG FRENZY",       descKey: "descFlag",      Icon: Flag },
   { slug: "peaks-valleys",    title: "PEAKS & VALLEYS",   descKey: "descPeaks",     Icon: TrendingUp },
   { slug: "tectonic-snap",    title: "TECTONIC SNAP",     descKey: "descTectonic",  Icon: Puzzle },
-  { slug: "frontier-faceoff", title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords,    comingSoon: true },
-  { slug: "one-strike",       title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull,     comingSoon: true },
-  { slug: "urban-legends",    title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2, comingSoon: true },
+  { slug: "frontier-faceoff", title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords },
+  { slug: "one-strike",       title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull },
+  { slug: "urban-legends",    title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2 },
 ];
 
 export default function HomePage() {
@@ -48,6 +48,12 @@ export default function HomePage() {
     return <GameErrorBoundary onExit={exitGame}><PeaksValleys onExit={exitGame} /></GameErrorBoundary>;
   if (activeGame === "tectonic-snap")
     return <GameErrorBoundary onExit={exitGame}><TectonicSnap onExit={exitGame} /></GameErrorBoundary>;
+  if (activeGame === "frontier-faceoff")
+    return <GameErrorBoundary onExit={exitGame}><FrontierFaceOff onExit={exitGame} /></GameErrorBoundary>;
+  if (activeGame === "one-strike")
+    return <GameErrorBoundary onExit={exitGame}><OneStrike onExit={exitGame} /></GameErrorBoundary>;
+  if (activeGame === "urban-legends")
+    return <GameErrorBoundary onExit={exitGame}><UrbanLegends onExit={exitGame} /></GameErrorBoundary>;
 
   return (
     <div className="min-h-screen flex flex-col">
