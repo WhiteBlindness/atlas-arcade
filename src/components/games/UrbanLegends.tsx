@@ -8,7 +8,8 @@ import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 
 const ROUNDS = 6;
-const CLUE_POINTS = [300, 200, 100]; // points by number of clues revealed
+// index = clues revealed (0-3): guessing blind off the skyline pays the most
+const CLUE_POINTS = [300, 200, 100, 50];
 const TIER_MULTIPLIER: Record<CityTier, number> = { easy: 1, medium: 1.5, hard: 2 };
 
 const TIERS: { tier: CityTier; label: string; desc: string; color: string; border: string }[] = [
@@ -40,12 +41,55 @@ function buildRounds(tier: CityTier): Round[] {
   }));
 }
 
+/** Skyline silhouette with a generic fallback while real PNGs are missing. */
+function SkylineImage({ city }: { city: CityEntry }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    // generic placeholder skyline — gives no hint about the city
+    return (
+      <svg viewBox="0 0 400 120" className="w-full h-full" aria-label="City skyline placeholder">
+        <g fill="#00ff41" opacity={0.75}>
+          <rect x="10"  y="60" width="28" height="60" />
+          <rect x="44"  y="35" width="22" height="85" />
+          <rect x="72"  y="70" width="30" height="50" />
+          <rect x="108" y="20" width="18" height="100" />
+          <rect x="132" y="55" width="26" height="65" />
+          <rect x="164" y="40" width="14" height="80" />
+          <polygon points="185,120 197,15 209,120" />
+          <rect x="216" y="65" width="30" height="55" />
+          <rect x="252" y="30" width="20" height="90" />
+          <rect x="278" y="75" width="26" height="45" />
+          <rect x="310" y="45" width="24" height="75" />
+          <rect x="340" y="60" width="18" height="60" />
+          <rect x="364" y="80" width="26" height="40" />
+        </g>
+        <text x="200" y="112" textAnchor="middle" fill="#0a4a1c" fontSize="9" fontFamily="monospace">
+          DROP PNG IN /public/skylines/
+        </text>
+      </svg>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={city.imageUrl}
+      alt="Mystery city skyline"
+      className="w-full h-full object-contain"
+      style={{ filter: "drop-shadow(0 0 10px #00ff4166)" }}
+      onError={() => setFailed(true)}
+      draggable={false}
+    />
+  );
+}
+
 export default function UrbanLegends({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const [tier, setTier] = useState<CityTier | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
   const [idx, setIdx] = useState(0);
-  const [cluesShown, setCluesShown] = useState(1);
+  const [cluesShown, setCluesShown] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState<"pick-tier" | "playing" | "done">("pick-tier");
@@ -59,7 +103,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
     setTier(t);
     setRounds(buildRounds(t));
     setIdx(0);
-    setCluesShown(1);
+    setCluesShown(0);
     setScore(0);
     setStatus("playing");
   }, []);
@@ -74,7 +118,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
     if (isAnswered || !current || !tier) return;
     setChosen(id);
     if (id === current.city.id) {
-      const pts = Math.round(CLUE_POINTS[cluesShown - 1] * TIER_MULTIPLIER[tier]);
+      const pts = Math.round(CLUE_POINTS[cluesShown] * TIER_MULTIPLIER[tier]);
       setScore((s) => s + pts);
       addScore(pts);
       sfx.correct();
@@ -93,7 +137,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
       }
     } else {
       setIdx((i) => i + 1);
-      setCluesShown(1);
+      setCluesShown(0);
       setChosen(null);
     }
   }, [idx, rounds.length, score]);
@@ -164,33 +208,26 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-lg mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 max-w-lg mx-auto w-full">
         <div className="flex items-center justify-between w-full">
           <p className="font-pixel text-[8px] text-gray-600">{idx + 1} / {ROUNDS} · {tier?.toUpperCase()}</p>
           <p className="font-pixel text-[8px] text-arcade-neon-yellow">
-            WORTH {tier ? Math.round(CLUE_POINTS[cluesShown - 1] * TIER_MULTIPLIER[tier]) : 0} PTS
+            WORTH {tier ? Math.round(CLUE_POINTS[cluesShown] * TIER_MULTIPLIER[tier]) : 0} PTS
           </p>
         </div>
 
-        {/* Clues */}
-        <div className="w-full border border-arcade-neon-green shadow-neon-green p-5 space-y-4">
-          <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">WHICH CITY?</p>
-          {current.city.clues.slice(0, cluesShown).map((clue, i) => (
-            <p key={i} className="font-mono text-base text-gray-300 leading-relaxed" style={{ animation: "fadeUp 0.25s ease-out" }}>
-              <span className="text-arcade-neon-green mr-2">{i + 1}▸</span>{clue}
-            </p>
-          ))}
-          {!isAnswered && cluesShown < 3 && (
-            <button
-              onClick={revealClue}
-              className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow transition-colors"
-            >
-              <Lightbulb size={10} /> REVEAL CLUE ({CLUE_POINTS[cluesShown]} PTS)
-            </button>
-          )}
+        {/* Skyline silhouette — the star of the show */}
+        <div
+          key={current.city.id}
+          className="w-full h-44 sm:h-52 border border-arcade-neon-green shadow-neon-green bg-arcade-surface p-3 flex items-center justify-center"
+          style={{ animation: "fadeUp 0.25s ease-out" }}
+        >
+          <SkylineImage city={current.city} />
         </div>
 
-        {/* Options */}
+        <p className="font-pixel text-[9px] text-gray-400 tracking-[0.3em]">WHICH CITY IS THIS?</p>
+
+        {/* Options — available immediately */}
         <div className="grid grid-cols-2 gap-3 w-full">
           {current.options.map((city) => {
             const isCorrectOpt = city.id === current.city.id;
@@ -212,6 +249,26 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
             );
           })}
         </div>
+
+        {/* Clues — hidden behind REVEAL, each reveal costs potential points */}
+        {(cluesShown > 0 || !isAnswered) && (
+          <div className="w-full border border-arcade-border bg-arcade-surface p-4 space-y-3">
+            {current.city.clues.slice(0, cluesShown).map((clue, i) => (
+              <p key={i} className="font-mono text-sm text-gray-300 leading-relaxed" style={{ animation: "fadeUp 0.25s ease-out" }}>
+                <span className="text-arcade-neon-green mr-2">{i + 1}▸</span>{clue}
+              </p>
+            ))}
+            {!isAnswered && cluesShown < 3 && tier && (
+              <button
+                onClick={revealClue}
+                className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow transition-colors"
+              >
+                <Lightbulb size={10} />
+                REVEAL CLUE (DROPS TO {Math.round(CLUE_POINTS[cluesShown + 1] * TIER_MULTIPLIER[tier])} PTS)
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Fun fact + next */}
         {isAnswered && (
