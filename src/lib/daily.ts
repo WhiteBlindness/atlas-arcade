@@ -1,0 +1,73 @@
+// Daily challenge seeding — deterministic randomness from the UTC date so
+// every player worldwide gets the exact same challenge on the same day.
+// No dependencies: xmur3 string hash + mulberry32 PRNG (~15 lines total).
+
+/** Current UTC date as "YYYY-MM-DD" — the global daily-challenge key. */
+export function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** Milliseconds until the next UTC midnight (daily reset countdown). */
+export function msUntilNextUtcMidnight(now: Date = new Date()): number {
+  const next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+  return next - now.getTime();
+}
+
+/** xmur3 — hashes an arbitrary string into a 32-bit seed. */
+function hashSeed(str: string): number {
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  h = Math.imul(h ^ (h >>> 16), 2246822507);
+  h = Math.imul(h ^ (h >>> 13), 3266489909);
+  return (h ^= h >>> 16) >>> 0;
+}
+
+/** mulberry32 — fast seeded PRNG returning floats in [0, 1). */
+function mulberry32(seed: number): () => number {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export type Rng = () => number;
+
+/**
+ * Seeded RNG for a game's daily challenge. Same slug + same UTC day =
+ * identical sequence for every player. Pass a `date` override for testing.
+ */
+export function createDailyRng(gameSlug: string, date: string = todayUTC()): Rng {
+  return mulberry32(hashSeed(`atlas-arcade:${gameSlug}:${date}`));
+}
+
+/** Seeded RNG from an arbitrary string (non-daily uses). */
+export function createSeededRng(seed: string): Rng {
+  return mulberry32(hashSeed(seed));
+}
+
+/** Fisher–Yates shuffle driven by a seeded RNG. Returns a new array. */
+export function seededShuffle<T>(arr: readonly T[], rng: Rng): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/** Pick one element deterministically. */
+export function seededPick<T>(arr: readonly T[], rng: Rng): T {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+/** Pick n distinct elements deterministically. */
+export function seededSample<T>(arr: readonly T[], n: number, rng: Rng): T[] {
+  return seededShuffle(arr, rng).slice(0, Math.min(n, arr.length));
+}
