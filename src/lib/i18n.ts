@@ -32,6 +32,8 @@ const DICT = {
     premium: "INSERT COIN (PREMIUM UNLIMITED)",
     comingSoon2: "COMING SOON",
     betterThan: "YOU BEAT {X}% OF PLAYERS TODAY",
+    descJackpot: "The grand finale. Every game. One legendary run.",
+    locked: "LOCKED",
   },
   pt: {
     selectGame: "ESCOLHE O JOGO",
@@ -62,6 +64,8 @@ const DICT = {
     premium: "INSERIR MOEDA (PREMIUM ILIMITADO)",
     comingSoon2: "BREVEMENTE",
     betterThan: "FICASTE À FRENTE DE {X}% DOS JOGADORES HOJE",
+    descJackpot: "A grande final. Todos os jogos. Uma corrida lendária.",
+    locked: "BLOQUEADO",
   },
   es: {
     selectGame: "ELIGE EL JUEGO",
@@ -92,6 +96,8 @@ const DICT = {
     premium: "INSERTAR MONEDA (PREMIUM ILIMITADO)",
     comingSoon2: "PRÓXIMAMENTE",
     betterThan: "SUPERASTE AL {X}% DE JUGADORES HOY",
+    descJackpot: "La gran final. Todos los juegos. Una carrera legendaria.",
+    locked: "BLOQUEADO",
   },
 } as const;
 

@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
 const Loader = ({ color }: { color: string }) => (
-  <div className="min-h-screen flex items-center justify-center bg-arcade-bg">
+  <div className="min-h-dvh flex items-center justify-center bg-arcade-bg">
     <p className={`font-pixel text-sm ${color} animate-blink`}>LOADING...</p>
   </div>
 );

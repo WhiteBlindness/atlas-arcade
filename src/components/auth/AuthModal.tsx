@@ -85,7 +85,7 @@ export function AuthModal() {
             disabled={loading}
             className="mt-2 py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {loading ? <span className="animate-blink">PROCESSING...</span> : tab === "signin" ? "PLAY" : "CREATE"}
+            {loading ? <span className="animate-blink">PROCESSING...</span> : tab === "signin" ? "INSERT COIN" : "CREATE"}
           </button>
         </form>
       </div>

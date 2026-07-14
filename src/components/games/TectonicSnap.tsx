@@ -220,7 +220,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
 
   if (phase === "done") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan">TECTONIC SNAP</h1>
         <div className="border border-arcade-neon-cyan p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
@@ -241,7 +241,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-arcade-bg">
+    <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
           <ArrowLeft size={12} /> ARCADE

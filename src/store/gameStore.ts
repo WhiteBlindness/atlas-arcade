@@ -11,7 +11,8 @@ export type GameSlug =
   | "tectonic-snap"
   | "frontier-faceoff"
   | "one-strike"
-  | "urban-legends";
+  | "urban-legends"
+  | "atlas-jackpot";
 
 export type GameMode = "daily" | "arcade";
 

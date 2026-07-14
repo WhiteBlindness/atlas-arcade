@@ -120,7 +120,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
 
   if (status === "done") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">ONE STRIKE</h1>
         <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
           <Skull size={28} className="mx-auto text-arcade-neon-red" />
@@ -143,7 +143,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
   const isLastCorrect = isAnswered && chosen !== -1 && chosen === question.correct.numeric;
 
   return (
-    <div className="min-h-screen flex flex-col bg-arcade-bg">
+    <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
           <ArrowLeft size={12} /> ARCADE
@@ -159,12 +159,12 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
       </div>
 
       {!isAnswered && (
-        <div key={`tb-${streak}`} className="h-1.5 bg-arcade-border overflow-hidden">
+        <div key={`tb-${streak}`} className="h-3 bg-arcade-border overflow-hidden">
           <div className="h-full w-full origin-left" style={{ backgroundColor: "#ff3333", animation: `shrinkBar ${timePerQuestion}s linear forwards` }} />
         </div>
       )}
       {isAnswered && (
-        <div className="h-1.5" style={{ backgroundColor: isLastCorrect ? "#00ff41" : "#ef4444" }} />
+        <div className="h-3" style={{ backgroundColor: isLastCorrect ? "#00ff41" : "#ef4444" }} />
       )}
 
       <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 py-6 max-w-md mx-auto w-full">

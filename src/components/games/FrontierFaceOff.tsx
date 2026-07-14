@@ -160,7 +160,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
 
   if (status === "done") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
@@ -183,7 +183,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-arcade-bg">
+    <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
           <ArrowLeft size={12} /> ARCADE
@@ -210,7 +210,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
       ) : (
         <>
           {!isAnswered && (
-            <div key={`tb-${idx}`} className="h-1 bg-arcade-border overflow-hidden">
+            <div key={`tb-${idx}`} className="h-3 bg-arcade-border overflow-hidden">
               <div className="h-full w-full origin-left" style={{ backgroundColor: "#ff00ff", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
             </div>
           )}

@@ -92,7 +92,7 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
   const finalScore = status === "won" ? calculateScore(guesses.length) : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-arcade-bg">
+    <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
           <ArrowLeft size={12} /> ARCADE

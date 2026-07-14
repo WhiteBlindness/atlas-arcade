@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2 } from "lucide-react";
+import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2, Trophy } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
 import { useT, type TKey } from "@/lib/i18n";
@@ -18,6 +18,7 @@ interface GameEntry {
   descKey: TKey;
   Icon: typeof Globe2;
   comingSoon?: boolean;
+  locked?: boolean;
 }
 
 const GAMES: GameEntry[] = [
@@ -29,6 +30,7 @@ const GAMES: GameEntry[] = [
   { slug: "frontier-faceoff", title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords },
   { slug: "one-strike",       title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull },
   { slug: "urban-legends",    title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2 },
+  { slug: "atlas-jackpot",    title: "ATLAS JACKPOT",     descKey: "descJackpot",   Icon: Trophy, locked: true },
 ];
 
 export default function HomePage() {
@@ -58,7 +60,7 @@ export default function HomePage() {
     return <GameErrorBoundary onExit={exitGame}><UrbanLegends onExit={exitGame} /></GameErrorBoundary>;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       <ArcadeHeader />
       <main className="flex-1 flex flex-col items-center px-4 py-10 gap-10">
         <div className="text-center space-y-3">
@@ -69,7 +71,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
-          {GAMES.map(({ slug, title, descKey, Icon, comingSoon }) => (
+          {GAMES.map(({ slug, title, descKey, Icon, comingSoon, locked }) => (
             <GameCard
               key={slug}
               slug={slug}
@@ -78,6 +80,7 @@ export default function HomePage() {
               Icon={Icon}
               highScore={highScores[slug]}
               comingSoon={comingSoon}
+              locked={locked}
               onPlay={() => openModeSelect(slug)}
             />
           ))}

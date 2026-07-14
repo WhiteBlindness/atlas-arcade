@@ -183,7 +183,7 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
   useEffect(() => () => clearTimeout(timerRef.current), []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-arcade-bg">
+    <div className="min-h-dvh flex flex-col bg-arcade-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <button

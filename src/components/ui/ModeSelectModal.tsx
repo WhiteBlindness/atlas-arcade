@@ -78,7 +78,7 @@ export function ModeSelectModal() {
           <span className="font-mono text-sm text-gray-400 leading-relaxed">{t("arcadeDesc")}</span>
           {coins !== null && (
             <span className={`font-pixel text-[7px] ${coins > 0 ? "text-gray-600" : "text-arcade-neon-red"}`}>
-              ● {coins} {coins === 1 ? "COIN" : "COINS"} LEFT
+              {coins} {coins === 1 ? "COIN" : "COINS"} LEFT
             </span>
           )}
         </button>
