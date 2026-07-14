@@ -8,6 +8,7 @@ import { COUNTRIES, COUNTRY_BY_NUMERIC } from "@/data/countries";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -36,7 +37,7 @@ interface BorderQuestion {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildQuestions(world: any, rng: Rng): BorderQuestion[] {
+function buildQuestions(world: any, rng: Rng, count: number): BorderQuestion[] {
   const geometries = world.objects.countries.geometries;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const feats = (feature(world, world.objects.countries) as any).features as any[];
@@ -53,7 +54,7 @@ function buildQuestions(world: any, rng: Rng): BorderQuestion[] {
     if (ns.length >= 1) candidates.push({ idx: i, neighborIdx: ns });
   });
 
-  const picked = seededShuffle(candidates, rng).slice(0, TOTAL_QUESTIONS);
+  const picked = seededShuffle(candidates, rng).slice(0, Math.min(count, candidates.length));
 
   return picked.map(({ idx, neighborIdx }) => {
     const targetId = idAt(idx);
@@ -82,14 +83,17 @@ function buildQuestions(world: any, rng: Rng): BorderQuestion[] {
 
 export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
+  // daily: 10 questions, 3 lives. arcade: endless survival, one mistake ends it.
+  const isDaily = useGameStore((s) => s.mode) === "daily";
   const [questions, setQuestions] = useState<BorderQuestion[] | null>(null);
   const [idx, setIdx] = useState(0);
-  const [lives, setLives] = useState(START_LIVES);
+  const [lives, setLives] = useState(() => (useGameStore.getState().mode === "daily" ? START_LIVES : 1));
+  const [correct, setCorrect] = useState(0);
   const [score, setScore] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
   const [status, setStatus] = useState<"loading" | "playing" | "done">("loading");
 
-  const livesRef = useRef(START_LIVES);
+  const livesRef = useRef(useGameStore.getState().mode === "daily" ? START_LIVES : 1);
   const questionStartRef = useRef(Date.now());
   const scoreSavedRef = useRef(false);
   const isAnswered = chosen !== null;
@@ -99,7 +103,8 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
     let alive = true;
     fetchWorld().then((world) => {
       if (!alive) return;
-      setQuestions(buildQuestions(world, gameRng("frontier-faceoff", useGameStore.getState().mode)));
+      const mode = useGameStore.getState().mode;
+      setQuestions(buildQuestions(world, gameRng("frontier-faceoff", mode), mode === "daily" ? TOTAL_QUESTIONS : Number.MAX_SAFE_INTEGER));
       setStatus("playing");
     });
     return () => { alive = false; };
@@ -143,6 +148,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
       const speedBonus = Math.floor(70 * Math.max(0, (QUESTION_TIME - elapsed) / QUESTION_TIME));
       const pts = 100 + speedBonus;
       setScore((s) => s + pts);
+      setCorrect((c) => c + 1);
       addScore(pts);
       sfx.correct();
     } else {
@@ -159,6 +165,10 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-[8px] text-gray-500">
+            {correct}{isDaily ? ` / ${TOTAL_QUESTIONS}` : ""} BORDERS NAILED
+          </p>
+          <DailyPercentile performance={0.6 * (correct / TOTAL_QUESTIONS) + 0.4 * Math.min(1, score / (TOTAL_QUESTIONS * 170))} />
         </div>
         <div className="flex gap-3">
           <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-magenta text-arcade-neon-magenta hover:bg-arcade-neon-magenta hover:text-black transition-all">
@@ -181,11 +191,15 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
-          <div className="flex gap-1">
-            {Array.from({ length: START_LIVES }).map((_, i) => (
-              <Heart key={i} size={10} className={i < lives ? "fill-red-500 text-red-500" : "fill-gray-800 text-gray-800"} />
-            ))}
-          </div>
+          {isDaily ? (
+            <div className="flex gap-1">
+              {Array.from({ length: START_LIVES }).map((_, i) => (
+                <Heart key={i} size={10} className={i < lives ? "fill-red-500 text-red-500" : "fill-gray-800 text-gray-800"} />
+              ))}
+            </div>
+          ) : (
+            <span className="font-pixel text-[8px] text-arcade-neon-red">{correct}⚡</span>
+          )}
         </div>
       </div>
 
@@ -202,7 +216,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
           )}
 
           <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-md mx-auto w-full">
-            <p className="font-pixel text-[8px] text-gray-600 self-end">{idx + 1} / {TOTAL_QUESTIONS}</p>
+            <p className="font-pixel text-[8px] text-gray-600 self-end">{isDaily ? `${idx + 1} / ${TOTAL_QUESTIONS}` : `Q${idx + 1} · SUDDEN DEATH`}</p>
 
             <div className="w-full border border-arcade-neon-magenta shadow-neon-magenta">
               <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ background: "#080810" }} aria-label="Border map">

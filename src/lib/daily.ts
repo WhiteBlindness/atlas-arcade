@@ -79,3 +79,15 @@ export function seededSample<T>(arr: readonly T[], n: number, rng: Rng): T[] {
 export function gameRng(slug: string, mode: "daily" | "arcade" | null | undefined): Rng {
   return mode === "daily" ? createDailyRng(slug) : Math.random;
 }
+
+/**
+ * Mock "better than X% of players today" stat for daily end screens.
+ * Takes a normalized performance value (0 = worst, 1 = perfect) and maps it
+ * through a logistic curve, clamped to 1–99 so it always reads plausibly.
+ * TODO: replace with a real aggregate query once daily results are stored.
+ */
+export function mockPercentile(performance: number): number {
+  const p = Math.max(0, Math.min(1, performance));
+  const pct = Math.round(100 / (1 + Math.exp(-6 * (p - 0.45))));
+  return Math.max(1, Math.min(99, pct));
+}

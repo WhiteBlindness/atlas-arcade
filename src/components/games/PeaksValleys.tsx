@@ -6,6 +6,7 @@ import { PEAKS_ENTRIES, type PeaksEntry, type PeaksCategory } from "@/data/peaks
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededShuffle } from "@/lib/daily";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -51,15 +52,28 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
 
   return (
     <div
-      className={`flex-1 flex flex-col items-center justify-center gap-5 px-6 py-8 lg:px-10${
+      className={`relative flex-1 flex flex-col items-center justify-center gap-5 px-6 py-8 lg:px-10 overflow-hidden${
         isRight ? " animate-[slideFromRight_0.38s_ease-out]" : ""
       }`}
     >
-      <span className="text-5xl select-none" role="img" aria-label={entry.category}>
+      {/* Background photo with dark overlay to keep arcade contrast */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={entry.imageUrl}
+        alt=""
+        aria-hidden
+        draggable={false}
+        className="absolute inset-0 w-full h-full object-cover opacity-25 select-none pointer-events-none"
+        style={{ filter: "grayscale(0.6) contrast(1.1)" }}
+        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+      />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, #080810cc 0%, #08081088 45%, #080810e6 100%)" }} />
+
+      <span className="relative text-5xl select-none" role="img" aria-label={entry.category}>
         {entry.emoji}
       </span>
 
-      <div className="text-center space-y-1 max-w-xs">
+      <div className="relative text-center space-y-1 max-w-xs">
         <p
           className="font-pixel text-[8px] lg:text-[9px] leading-relaxed"
           style={{ color: accent }}
@@ -71,7 +85,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
 
       {/* Value box */}
       <div
-        className="w-full max-w-[260px] border p-5 text-center transition-colors duration-300"
+        className="relative w-full max-w-[260px] border p-5 text-center transition-colors duration-300 bg-black/40"
         style={{ borderColor: valueBorderColor, boxShadow: valueGlow }}
       >
         {revealed ? (
@@ -88,7 +102,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
 
       {/* Buttons — right card, pre-reveal */}
       {isRight && !revealed && (
-        <div className="flex flex-col gap-3 w-full max-w-[260px]">
+        <div className="relative flex flex-col gap-3 w-full max-w-[260px]">
           <button
             onClick={onHigher}
             className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-green text-arcade-neon-green neon-text-green hover:bg-arcade-neon-green hover:text-black transition-all tracking-widest"
@@ -107,7 +121,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
       {/* Result label — right card, post-reveal */}
       {isRight && revealed && (
         <p
-          className="font-pixel text-[9px] tracking-widest animate-[fadeUp_0.2s_ease-out]"
+          className="relative font-pixel text-[9px] tracking-widest animate-[fadeUp_0.2s_ease-out]"
           style={{
             color: resultColor,
             textShadow: `0 0 8px ${resultColor}, 0 0 20px ${resultColor}55`,
@@ -252,6 +266,7 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
                 <span className="font-pixel text-[8px] text-gray-500">CORRECT</span>
                 <span className="font-mono text-sm text-white text-right">{ptr}</span>
               </div>
+              <DailyPercentile performance={Math.min(1, score / 1500)} />
               <button
                 onClick={() => window.location.reload()}
                 className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
@@ -280,6 +295,7 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
                   {score} PTS
                 </span>
               </div>
+              <DailyPercentile performance={1} />
               <button
                 onClick={() => window.location.reload()}
                 className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"

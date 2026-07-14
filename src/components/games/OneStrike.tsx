@@ -8,6 +8,7 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
 
 // Sudden death: the timer shrinks as the streak grows. One wrong answer ends the run.
 const BASE_TIME = 6;
@@ -125,6 +126,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
           <Skull size={28} className="mx-auto text-arcade-neon-red" />
           <p className="font-pixel text-[8px] text-gray-500">SURVIVED {streak} QUESTIONS</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <DailyPercentile performance={Math.min(1, streak / 15)} />
         </div>
         <div className="flex gap-3">
           <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black transition-all">

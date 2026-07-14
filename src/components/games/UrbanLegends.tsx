@@ -7,6 +7,7 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { createDailyRng, seededShuffle, type Rng } from "@/lib/daily";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
 
 const ROUNDS = 6;
 // index = clues revealed (0-3): guessing blind off the skyline pays the most
@@ -37,8 +38,8 @@ function buildRounds(tier: CityTier, rng: Rng): Round[] {
 }
 
 /**
- * Skyline silhouette rendered strictly from the round's image file
- * (public/skylines/<id>.png). Missing file → plain glowing icon, no text.
+ * City photo (Wikimedia Commons) tinted to the neon-green arcade palette.
+ * Broken URL → plain glowing icon, no text.
  */
 function SkylineImage({ city }: { city: CityEntry }) {
   const [failed, setFailed] = useState(false);
@@ -48,15 +49,20 @@ function SkylineImage({ city }: { city: CityEntry }) {
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={city.imageUrl}
-      alt="Mystery city skyline"
-      className="w-full h-full object-contain"
-      style={{ filter: "drop-shadow(0 0 10px #00ff4166)" }}
-      onError={() => setFailed(true)}
-      draggable={false}
-    />
+    <div className="relative w-full h-full overflow-hidden">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={city.imageUrl}
+        alt="Mystery city"
+        className="w-full h-full object-cover"
+        style={{ filter: "grayscale(1) sepia(1) hue-rotate(65deg) saturate(3.2) brightness(0.75) contrast(1.15)" }}
+        onError={() => setFailed(true)}
+        draggable={false}
+      />
+      {/* scanline + vignette pass to sell the arcade monitor look */}
+      <div className="absolute inset-0 pointer-events-none bg-scanlines" />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, transparent 55%, #080810cc 100%)" }} />
+    </div>
   );
 }
 
@@ -161,6 +167,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{ROUNDS} CITIES · {tier?.toUpperCase()}</p>
+          <DailyPercentile performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0} />
         </div>
         <div className="flex gap-3">
           <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black transition-all">

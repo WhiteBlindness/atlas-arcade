@@ -34,5 +34,6 @@ export function distanceToHex(km: number): string {
 }
 
 export function calculateScore(guessNumber: number): number {
-  return [1000, 850, 700, 550, 400, 250][guessNumber - 1] ?? 0;
+  // beyond the 6th guess (daily mode is unlimited) score decays but stays > 0
+  return [1000, 850, 700, 550, 400, 250][guessNumber - 1] ?? Math.max(50, 250 - (guessNumber - 6) * 25);
 }

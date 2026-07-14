@@ -10,6 +10,8 @@ export type PeaksCategory =
   | "nature";
 
 export interface PeaksEntry {
+  /** Background photo (Wikimedia Commons) rendered behind the stat card */
+  imageUrl: string;
   id: string;
   label: string;       // what is being measured
   sublabel: string;    // context / location
@@ -24,6 +26,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Mountains ──────────────────────────────────────────────
   {
     id: "everest_height",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mt._Everest_from_Gokyo_Ri_November_5%2C_2012.jpg/960px-Mt._Everest_from_Gokyo_Ri_November_5%2C_2012.jpg",
     label: "Height of Mount Everest",
     sublabel: "Nepal / Tibet",
     value: 8849,
@@ -34,6 +37,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "k2_height",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Chogori.jpg/960px-Chogori.jpg",
     label: "Height of K2",
     sublabel: "Pakistan / China",
     value: 8611,
@@ -44,6 +48,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "kilimanjaro_height",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Kilimanjaro_from_Amboseli.jpg/960px-Kilimanjaro_from_Amboseli.jpg",
     label: "Height of Mount Kilimanjaro",
     sublabel: "Tanzania",
     value: 5895,
@@ -54,6 +59,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "mont_blanc_height",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Mont_Blanc_Aiguille.jpg/960px-Mont_Blanc_Aiguille.jpg",
     label: "Height of Mont Blanc",
     sublabel: "France / Italy",
     value: 4808,
@@ -64,6 +70,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "denali_height",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Wonder_Lake_and_Denali.jpg/960px-Wonder_Lake_and_Denali.jpg",
     label: "Height of Denali",
     sublabel: "Alaska, USA",
     value: 6190,
@@ -76,6 +83,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Trenches & Depths ──────────────────────────────────────
   {
     id: "mariana_depth",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/1b/Marianatrenchmap.png",
     label: "Depth of the Mariana Trench",
     sublabel: "Pacific Ocean",
     value: 11034,
@@ -86,6 +94,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "dead_sea_depth",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Dead_Sea_beach_00.JPG/960px-Dead_Sea_beach_00.JPG",
     label: "Dead Sea surface elevation",
     sublabel: "Israel / Jordan",
     value: 430,
@@ -96,6 +105,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "baikal_depth",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Baikal.A2001296.0420.250m-NASA.jpg/330px-Baikal.A2001296.0420.250m-NASA.jpg",
     label: "Maximum depth of Lake Baikal",
     sublabel: "Russia",
     value: 1642,
@@ -108,6 +118,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Rivers ─────────────────────────────────────────────────
   {
     id: "amazon_length",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Amazon_River_ESA387332.jpg/960px-Amazon_River_ESA387332.jpg",
     label: "Length of the Amazon River",
     sublabel: "South America",
     value: 6992,
@@ -118,6 +129,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "nile_length",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Beautiful_nature_along_Nile_River_01.jpg/960px-Beautiful_nature_along_Nile_River_01.jpg",
     label: "Length of the Nile River",
     sublabel: "Africa",
     value: 6650,
@@ -128,6 +140,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "danube_length",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/View_from_Gell%C3%A9rt_Hill_to_the_Danube%2C_Hungary_-_Budapest_%2828493220635%29.jpg/960px-View_from_Gell%C3%A9rt_Hill_to_the_Danube%2C_Hungary_-_Budapest_%2828493220635%29.jpg",
     label: "Length of the Danube River",
     sublabel: "Central Europe",
     value: 2860,
@@ -138,6 +151,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "amazon_discharge",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Amazon_River_ESA387332.jpg/960px-Amazon_River_ESA387332.jpg",
     label: "Amazon River discharge rate",
     sublabel: "Into Atlantic Ocean",
     value: 209000,
@@ -150,6 +164,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Country Areas ──────────────────────────────────────────
   {
     id: "russia_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f3/Flag_of_Russia.svg/960px-Flag_of_Russia.svg.png",
     label: "Area of Russia",
     sublabel: "World's largest country",
     value: 17098242,
@@ -160,6 +175,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "canada_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/960px-Flag_of_Canada_%28Pantone%29.svg.png",
     label: "Area of Canada",
     sublabel: "North America",
     value: 9984670,
@@ -170,6 +186,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "sahara_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sahara_real_color.jpg/960px-Sahara_real_color.jpg",
     label: "Area of the Sahara Desert",
     sublabel: "North Africa",
     value: 9200000,
@@ -180,6 +197,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "antarctica_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Antarctica_%28orthographic_projection%29.svg/960px-Antarctica_%28orthographic_projection%29.svg.png",
     label: "Area of the Antarctic Desert",
     sublabel: "Antarctica",
     value: 14200000,
@@ -190,6 +208,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "monaco_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Flag_of_Monaco.svg/960px-Flag_of_Monaco.svg.png",
     label: "Area of Monaco",
     sublabel: "World's second-smallest country",
     value: 2,
@@ -200,6 +219,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "vatican_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Flag_of_Vatican_City_%282023%E2%80%93present%29.svg/960px-Flag_of_Vatican_City_%282023%E2%80%93present%29.svg.png",
     label: "Area of Vatican City",
     sublabel: "World's smallest country",
     value: 0.44,
@@ -212,6 +232,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Coastlines ─────────────────────────────────────────────
   {
     id: "norway_coastline",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Geirangerfjord_.jpg/960px-Geirangerfjord_.jpg",
     label: "Length of Norway's coastline",
     sublabel: "Including fjords & islands",
     value: 25148,
@@ -222,6 +243,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "canada_coastline",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/7/74/Wpdms_nasa_topo_bay_of_fundy_-_en.jpg",
     label: "Length of Canada's coastline",
     sublabel: "World's longest coastline",
     value: 202080,
@@ -232,6 +254,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "great_wall_length",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/The_Great_Wall_of_China_at_Jinshanling-edit.jpg/960px-The_Great_Wall_of_China_at_Jinshanling-edit.jpg",
     label: "Length of the Great Wall of China",
     sublabel: "All sections combined",
     value: 21196,
@@ -244,6 +267,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Island Counts ──────────────────────────────────────────
   {
     id: "norway_islands",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Moskenes_Reinebringen_lub_2025-07-21_img09_Aussicht.jpg/960px-Moskenes_Reinebringen_lub_2025-07-21_img09_Aussicht.jpg",
     label: "Number of islands in Norway",
     sublabel: "Including coastal skerries",
     value: 50000,
@@ -254,6 +278,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "indonesia_islands",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Flag_of_Indonesia.svg/960px-Flag_of_Indonesia.svg.png",
     label: "Number of islands in Indonesia",
     sublabel: "World's largest archipelago",
     value: 17508,
@@ -264,6 +289,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "philippines_islands",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Flag_of_the_Philippines.svg/960px-Flag_of_the_Philippines.svg.png",
     label: "Number of islands in the Philippines",
     sublabel: "Southeast Asia",
     value: 7641,
@@ -276,6 +302,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Populations ────────────────────────────────────────────
   {
     id: "china_pop",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Flag_of_the_People%27s_Republic_of_China.svg/960px-Flag_of_the_People%27s_Republic_of_China.svg.png",
     label: "Population of China",
     sublabel: "2024 estimate",
     value: 1412000000,
@@ -286,6 +313,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "haiti_pop",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Flag_of_Haiti.svg/960px-Flag_of_Haiti.svg.png",
     label: "Population of Haiti",
     sublabel: "Caribbean",
     value: 11400000,
@@ -296,6 +324,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "tokyo_metro_pop",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Skyscrapers_of_Shinjuku_2009_January.jpg/960px-Skyscrapers_of_Shinjuku_2009_January.jpg",
     label: "Population of Greater Tokyo",
     sublabel: "World's largest metro area",
     value: 37400000,
@@ -306,6 +335,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "vatican_pop",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Flag_of_Vatican_City_%282023%E2%80%93present%29.svg/960px-Flag_of_Vatican_City_%282023%E2%80%93present%29.svg.png",
     label: "Population of Vatican City",
     sublabel: "World's smallest country",
     value: 800,
@@ -316,6 +346,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "easter_island_pop",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Easter_Island_5.jpg/960px-Easter_Island_5.jpg",
     label: "Population of Easter Island",
     sublabel: "Chile, South Pacific",
     value: 8000,
@@ -328,6 +359,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Altitudes ──────────────────────────────────────────────
   {
     id: "lapaz_altitude",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Vista_del_centro_de_La_Paz.jpg/960px-Vista_del_centro_de_La_Paz.jpg",
     label: "Altitude of La Paz city centre",
     sublabel: "Bolivia — highest capital area",
     value: 3640,
@@ -338,6 +370,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "quito_altitude",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/FACHADA_ASAMBLEA_NACIONAL._QUITO%2C_20_DE_FEBRERO_2020._01.jpg/960px-FACHADA_ASAMBLEA_NACIONAL._QUITO%2C_20_DE_FEBRERO_2020._01.jpg",
     label: "Altitude of Quito",
     sublabel: "Ecuador",
     value: 2850,
@@ -350,6 +383,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Lakes ──────────────────────────────────────────────────
   {
     id: "caspian_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Caspian_Sea_from_orbit.jpg/960px-Caspian_Sea_from_orbit.jpg",
     label: "Area of the Caspian Sea",
     sublabel: "World's largest lake",
     value: 371000,
@@ -360,6 +394,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "superior_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Lake_Superior%2C_ISS.jpg/960px-Lake_Superior%2C_ISS.jpg",
     label: "Area of Lake Superior",
     sublabel: "USA / Canada",
     value: 82103,
@@ -370,6 +405,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "titicaca_altitude",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Lake_Titicaca_ESA22522896.jpeg/330px-Lake_Titicaca_ESA22522896.jpeg",
     label: "Altitude of Lake Titicaca",
     sublabel: "Peru / Bolivia — highest navigable lake",
     value: 3812,
@@ -382,6 +418,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   // ── Wonders & Oddities ─────────────────────────────────────
   {
     id: "stonehenge_age",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Stonehenge2007_07_30.jpg/960px-Stonehenge2007_07_30.jpg",
     label: "Age of Stonehenge",
     sublabel: "Wiltshire, England",
     value: 5000,
@@ -392,6 +429,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "png_languages",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Flag_of_Papua_New_Guinea.svg/960px-Flag_of_Papua_New_Guinea.svg.png",
     label: "Languages spoken in Papua New Guinea",
     sublabel: "Most linguistically diverse nation",
     value: 840,
@@ -402,6 +440,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "russia_timezones",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VL_85-022_container_train.jpg/960px-VL_85-022_container_train.jpg",
     label: "Time zones that span Russia",
     sublabel: "East to West",
     value: 11,
@@ -412,6 +451,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "china_borders",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Flag_of_the_People%27s_Republic_of_China.svg/960px-Flag_of_the_People%27s_Republic_of_China.svg.png",
     label: "Countries bordering China",
     sublabel: "Most in the world",
     value: 14,
@@ -422,6 +462,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "indonesia_volcanoes",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bromo-Semeru-Batok-Widodaren.jpg/330px-Bromo-Semeru-Batok-Widodaren.jpg",
     label: "Active volcanoes in Indonesia",
     sublabel: "Pacific Ring of Fire",
     value: 127,
@@ -432,6 +473,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "africa_countries",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Africa_%28orthographic_projection%29.svg/960px-Africa_%28orthographic_projection%29.svg.png",
     label: "Number of countries in Africa",
     sublabel: "Most of any continent",
     value: 54,
@@ -442,6 +484,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "italy_unesco",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/960px-Colosseo_2020.jpg",
     label: "UNESCO World Heritage Sites in Italy",
     sublabel: "Most of any country",
     value: 58,
@@ -452,6 +495,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "silk_road_length",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Silk_road_Kazakhstan.svg/960px-Silk_road_Kazakhstan.svg.png",
     label: "Length of the Silk Road",
     sublabel: "Ancient trade route",
     value: 6400,
@@ -462,6 +506,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "mammoth_cave_length",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Mammoth_Cave_Rotunda_%28USGS_Lwt02830%29.jpg/960px-Mammoth_Cave_Rotunda_%28USGS_Lwt02830%29.jpg",
     label: "Known length of Mammoth Cave",
     sublabel: "Kentucky, USA — world's longest cave",
     value: 676,
@@ -472,6 +517,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "amazon_rainforest_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Amazon17_%285641020319%29.jpg/960px-Amazon17_%285641020319%29.jpg",
     label: "Area of the Amazon Rainforest",
     sublabel: "South America",
     value: 5500000,
@@ -482,6 +528,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "dead_sea_salinity",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Dead_Sea_beach_00.JPG/330px-Dead_Sea_beach_00.JPG",
     label: "Salinity of the Dead Sea",
     sublabel: "Israel / Jordan",
     value: 34,
@@ -492,6 +539,7 @@ export const PEAKS_ENTRIES: PeaksEntry[] = [
   },
   {
     id: "pacific_area",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f6/Pacific_Ocean_-_en.png",
     label: "Area of the Pacific Ocean",
     sublabel: "Earth's largest ocean",
     value: 165250000,

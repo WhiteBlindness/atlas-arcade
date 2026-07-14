@@ -10,6 +10,7 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 800;
@@ -85,6 +86,40 @@ function buildRound(world: any, roundIdx: number, rng: Rng): RoundData {
   return { label: round.label, fixed, pieces: seededShuffle(missing, rng) };
 }
 
+const DAILY_PIECES = 4;
+
+// Daily micro-puzzle: place a handful of mystery countries on a blank world map.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildDailyRound(world: any, rng: Rng): RoundData {
+  const known = new Set(COUNTRIES.map((c) => c.numeric));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const all = (feature(world, world.objects.countries) as any).features as any[];
+  const members = all.filter((f) => known.has(parseInt(f.id, 10)));
+  const fc = { type: "FeatureCollection" as const, features: members };
+
+  const projection = geoNaturalEarth1().fitExtent([[16, 16], [W - 16, H - 16]], fc);
+  const pathGen = geoPath(projection);
+
+  const entries = members
+    .map((f) => {
+      const id = parseInt(f.id, 10);
+      const d = pathGen(f) ?? "";
+      const [cx, cy] = pathGen.centroid(f);
+      const [[x0, y0], [x1, y1]] = pathGen.bounds(f);
+      const name = COUNTRIES.find((c) => c.numeric === id)?.name ?? "";
+      return { id, name, d, cx, cy, bx: x0, by: y0, bw: x1 - x0, bh: y1 - y0 };
+    })
+    .filter((e) => e.d && !isNaN(e.cx));
+
+  // only reasonably-sized countries stay draggable at world scale
+  const candidates = entries.filter((e) => e.bw >= 20 || e.bh >= 20);
+  const missing = seededShuffle(candidates, rng).slice(0, DAILY_PIECES);
+  const missingIds = new Set(missing.map((m) => m.id));
+  const fixed = entries.filter((e) => !missingIds.has(e.id)).map(({ id, d }) => ({ id, d }));
+
+  return { label: "MYSTERY COUNTRIES", fixed, pieces: seededShuffle(missing, rng) };
+}
+
 export default function TectonicSnap({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const [phase, setPhase] = useState<"loading" | "play" | "round-done" | "done">("loading");
@@ -99,6 +134,8 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
 
   const svgRef = useRef<SVGSVGElement>(null);
   const savedRef = useRef(false);
+  const isDaily = useGameStore((s) => s.mode) === "daily";
+  const totalRounds = isDaily ? 1 : CONTINENT_ROUNDS.length;
   // one rng for the whole session so daily rounds stay deterministic in order
   const rngRef = useRef<Rng>(gameRng("tectonic-snap", useGameStore.getState().mode));
 
@@ -107,7 +144,11 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
     setPhase("loading");
     fetchWorld().then((world) => {
       if (!alive) return;
-      setRound(buildRound(world, roundIdx, rngRef.current));
+      setRound(
+        useGameStore.getState().mode === "daily"
+          ? buildDailyRound(world, rngRef.current)
+          : buildRound(world, roundIdx, rngRef.current)
+      );
       setPlaced(new Set());
       setPhase("play");
     });
@@ -148,7 +189,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
           setScore((s) => s + ROUND_BONUS);
           addScore(ROUND_BONUS);
           setTimeout(() => {
-            if (roundIdx + 1 >= CONTINENT_ROUNDS.length) setPhase("done");
+            if (roundIdx + 1 >= totalRounds) setPhase("done");
             else setPhase("round-done");
           }, 600);
         }
@@ -160,7 +201,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
       }
       setTimeout(() => setFlash(null), 350);
     },
-    [dragId, round, placed, roundIdx, addScore]
+    [dragId, round, placed, roundIdx, totalRounds, addScore]
   );
 
   useEffect(() => {
@@ -185,6 +226,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{misses} MISSED DROPS</p>
+          <DailyPercentile performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)} />
         </div>
         <div className="flex gap-3">
           <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all">
@@ -219,7 +261,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
               {round.label}
             </p>
             <p className="font-pixel text-[8px] text-gray-500">
-              ROUND {roundIdx + 1}/{CONTINENT_ROUNDS.length} · {placed.size}/{round.pieces.length} PLACED
+              ROUND {roundIdx + 1}/{totalRounds} · {placed.size}/{round.pieces.length} PLACED
             </p>
           </div>
 

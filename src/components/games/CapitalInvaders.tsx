@@ -1,85 +1,99 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowLeft, Heart } from "lucide-react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { ArrowLeft, Layers } from "lucide-react";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
+import { splitByDifficulty, tierForLevel, type Difficulty } from "@/data/difficulty";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
+import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { sfx } from "@/lib/sfx";
 
 const QUESTION_TIME = 7;
-const TOTAL_QUESTIONS = 10;
-const START_LIVES = 3;
+const DAILY_LEVELS = 10;
+
+const TIER_LABEL: Record<Difficulty, string> = { easy: "EASY", medium: "MEDIUM", hard: "HARD" };
+const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffe600", hard: "#ff00ff" };
 
 interface Question {
   correct: Country;
   capital: string;
   options: Country[];
-}
-
-function buildQuestions(rng: Rng): Question[] {
-  const pool = COUNTRIES.filter((c) => COUNTRY_META[c.numeric]);
-  const selected = seededShuffle(pool, rng).slice(0, TOTAL_QUESTIONS);
-  return selected.map((correct) => {
-    const distractors = seededShuffle(
-      pool.filter((c) => c.numeric !== correct.numeric),
-      rng
-    ).slice(0, 3);
-    return {
-      correct,
-      capital: COUNTRY_META[correct.numeric].capital,
-      options: seededShuffle([...distractors, correct], rng),
-    };
-  });
+  tier: Difficulty;
 }
 
 export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
-  const [questions] = useState<Question[]>(() =>
-    buildQuestions(gameRng("capital-invaders", useGameStore.getState().mode))
-  );
-  const [idx, setIdx] = useState(0);
-  const [lives, setLives] = useState(START_LIVES);
+  const mode = useGameStore((s) => s.mode);
+  const isDaily = mode === "daily";
+
+  const tiers = useMemo(() => splitByDifficulty(COUNTRIES.filter((c) => COUNTRY_META[c.numeric])), []);
+  const allPool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
+
+  const rngRef = useRef<Rng>(gameRng("capital-invaders", useGameStore.getState().mode));
+  const usedRef = useRef<Set<number>>(new Set());
+
+  const makeQuestion = useCallback((level: number): Question => {
+    const tier = tierForLevel(level, useGameStore.getState().mode);
+    const rng = rngRef.current;
+    const pool = tiers[tier];
+    let available = pool.filter((c) => !usedRef.current.has(c.numeric));
+    if (available.length === 0) available = pool;
+    const correct = seededPick(available, rng);
+    usedRef.current.add(correct.numeric);
+    let distractors = seededShuffle(pool.filter((c) => c.numeric !== correct.numeric), rng).slice(0, 3);
+    if (distractors.length < 3) {
+      const extra = seededShuffle(
+        allPool.filter((c) => c.numeric !== correct.numeric && !distractors.some((d) => d.numeric === c.numeric)),
+        rng
+      ).slice(0, 3 - distractors.length);
+      distractors = [...distractors, ...extra];
+    }
+    return {
+      correct,
+      capital: COUNTRY_META[correct.numeric].capital,
+      options: seededShuffle([correct, ...distractors], rng),
+      tier,
+    };
+  }, [tiers, allPool]);
+
+  const [level, setLevel] = useState(1);
+  const [question, setQuestion] = useState<Question>(() => makeQuestion(1));
   const [score, setScore] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
   const [status, setStatus] = useState<"playing" | "done">("playing");
+  const [cleared, setCleared] = useState(0);
 
-  const livesRef = useRef(START_LIVES);
   const questionStartRef = useRef(Date.now());
   const scoreSavedRef = useRef(false);
   const isAnswered = chosen !== null;
-  const current = questions[idx];
 
-  useEffect(() => { questionStartRef.current = Date.now(); }, [idx]);
+  useEffect(() => { questionStartRef.current = Date.now(); }, [level]);
 
-  // Timeout — cancelled automatically when isAnswered becomes true
+  // Sudden death timeout
   useEffect(() => {
     if (status !== "playing" || isAnswered) return;
-    const id = setTimeout(() => {
-      livesRef.current -= 1;
-      setLives(livesRef.current);
-      setChosen(-1);
-    }, QUESTION_TIME * 1000);
+    const id = setTimeout(() => { setChosen(-1); sfx.gameOver(); }, QUESTION_TIME * 1000);
     return () => clearTimeout(id);
-  }, [idx, status, isAnswered]);
+  }, [level, status, isAnswered]);
 
-  // Advance after answer shown
+  // Advance only on correct; any mistake ends the run (both modes)
   useEffect(() => {
     if (!isAnswered) return;
+    const wasCorrect = chosen !== -1 && chosen === question.correct.numeric;
     const id = setTimeout(() => {
-      const nextIdx = idx + 1;
-      if (nextIdx >= TOTAL_QUESTIONS || livesRef.current <= 0) {
-        setStatus("done");
-      } else {
-        setIdx(nextIdx);
-        setChosen(null);
-      }
-    }, 1200);
+      if (!wasCorrect) { setStatus("done"); return; }
+      const next = level + 1;
+      if (isDaily && next > DAILY_LEVELS) { setStatus("done"); return; }
+      setLevel(next);
+      setQuestion(makeQuestion(next));
+      setChosen(null);
+    }, wasCorrect ? 700 : 1400);
     return () => clearTimeout(id);
-  }, [isAnswered, idx]);
+  }, [isAnswered, chosen, question, level, isDaily, makeQuestion]);
 
-  // Save score on done
   useEffect(() => {
     if (status === "done" && !scoreSavedRef.current) {
       scoreSavedRef.current = true;
@@ -87,30 +101,37 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
     }
   }, [status, score]);
 
-  const handleAnswer = useCallback((optionIdx: number) => {
+  const handleAnswer = useCallback((numeric: number) => {
     if (isAnswered || status !== "playing") return;
-    const isCorrect = current.options[optionIdx].numeric === current.correct.numeric;
-    setChosen(optionIdx);
-
-    if (isCorrect) {
+    setChosen(numeric);
+    if (numeric === question.correct.numeric) {
       const elapsed = (Date.now() - questionStartRef.current) / 1000;
       const speedBonus = Math.floor(70 * Math.max(0, (QUESTION_TIME - elapsed) / QUESTION_TIME));
       const pts = 100 + speedBonus;
       setScore((s) => s + pts);
+      setCleared((c) => c + 1);
       addScore(pts);
+      sfx.correct();
     } else {
-      livesRef.current -= 1;
-      setLives(livesRef.current);
+      sfx.gameOver();
     }
-  }, [isAnswered, status, current, addScore]);
+  }, [isAnswered, status, question, addScore]);
 
   if (status === "done") {
+    const dailyComplete = isDaily && cleared >= DAILY_LEVELS;
+    const performance = 0.6 * (cleared / DAILY_LEVELS) + 0.4 * Math.min(1, score / (DAILY_LEVELS * 170));
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
-          <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
+          <p className="font-pixel text-[9px] text-gray-500">
+            {dailyComplete ? "DAILY COMPLETE!" : "GAME OVER"}
+          </p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-[8px] text-gray-500">
+            {cleared} {isDaily ? `/ ${DAILY_LEVELS}` : ""} LEVELS CLEARED
+          </p>
+          <DailyPercentile performance={performance} />
         </div>
         <div className="flex gap-3">
           <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-magenta text-arcade-neon-magenta hover:bg-arcade-neon-magenta hover:text-black transition-all">
@@ -124,6 +145,8 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
     );
   }
 
+  const isLastCorrect = isAnswered && chosen !== -1 && chosen === question.correct.numeric;
+
   return (
     <div className="min-h-screen flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
@@ -131,36 +154,39 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
           <ArrowLeft size={12} /> ARCADE
         </button>
         <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
-        <div className="flex items-center gap-3">
-          <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
-          <div className="flex gap-1">
-            {Array.from({ length: START_LIVES }).map((_, i) => (
-              <Heart key={i} size={10} className={i < lives ? "fill-red-500 text-red-500" : "fill-gray-800 text-gray-800"} />
-            ))}
-          </div>
-        </div>
+        <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>
 
       {!isAnswered && (
-        <div key={`tb-${idx}`} className="h-1 bg-arcade-border overflow-hidden">
-          <div className="h-full w-full origin-left" style={{ backgroundColor: "#00ff41", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
+        <div key={`tb-${level}`} className="h-1 bg-arcade-border overflow-hidden">
+          <div className="h-full w-full origin-left" style={{ backgroundColor: "#ff00ff", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
         </div>
+      )}
+      {isAnswered && (
+        <div className="h-1" style={{ backgroundColor: isLastCorrect ? "#00ff41" : "#ef4444" }} />
       )}
 
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-4 py-8 max-w-md mx-auto w-full">
-        <p className="font-pixel text-[8px] text-gray-600 self-end">{idx + 1} / {TOTAL_QUESTIONS}</p>
+        <div className="flex items-center justify-between w-full">
+          <p className="font-pixel text-[8px] text-gray-600">
+            LEVEL {level}{isDaily ? ` / ${DAILY_LEVELS}` : ""}
+          </p>
+          <p className="flex items-center gap-1 font-pixel text-[8px]" style={{ color: TIER_COLOR[question.tier] }}>
+            <Layers size={10} /> {TIER_LABEL[question.tier]}
+          </p>
+        </div>
 
         <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
           <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">CAPITAL OF?</p>
           <h2 className="font-pixel text-lg text-arcade-neon-magenta neon-text-magenta leading-tight">
-            {current.capital}
+            {question.capital}
           </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-3 w-full">
-          {current.options.map((country, i) => {
-            const isCorrectOpt = country.numeric === current.correct.numeric;
-            const isChosen = chosen === i;
+          {question.options.map((country) => {
+            const isCorrectOpt = country.numeric === question.correct.numeric;
+            const isChosen = chosen === country.numeric;
 
             let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-magenta enabled:hover:text-arcade-neon-magenta";
             if (isAnswered) {
@@ -171,7 +197,7 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
             return (
               <button
                 key={country.numeric}
-                onClick={() => handleAnswer(i)}
+                onClick={() => handleAnswer(country.numeric)}
                 disabled={isAnswered}
                 className={`py-4 px-3 border font-mono text-sm transition-all disabled:cursor-default ${cls}`}
               >
@@ -181,9 +207,12 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
           })}
         </div>
 
-        {chosen === -1 && (
-          <p className="font-pixel text-[9px] text-red-400 animate-blink">TIME!</p>
+        {isAnswered && !isLastCorrect && (
+          <p className="font-pixel text-[9px] text-red-400">
+            {chosen === -1 ? "TIME!" : "WRONG!"} → {question.correct.name}
+          </p>
         )}
+        <p className="font-pixel text-[7px] text-gray-700 tracking-widest">ONE MISTAKE ENDS THE RUN</p>
       </div>
     </div>
   );

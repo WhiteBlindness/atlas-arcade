@@ -31,6 +31,7 @@ const DICT = {
     watchAd: "WATCH AD (+1 COIN)",
     premium: "INSERT COIN (PREMIUM UNLIMITED)",
     comingSoon2: "COMING SOON",
+    betterThan: "YOU BEAT {X}% OF PLAYERS TODAY",
   },
   pt: {
     selectGame: "ESCOLHE O JOGO",
@@ -60,6 +61,7 @@ const DICT = {
     watchAd: "VER ANÚNCIO (+1 MOEDA)",
     premium: "INSERIR MOEDA (PREMIUM ILIMITADO)",
     comingSoon2: "BREVEMENTE",
+    betterThan: "FICASTE À FRENTE DE {X}% DOS JOGADORES HOJE",
   },
   es: {
     selectGame: "ELIGE EL JUEGO",
@@ -89,6 +91,7 @@ const DICT = {
     watchAd: "VER ANUNCIO (+1 MONEDA)",
     premium: "INSERTAR MONEDA (PREMIUM ILIMITADO)",
     comingSoon2: "PRÓXIMAMENTE",
+    betterThan: "SUPERASTE AL {X}% DE JUGADORES HOY",
   },
 } as const;
 

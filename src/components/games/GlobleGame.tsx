@@ -6,6 +6,7 @@ import { haversine, bearing, distanceToHex, calculateScore } from "@/lib/geo";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededPick } from "@/lib/daily";
+import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { WorldMap } from "./globle/WorldMap";
 import { GuessInput } from "./globle/GuessInput";
 import { GuessHistory } from "./globle/GuessHistory";
@@ -34,6 +35,8 @@ function heatLabel(km: number): { text: string; color: string } {
 
 export default function GlobleGame({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
+  // daily: unlimited tries, scored by how few guesses were needed
+  const isDaily = useGameStore((s) => s.mode) === "daily";
   // daily mode → same mystery country for every player today
   const [mystery] = useState<Country>(() =>
     seededPick(COUNTRIES, gameRng("globle", useGameStore.getState().mode))
@@ -70,7 +73,7 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
           scoreSavedRef.current = true;
           await saveHighScore("globle", pts);
         }
-      } else if (next.length >= MAX_GUESSES) {
+      } else if (!isDaily && next.length >= MAX_GUESSES) {
         setZoomTarget(mystery.numeric);
         setStatus("lost");
         if (!scoreSavedRef.current) {
@@ -81,7 +84,8 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
         setZoomTarget(country.numeric);
       }
     },
-    [mystery, guesses, status, addScore]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mystery, guesses, status, addScore, isDaily]
   );
 
   const lastGuess = guesses[guesses.length - 1];
@@ -94,7 +98,9 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
           <ArrowLeft size={12} /> ARCADE
         </button>
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
-        <p className="font-pixel text-[9px] text-gray-500">{guesses.length}/{MAX_GUESSES}</p>
+        <p className="font-pixel text-[9px] text-gray-500">
+          {isDaily ? `${guesses.length} ${guesses.length === 1 ? "GUESS" : "GUESSES"}` : `${guesses.length}/${MAX_GUESSES}`}
+        </p>
       </div>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
@@ -138,10 +144,13 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
                 <div className="h-px bg-arcade-border" />
                 <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-left">
                   <span className="font-pixel text-[8px] text-gray-500">GUESSES</span>
-                  <span className="font-mono text-[11px] text-white text-right">{guesses.length} / {MAX_GUESSES}</span>
+                  <span className="font-mono text-[11px] text-white text-right">
+                    {guesses.length}{isDaily ? "" : ` / ${MAX_GUESSES}`}
+                  </span>
                   <span className="font-pixel text-[8px] text-gray-500">SCORE</span>
                   <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">+{finalScore} PTS</span>
                 </div>
+                <DailyPercentile performance={1 / (1 + (guesses.length - 1) / 3)} />
                 <button
                   onClick={() => window.location.reload()}
                   className="w-full mt-1 py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
