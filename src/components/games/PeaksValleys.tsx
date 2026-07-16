@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { PEAKS_ENTRIES, type PeaksEntry, type PeaksCategory } from "@/data/peaksValleys";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededShuffle } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -186,12 +188,7 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button
-          onClick={onExit}
-          className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[9px] text-arcade-neon-green neon-text-green tracking-widest">
           PEAKS &amp; VALLEYS
         </h1>
@@ -267,12 +264,14 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
                 <span className="font-mono text-sm text-white text-right">{ptr}</span>
               </div>
               <DailyPercentile performance={Math.min(1, score / 1500)} />
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
-              >
-                PLAY AGAIN
-              </button>
+              <EndScreenActions
+                slug="peaks-valleys"
+                gameTitle="PEAKS & VALLEYS"
+                score={score}
+                performance={Math.min(1, score / 1500)}
+                squares={"🟩".repeat(Math.min(ptr, 10)) + "🟥"}
+                onExit={onExit}
+              />
             </div>
           </div>
         )}
@@ -296,12 +295,14 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
                 </span>
               </div>
               <DailyPercentile performance={1} />
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
-              >
-                PLAY AGAIN
-              </button>
+              <EndScreenActions
+                slug="peaks-valleys"
+                gameTitle="PEAKS & VALLEYS"
+                score={score}
+                performance={1}
+                squares={"🟩".repeat(10)}
+                onExit={onExit}
+              />
             </div>
           </div>
         )}

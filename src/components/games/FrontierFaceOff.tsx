@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowLeft, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature, neighbors } from "topojson-client";
 import { COUNTRIES, COUNTRY_BY_NUMERIC } from "@/data/countries";
@@ -9,6 +9,8 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -170,14 +172,14 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
           </p>
           <DailyPercentile performance={0.6 * (correct / TOTAL_QUESTIONS) + 0.4 * Math.min(1, score / (TOTAL_QUESTIONS * 170))} />
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-magenta text-arcade-neon-magenta hover:bg-arcade-neon-magenta hover:text-black transition-all">
-            PLAY AGAIN
-          </button>
-          <button onClick={onExit} className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all">
-            ARCADE
-          </button>
-        </div>
+        <EndScreenActions
+          slug="frontier-faceoff"
+          gameTitle="FRONTIER FACE-OFF"
+          score={score}
+          performance={0.6 * (correct / TOTAL_QUESTIONS) + 0.4 * Math.min(1, score / (TOTAL_QUESTIONS * 170))}
+          squares={"🟩".repeat(Math.min(correct, 10)) + "🟥"}
+          onExit={onExit}
+        />
       </div>
     );
   }
@@ -185,9 +187,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>

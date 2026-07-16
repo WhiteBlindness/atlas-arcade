@@ -1,12 +1,14 @@
 "use client";
 import { useState, useCallback, useMemo, useRef } from "react";
-import { ArrowLeft } from "lucide-react";
+
 import { COUNTRIES, type Country } from "@/data/countries";
-import { haversine, bearing, distanceToHex, calculateScore } from "@/lib/geo";
+import { haversine, bearing, distanceToHex, distanceHeat, calculateScore } from "@/lib/geo";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededPick } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 import { WorldMap } from "./globle/WorldMap";
 import { GuessInput } from "./globle/GuessInput";
 import { GuessHistory } from "./globle/GuessHistory";
@@ -23,14 +25,6 @@ export interface Guess {
 const ARROWS = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
 function bearingArrow(deg: number) {
   return ARROWS[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
-}
-
-function heatLabel(km: number): { text: string; color: string } {
-  if (km < 500)  return { text: "BURNING", color: "#ff4444" };
-  if (km < 1500) return { text: "HOT",     color: "#ff8800" };
-  if (km < 3000) return { text: "WARM",    color: "#ffcc00" };
-  if (km < 5000) return { text: "COOL",    color: "#44aaff" };
-  return           { text: "COLD",         color: "#6688cc" };
 }
 
 export default function GlobleGame({ onExit }: { onExit: () => void }) {
@@ -94,9 +88,7 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
         <p className="font-pixel text-[9px] text-gray-500">
           {isDaily ? `${guesses.length} ${guesses.length === 1 ? "GUESS" : "GUESSES"}` : `${guesses.length}/${MAX_GUESSES}`}
@@ -124,8 +116,8 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
                   ? `${Math.round(lastGuess.distance)} km`
                   : `${(lastGuess.distance / 1000).toFixed(1)}k km`}
               </span>
-              <span className="font-pixel text-[8px] tracking-widest whitespace-nowrap" style={{ color: heatLabel(lastGuess.distance).color }}>
-                {heatLabel(lastGuess.distance).text}
+              <span className="font-pixel text-[8px] tracking-widest whitespace-nowrap" style={{ color: distanceHeat(lastGuess.distance).hex }}>
+                {distanceHeat(lastGuess.distance).label}
               </span>
             </div>
           )}
@@ -151,12 +143,14 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
                   <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">+{finalScore} PTS</span>
                 </div>
                 <DailyPercentile performance={1 / (1 + (guesses.length - 1) / 3)} />
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full mt-1 py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
-                >
-                  PLAY AGAIN
-                </button>
+                <EndScreenActions
+                  slug="globle"
+                  gameTitle="GEORADAR"
+                  score={finalScore}
+                  performance={1 / (1 + (guesses.length - 1) / 3)}
+                  squares={guesses.map((g, i) => (i === guesses.length - 1 ? "🟩" : distanceHeat(g.distance).square)).slice(-10).join("")}
+                  onExit={onExit}
+                />
               </div>
             </div>
           )}
@@ -177,12 +171,7 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
                   <span className="font-pixel text-[8px] text-gray-500">GUESSES</span>
                   <span className="font-mono text-[11px] text-white text-right">{guesses.length} / {MAX_GUESSES}</span>
                 </div>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full mt-1 py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
-                >
-                  PLAY AGAIN
-                </button>
+                <EndScreenActions slug="globle" gameTitle="GEORADAR" score={0} performance={0} onExit={onExit} />
               </div>
             </div>
           )}
@@ -191,15 +180,20 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
         {/* Sidebar */}
         <div className="w-full lg:w-72 flex flex-col gap-3 p-4 border-t lg:border-t-0 lg:border-l border-arcade-border overflow-y-auto">
           {status === "playing" && (
-            <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />
-          )}
-          {status !== "playing" && (
-            <button
-              onClick={() => window.location.reload()}
-              className="py-2 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
-            >
-              PLAY AGAIN
-            </button>
+            <>
+              <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />
+              <div className="border border-arcade-border p-2 space-y-1">
+                <p className="font-pixel text-[7px] text-gray-600 leading-relaxed">
+                  N ↑ · ARROW POINTS TOWARD THE MYSTERY COUNTRY
+                </p>
+                <p className="font-mono text-[11px] leading-relaxed">
+                  <span style={{ color: "#ff3333" }}>■&lt;500</span>{" "}
+                  <span style={{ color: "#ff8800" }}>■&lt;2000</span>{" "}
+                  <span style={{ color: "#ffe600" }}>■&lt;5000</span>{" "}
+                  <span style={{ color: "#3b82f6" }}>■5000+ KM</span>
+                </p>
+              </div>
+            </>
           )}
           <GuessHistory guesses={guesses} />
         </div>

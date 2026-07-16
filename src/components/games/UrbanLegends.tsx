@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { ArrowLeft, Lightbulb, Building2 } from "lucide-react";
+import { Lightbulb, Building2 } from "lucide-react";
 import { CITIES, type CityEntry, type CityTier } from "@/data/cities";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { createDailyRng, seededShuffle, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 
 const ROUNDS = 6;
 // index = clues revealed (0-3): guessing blind off the skyline pays the most
@@ -132,9 +134,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
     return (
       <div className="min-h-dvh flex flex-col bg-arcade-bg">
         <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-          <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-            <ArrowLeft size={12} /> ARCADE
-          </button>
+          <GameBackButton onExit={onExit} />
           <h1 className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
           <span className="w-14" />
         </div>
@@ -169,14 +169,14 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">{ROUNDS} CITIES · {tier?.toUpperCase()}</p>
           <DailyPercentile performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0} />
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black transition-all">
-            PLAY AGAIN
-          </button>
-          <button onClick={onExit} className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all">
-            ARCADE
-          </button>
-        </div>
+        <EndScreenActions
+          slug="urban-legends"
+          gameTitle="URBAN LEGENDS"
+          score={score}
+          performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0}
+          squares={"🟩".repeat(Math.min(ROUNDS, 10))}
+          onExit={onExit}
+        />
       </div>
     );
   }
@@ -187,9 +187,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>

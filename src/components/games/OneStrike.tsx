@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { ArrowLeft, Skull } from "lucide-react";
+import { Skull } from "lucide-react";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { useGameStore } from "@/store/gameStore";
@@ -9,6 +9,8 @@ import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 
 // Sudden death: the timer shrinks as the streak grows. One wrong answer ends the run.
 const BASE_TIME = 6;
@@ -128,14 +130,14 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <DailyPercentile performance={Math.min(1, streak / 15)} />
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black transition-all">
-            PLAY AGAIN
-          </button>
-          <button onClick={onExit} className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all">
-            ARCADE
-          </button>
-        </div>
+        <EndScreenActions
+          slug="one-strike"
+          gameTitle="ONE STRIKE"
+          score={score}
+          performance={Math.min(1, streak / 15)}
+          squares={"🟩".repeat(Math.min(streak, 10)) + "🟥"}
+          onExit={onExit}
+        />
       </div>
     );
   }
@@ -145,9 +147,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">ONE STRIKE</h1>
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>

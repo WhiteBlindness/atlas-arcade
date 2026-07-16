@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import { COUNTRIES } from "@/data/countries";
@@ -11,6 +10,8 @@ import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 800;
@@ -228,14 +229,14 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">{misses} MISSED DROPS</p>
           <DailyPercentile performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)} />
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all">
-            PLAY AGAIN
-          </button>
-          <button onClick={onExit} className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all">
-            ARCADE
-          </button>
-        </div>
+        <EndScreenActions
+          slug="tectonic-snap"
+          gameTitle="TECTONIC SNAP"
+          score={score}
+          performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)}
+          squares={"🟩".repeat(Math.min(isDaily ? DAILY_PIECES : 18, 10)) + "🟥".repeat(Math.min(misses, 5))}
+          onExit={onExit}
+        />
       </div>
     );
   }
@@ -243,9 +244,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-cyan neon-text-cyan">TECTONIC SNAP</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>

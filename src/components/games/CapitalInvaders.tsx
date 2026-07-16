@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { ArrowLeft, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { splitByDifficulty, tierForLevel, type Difficulty } from "@/data/difficulty";
@@ -9,6 +9,8 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
+import { EndScreenActions } from "@/components/ui/EndScreenActions";
+import { GameBackButton } from "@/components/ui/GameBackButton";
 import { sfx } from "@/lib/sfx";
 
 const QUESTION_TIME = 7;
@@ -133,14 +135,14 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
           </p>
           <DailyPercentile performance={performance} />
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => window.location.reload()} className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-magenta text-arcade-neon-magenta hover:bg-arcade-neon-magenta hover:text-black transition-all">
-            PLAY AGAIN
-          </button>
-          <button onClick={onExit} className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all">
-            ARCADE
-          </button>
-        </div>
+        <EndScreenActions
+          slug="capital-invaders"
+          gameTitle="CAPITAL STRIKE"
+          score={score}
+          performance={performance}
+          squares={"🟩".repeat(Math.min(cleared, 10)) + (dailyComplete ? "" : "🟥")}
+          onExit={onExit}
+        />
       </div>
     );
   }
@@ -150,9 +152,7 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <button onClick={onExit} className="flex items-center gap-2 font-pixel text-[9px] text-gray-500 hover:text-white transition-colors">
-          <ArrowLeft size={12} /> ARCADE
-        </button>
+        <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>

@@ -3,14 +3,16 @@
 import { useAuthStore } from "@/store/authStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useCoinStore } from "@/store/coinStore";
+import { useDailyStore } from "@/store/dailyStore";
 import { useT, LANGS } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
-import { LogOut, User, Volume2, VolumeX } from "lucide-react";
+import { LogOut, User, Volume2, VolumeX, Flame } from "lucide-react";
 
 export function ArcadeHeader() {
   const { user, openModal, signOut } = useAuthStore();
   const { lang, sound, setLang, toggleSound } = useSettingsStore();
   const coins = useCoinStore((s) => s.coins);
+  const streak = useDailyStore((s) => s.streak);
   const t = useT();
 
   return (
@@ -40,6 +42,17 @@ export function ArcadeHeader() {
             </span>
           ))}
         </div>
+
+        {/* Daily streak */}
+        {streak > 0 && (
+          <div
+            className="flex items-center gap-1 px-2 py-1.5 border border-arcade-neon-red/60"
+            title="Daily challenge streak"
+          >
+            <Flame size={12} className="text-arcade-neon-red fill-arcade-neon-red/40" />
+            <span className="font-pixel text-[10px] text-arcade-neon-red neon-text-red">{streak}</span>
+          </div>
+        )}
 
         {/* Coin counter */}
         {coins !== null && (

@@ -10,6 +10,8 @@ import { GameCard } from "@/components/ui/GameCard";
 import { ModeSelectModal } from "@/components/ui/ModeSelectModal";
 import { OutOfCoinsModal } from "@/components/ui/OutOfCoinsModal";
 import { GameErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { DailyResultScreen } from "@/components/ui/DailyResultScreen";
+import { useDailyStore } from "@/store/dailyStore";
 import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends } from "@/components/games";
 
 interface GameEntry {
@@ -33,31 +35,47 @@ const GAMES: GameEntry[] = [
   { slug: "atlas-jackpot",    title: "ATLAS JACKPOT",     descKey: "descJackpot",   Icon: Trophy, locked: true },
 ];
 
+const GAME_COMPONENTS: Partial<Record<GameSlug, React.ComponentType<{ onExit: () => void }>>> = {
+  "globle": GlobleGame,
+  "capital-invaders": CapitalInvaders,
+  "flag-rush": FlagRush,
+  "peaks-valleys": PeaksValleys,
+  "tectonic-snap": TectonicSnap,
+  "frontier-faceoff": FrontierFaceOff,
+  "one-strike": OneStrike,
+  "urban-legends": UrbanLegends,
+};
+
 export default function HomePage() {
   const { user } = useAuthStore();
-  const { activeGame, highScores, openModeSelect, exitGame, loadHighScores } = useGameStore();
+  const { activeGame, mode, runId, highScores, openModeSelect, exitGame, loadHighScores } = useGameStore();
+  const getDailyResult = useDailyStore((s) => s.getResult);
   const t = useT();
 
   useEffect(() => {
     if (user) loadHighScores();
   }, [user, loadHighScores]);
 
-  if (activeGame === "globle")
-    return <GameErrorBoundary onExit={exitGame}><GlobleGame onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "capital-invaders")
-    return <GameErrorBoundary onExit={exitGame}><CapitalInvaders onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "flag-rush")
-    return <GameErrorBoundary onExit={exitGame}><FlagRush onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "peaks-valleys")
-    return <GameErrorBoundary onExit={exitGame}><PeaksValleys onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "tectonic-snap")
-    return <GameErrorBoundary onExit={exitGame}><TectonicSnap onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "frontier-faceoff")
-    return <GameErrorBoundary onExit={exitGame}><FrontierFaceOff onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "one-strike")
-    return <GameErrorBoundary onExit={exitGame}><OneStrike onExit={exitGame} /></GameErrorBoundary>;
-  if (activeGame === "urban-legends")
-    return <GameErrorBoundary onExit={exitGame}><UrbanLegends onExit={exitGame} /></GameErrorBoundary>;
+  if (activeGame) {
+    const Game = GAME_COMPONENTS[activeGame];
+    const title = GAMES.find((g) => g.slug === activeGame)?.title ?? activeGame.toUpperCase();
+    if (Game) {
+      // daily lockout: already finished today → straight to the result screen
+      const done = mode === "daily" ? getDailyResult(activeGame) : null;
+      return (
+        <>
+          {done ? (
+            <DailyResultScreen slug={activeGame} gameTitle={title} result={done} onExit={exitGame} />
+          ) : (
+            <GameErrorBoundary onExit={exitGame}>
+              <Game key={`${activeGame}-${runId}`} onExit={exitGame} />
+            </GameErrorBoundary>
+          )}
+          <OutOfCoinsModal />
+        </>
+      );
+    }
+  }
 
   return (
     <div className="min-h-dvh flex flex-col">

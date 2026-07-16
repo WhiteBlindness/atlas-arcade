@@ -24,13 +24,18 @@ export function bearingToArrow(deg: number): string {
   return dirs[Math.round((((deg % 360) + 360) % 360) / 45) % 8];
 }
 
+// Hot/cold distance buckets: <500km hot, <2000km warm, <5000km tepid, else cold.
+export interface HeatBucket { hex: string; label: string; square: string; }
+
+export function distanceHeat(km: number): HeatBucket {
+  if (km < 500)  return { hex: "#ff3333", label: "HOT",   square: "🟥" };
+  if (km < 2000) return { hex: "#ff8800", label: "WARM",  square: "🟧" };
+  if (km < 5000) return { hex: "#ffe600", label: "TEPID", square: "🟨" };
+  return           { hex: "#3b82f6", label: "COLD",  square: "🟦" };
+}
+
 export function distanceToHex(km: number): string {
-  if (km < 500)  return "#00ff41";
-  if (km < 2000) return "#ef4444";
-  if (km < 4000) return "#f97316";
-  if (km < 6000) return "#eab308";
-  if (km < 9000) return "#3b82f6";
-  return "#1e3a8a";
+  return distanceHeat(km).hex;
 }
 
 export function calculateScore(guessNumber: number): number {
