@@ -95,7 +95,8 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
         </p>
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden">
+      {/* Mobile: input/history on top (keyboard-safe), map below. Desktop: side-by-side. */}
+      <div className="flex-1 flex flex-col-reverse lg:flex-row lg:overflow-hidden">
         {/* Map + overlays — grows to fill the middle, map graphic covers the box */}
         <div className="flex-1 min-h-[50vh] lg:min-h-0 relative">
           <WorldMap
@@ -177,8 +178,8 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="w-full lg:w-72 flex flex-col gap-3 p-4 border-t lg:border-t-0 lg:border-l border-arcade-border overflow-y-auto">
+        {/* Sidebar — top on mobile, right on desktop */}
+        <div className="w-full lg:w-72 flex flex-col gap-3 p-4 border-b lg:border-b-0 lg:border-l border-arcade-border overflow-y-auto lg:max-h-none max-h-[45vh]">
           {status === "playing" && (
             <>
               <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />

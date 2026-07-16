@@ -73,6 +73,11 @@
   99%           { opacity: 0.99; }
 }
 
+@keyframes neonPulse {
+  0%, 100% { opacity: 1;    text-shadow: 0 0 6px currentColor; }
+  50%      { opacity: 0.55; text-shadow: 0 0 14px currentColor, 0 0 28px currentColor; }
+}
+
 /* Custom utilities */
 @utility neon-text-green   { text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff4155; }
 @utility neon-text-cyan    { text-shadow: 0 0 8px #00d4ff, 0 0 20px #00d4ff55; }

@@ -40,8 +40,9 @@ function buildRounds(tier: CityTier, rng: Rng): Round[] {
 }
 
 /**
- * City photo (Wikimedia Commons) tinted to the neon-green arcade palette.
- * Broken URL → plain glowing icon, no text.
+ * City photo (Wikimedia Commons) in its original full colour, inside a CRT-style
+ * frame. Scanlines use mix-blend-mode overlay so they texture — not tint — the
+ * photo. Broken URL → plain glowing icon, no text.
  */
 function SkylineImage({ city }: { city: CityEntry }) {
   const [failed, setFailed] = useState(false);
@@ -57,13 +58,13 @@ function SkylineImage({ city }: { city: CityEntry }) {
         src={city.imageUrl}
         alt="Mystery city"
         className="w-full h-full object-cover"
-        style={{ filter: "grayscale(1) sepia(1) hue-rotate(65deg) saturate(3.2) brightness(0.75) contrast(1.15)" }}
         onError={() => setFailed(true)}
         draggable={false}
       />
-      {/* scanline + vignette pass to sell the arcade monitor look */}
-      <div className="absolute inset-0 pointer-events-none bg-scanlines" />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, transparent 55%, #080810cc 100%)" }} />
+      {/* CRT scanlines — overlay blend keeps the photo's true colours */}
+      <div className="absolute inset-0 pointer-events-none bg-scanlines opacity-40" style={{ mixBlendMode: "overlay" }} />
+      {/* gentle vignette to seat the photo in the monitor */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, transparent 62%, #08081099 100%)" }} />
     </div>
   );
 }

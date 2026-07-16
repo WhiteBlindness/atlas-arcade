@@ -55,7 +55,7 @@ export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
         className="w-full bg-arcade-bg border border-arcade-neon-cyan shadow-neon-cyan outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600"
       />
       {filtered.length > 0 && (
-        <ul className="absolute z-20 w-full bg-arcade-surface border border-arcade-neon-cyan border-t-0 max-h-52 overflow-y-auto">
+        <ul className="absolute z-50 w-full bg-arcade-surface border border-arcade-neon-cyan border-t-0 max-h-52 overflow-y-auto shadow-lg shadow-black/60">
           {filtered.map((c, i) => (
             <li
               key={c.numeric}
