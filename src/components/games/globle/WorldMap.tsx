@@ -287,6 +287,7 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
         <svg
           viewBox={viewBox}
           className="w-full h-full"
+          preserveAspectRatio="xMidYMid slice"
           style={{ background: "#080810" }}
           aria-label="World map"
         >

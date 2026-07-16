@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
       </head>
-      <body className="font-mono antialiased min-h-screen bg-arcade-bg bg-scanlines">
+      <body className="font-mono antialiased min-h-dvh overflow-x-hidden bg-arcade-bg bg-scanlines">
         <AuthProvider>
           {children}
           <AuthModal />

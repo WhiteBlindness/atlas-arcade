@@ -6,7 +6,7 @@ import { useCoinStore } from "@/store/coinStore";
 import { useDailyStore } from "@/store/dailyStore";
 import { useT, LANGS } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
-import { LogOut, User, Volume2, VolumeX, Flame } from "lucide-react";
+import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe } from "lucide-react";
 
 export function ArcadeHeader() {
   const { user, openModal, signOut } = useAuthStore();
@@ -15,16 +15,30 @@ export function ArcadeHeader() {
   const streak = useDailyStore((s) => s.streak);
   const t = useT();
 
+  const cycleLang = () => {
+    const i = LANGS.indexOf(lang);
+    setLang(LANGS[(i + 1) % LANGS.length]);
+    sfx.click();
+  };
+
   return (
-    <header className="flex justify-between items-center gap-3 px-4 sm:px-6 py-4 border-b border-arcade-border">
+    <header className="flex justify-between items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 border-b border-arcade-border">
       <div className="shrink-0">
-        <h1 className="font-pixel text-sm text-arcade-neon-cyan neon-text-cyan tracking-widest">ATLAS</h1>
-        <p className="font-pixel text-[8px] text-gray-500 mt-1 tracking-wider">ARCADE</p>
+        <h1 className="font-pixel text-xs sm:text-sm text-arcade-neon-cyan neon-text-cyan tracking-widest">ATLAS</h1>
+        <p className="font-pixel text-[7px] sm:text-[8px] text-gray-500 mt-1 tracking-wider">ARCADE</p>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-        {/* Language switcher */}
-        <div className="flex items-center" role="group" aria-label="Language">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        {/* Language switcher — compact globe on mobile, full EN|PT|ES on desktop */}
+        <button
+          onClick={cycleLang}
+          aria-label="Change language"
+          className="sm:hidden flex items-center gap-1 text-gray-400 hover:text-arcade-neon-green transition-colors"
+        >
+          <Globe size={13} />
+          <span className="font-pixel text-[9px]">{lang.toUpperCase()}</span>
+        </button>
+        <div className="hidden sm:flex items-center" role="group" aria-label="Language">
           {LANGS.map((l, i) => (
             <span key={l} className="flex items-center">
               {i > 0 && <span className="font-pixel text-[8px] text-gray-700 px-1">|</span>}
@@ -32,9 +46,7 @@ export function ArcadeHeader() {
                 onClick={() => { setLang(l); sfx.click(); }}
                 aria-pressed={lang === l}
                 className={`font-pixel text-[9px] px-0.5 py-1 transition-colors ${
-                  lang === l
-                    ? "text-arcade-neon-green neon-text-green"
-                    : "text-gray-600 hover:text-gray-300"
+                  lang === l ? "text-arcade-neon-green neon-text-green" : "text-gray-600 hover:text-gray-300"
                 }`}
               >
                 {l.toUpperCase()}
@@ -45,26 +57,20 @@ export function ArcadeHeader() {
 
         {/* Daily streak */}
         {streak > 0 && (
-          <div
-            className="flex items-center gap-1 px-2 py-1.5 border border-arcade-neon-red/60"
-            title="Daily challenge streak"
-          >
+          <div className="flex items-center gap-1 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-red/60" title="Daily challenge streak">
             <Flame size={12} className="text-arcade-neon-red fill-arcade-neon-red/40" />
-            <span className="font-pixel text-[10px] text-arcade-neon-red neon-text-red">{streak}</span>
+            <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-red neon-text-red">{streak}</span>
           </div>
         )}
 
         {/* Coin counter */}
         {coins !== null && (
-          <div
-            className="flex items-center gap-1.5 px-2 py-1.5 border border-arcade-neon-yellow/60"
-            title="Arcade coins — 1 per Arcade Mode run, refills daily"
-          >
+          <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-yellow/60" title="Arcade coins — 1 per Arcade Mode run, refills daily">
             <span
               className="inline-block w-3 h-3 rounded-full border border-yellow-700"
               style={{ background: "radial-gradient(circle at 35% 35%, #ffe600, #b8860b)" }}
             />
-            <span className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">{coins}</span>
+            <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-yellow neon-text-yellow">{coins}</span>
           </div>
         )}
 
@@ -73,30 +79,41 @@ export function ArcadeHeader() {
           onClick={() => { toggleSound(); if (!sound) sfx.click(); }}
           title={sound ? "Sound on" : "Sound off"}
           aria-label={sound ? "Mute sound" : "Unmute sound"}
-          className={`transition-colors ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
+          className={`shrink-0 transition-colors ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
         >
           {sound ? <Volume2 size={16} /> : <VolumeX size={16} />}
         </button>
 
         {user ? (
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-gray-400 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden sm:flex items-center gap-2 text-gray-400 min-w-0">
               <User size={12} className="shrink-0" />
-              <span className="font-mono text-xs text-arcade-neon-green neon-text-green truncate">
+              <span className="font-mono text-xs text-arcade-neon-green neon-text-green truncate max-w-[120px]">
                 {user.user_metadata?.username ?? user.email?.split("@")[0]}
               </span>
             </div>
             <button onClick={signOut} className="flex items-center gap-1 text-gray-500 hover:text-arcade-neon-red transition-colors" title="Sign out">
-              <LogOut size={12} />
+              <LogOut size={14} />
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => { openModal("signin"); sfx.click(); }}
-            className="font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black transition-all whitespace-nowrap"
-          >
-            {t("insertCoin")}
-          </button>
+          <>
+            {/* Mobile: compact login icon */}
+            <button
+              onClick={() => { openModal("signin"); sfx.click(); }}
+              aria-label={t("insertCoin")}
+              className="sm:hidden shrink-0 flex items-center justify-center w-8 h-8 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black transition-all"
+            >
+              <LogIn size={14} />
+            </button>
+            {/* Desktop: full label */}
+            <button
+              onClick={() => { openModal("signin"); sfx.click(); }}
+              className="hidden sm:block font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black transition-all whitespace-nowrap"
+            >
+              {t("insertCoin")}
+            </button>
+          </>
         )}
       </div>
     </header>
