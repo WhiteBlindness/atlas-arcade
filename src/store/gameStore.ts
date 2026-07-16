@@ -28,6 +28,8 @@ interface GameStore {
   openModeSelect: (slug: GameSlug) => void;
   closeModeSelect: () => void;
   startGame: (slug: GameSlug, mode: GameMode) => void;
+  /** remount the current game (retry a failed chunk load) */
+  retryGame: () => void;
   exitGame: () => void;
   addScore: (points: number) => void;
   loadHighScores: () => Promise<void>;
@@ -44,6 +46,7 @@ export const useGameStore = create<GameStore>((set) => ({
   openModeSelect: (slug) => set({ pendingGame: slug }),
   closeModeSelect: () => set({ pendingGame: null }),
   startGame: (slug, mode) => set((s) => ({ activeGame: slug, mode, pendingGame: null, sessionScore: 0, runId: s.runId + 1 })),
+  retryGame: () => set((s) => ({ runId: s.runId + 1 })),
   exitGame: () => set({ activeGame: null, mode: null, sessionScore: 0 }),
   addScore: (points) => set((s) => ({ sessionScore: s.sessionScore + points })),
 

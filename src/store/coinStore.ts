@@ -38,6 +38,8 @@ interface CoinStore {
   spend: () => Promise<boolean>;
   /** "Watch ad" placeholder: +1 coin. */
   earnOne: () => Promise<void>;
+  /** Give back a spent coin when a paid run fails to load. */
+  refund: () => Promise<void>;
   openOutOfCoins: () => void;
   closeOutOfCoins: () => void;
   reset: () => void;
@@ -93,6 +95,11 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
       const next = await addCoin(coins);
       if (next !== null) set({ coins: next });
     }
+  },
+
+  /** Give back a spent coin — used when a paid Arcade run fails to load. */
+  refund: async () => {
+    await get().earnOne();
   },
 
   openOutOfCoins: () => set({ outOfCoinsOpen: true }),

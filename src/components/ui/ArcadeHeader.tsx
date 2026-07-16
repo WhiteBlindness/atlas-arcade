@@ -22,13 +22,13 @@ export function ArcadeHeader() {
   };
 
   return (
-    <header className="flex justify-between items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 border-b border-arcade-border">
+    <header className="flex flex-wrap justify-between items-center gap-x-2 gap-y-2 sm:gap-x-4 px-3 sm:px-6 py-3 sm:py-4 border-b border-arcade-border w-full max-w-full overflow-hidden">
       <div className="shrink-0">
         <h1 className="font-pixel text-xs sm:text-sm text-arcade-neon-cyan neon-text-cyan tracking-widest">ATLAS</h1>
         <p className="font-pixel text-[7px] sm:text-[8px] text-gray-500 mt-1 tracking-wider">ARCADE</p>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+      <div className="flex items-center flex-wrap justify-end gap-2 sm:gap-4 min-w-0">
         {/* Language switcher — compact globe on mobile, full EN|PT|ES on desktop */}
         <button
           onClick={cycleLang}

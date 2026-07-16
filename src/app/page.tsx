@@ -12,6 +12,7 @@ import { OutOfCoinsModal } from "@/components/ui/OutOfCoinsModal";
 import { GameErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { DailyResultScreen } from "@/components/ui/DailyResultScreen";
 import { useDailyStore } from "@/store/dailyStore";
+import { useCoinStore } from "@/store/coinStore";
 import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends } from "@/components/games";
 
 interface GameEntry {
@@ -48,8 +49,9 @@ const GAME_COMPONENTS: Partial<Record<GameSlug, React.ComponentType<{ onExit: ()
 
 export default function HomePage() {
   const { user } = useAuthStore();
-  const { activeGame, mode, runId, highScores, openModeSelect, exitGame, loadHighScores } = useGameStore();
+  const { activeGame, mode, runId, highScores, openModeSelect, exitGame, retryGame, loadHighScores } = useGameStore();
   const getDailyResult = useDailyStore((s) => s.getResult);
+  const refundCoin = useCoinStore((s) => s.refund);
   const t = useT();
 
   useEffect(() => {
@@ -67,7 +69,12 @@ export default function HomePage() {
           {done ? (
             <DailyResultScreen slug={activeGame} gameTitle={title} result={done} onExit={exitGame} />
           ) : (
-            <GameErrorBoundary onExit={exitGame}>
+            <GameErrorBoundary
+              onExit={exitGame}
+              paid={mode === "arcade"}
+              onRefund={refundCoin}
+              onRetry={retryGame}
+            >
               <Game key={`${activeGame}-${runId}`} onExit={exitGame} />
             </GameErrorBoundary>
           )}
