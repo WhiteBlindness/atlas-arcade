@@ -145,7 +145,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
               <button
                 key={t}
                 onClick={() => startTier(t)}
-                className={`flex flex-col gap-3 p-6 bg-arcade-surface border ${border} hover:scale-105 transition-transform text-left`}
+                className={`flex flex-col gap-3 p-6 bg-arcade-surface border ${border} hover:scale-105 active:scale-95 transition-transform text-left`}
               >
                 <span className={`font-pixel text-xs ${color}`}>{label}</span>
                 <span className="font-mono text-sm text-gray-500">{desc}</span>
@@ -161,7 +161,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
   // ——— Done ———
   if (status === "done") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
         <div className="border border-arcade-neon-green p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
@@ -226,7 +226,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
                 key={city.id}
                 onClick={() => handleAnswer(city.id)}
                 disabled={isAnswered}
-                className={`py-3 px-3 border font-mono text-sm transition-all disabled:cursor-default ${cls}`}
+                className={`py-3 px-3 border font-mono text-sm active:scale-95 transition-all disabled:cursor-default ${cls}`}
               >
                 {city.name}
               </button>
@@ -245,7 +245,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
             {!isAnswered && cluesShown < 3 && tier && (
               <button
                 onClick={revealClue}
-                className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow transition-colors"
+                className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow active:scale-95 transition-all min-h-[44px]"
               >
                 <Lightbulb size={10} />
                 REVEAL CLUE (DROPS TO {Math.round(CLUE_POINTS[cluesShown + 1] * TIER_MULTIPLIER[tier])} PTS)

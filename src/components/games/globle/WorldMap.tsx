@@ -269,7 +269,7 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
     <div
       ref={wrapRef}
       className="relative w-full h-full overflow-hidden touch-none select-none"
-      style={{ minHeight: 260 }}
+      style={{ minHeight: 260, overscrollBehavior: "contain" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
@@ -307,19 +307,19 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
         </svg>
       </div>
 
-      {/* zoom controls */}
+      {/* zoom controls — 44px tap targets */}
       <div className="absolute top-2 right-2 flex flex-col gap-1">
         <button
           onClick={() => applyZoom(1.4)}
           aria-label="Zoom in"
-          className="w-8 h-8 font-pixel text-[11px] border border-arcade-border bg-black/70 text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan transition-colors"
+          className="w-11 h-11 flex items-center justify-center font-pixel text-[13px] border border-arcade-border bg-black/70 text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-90 transition-all"
         >
           +
         </button>
         <button
           onClick={() => applyZoom(1 / 1.4)}
           aria-label="Zoom out"
-          className="w-8 h-8 font-pixel text-[11px] border border-arcade-border bg-black/70 text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan transition-colors"
+          className="w-11 h-11 flex items-center justify-center font-pixel text-[13px] border border-arcade-border bg-black/70 text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-90 transition-all"
         >
           −
         </button>
@@ -327,7 +327,7 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
           <button
             onClick={() => setView(IDENTITY)}
             aria-label="Reset zoom"
-            className="w-8 h-8 font-pixel text-[9px] border border-arcade-border bg-black/70 text-gray-400 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow transition-colors"
+            className="w-11 h-11 flex items-center justify-center font-pixel text-[11px] border border-arcade-border bg-black/70 text-gray-400 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow active:scale-90 transition-all"
           >
             ⤢
           </button>

@@ -30,7 +30,7 @@ export function ShareButton({ gameTitle, score, performance, squares }: Props) {
   return (
     <button
       onClick={share}
-      className={`flex items-center justify-center gap-2 py-2 px-4 font-pixel text-[9px] border transition-all ${
+      className={`flex items-center justify-center gap-2 min-h-[44px] py-2 px-4 font-pixel text-[9px] border active:scale-95 transition-all ${
         copied
           ? "border-arcade-neon-green text-arcade-neon-green"
           : "border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black"

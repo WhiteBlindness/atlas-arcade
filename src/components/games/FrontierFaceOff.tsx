@@ -162,7 +162,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
 
   if (status === "done") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
@@ -249,7 +249,7 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
                     key={numeric}
                     onClick={() => handleAnswer(numeric)}
                     disabled={isAnswered}
-                    className={`py-3 px-3 border font-mono text-sm transition-all disabled:cursor-default ${cls}`}
+                    className={`py-3 px-3 border font-mono text-sm active:scale-95 transition-all disabled:cursor-default ${cls}`}
                   >
                     {COUNTRY_BY_NUMERIC[numeric]?.name}
                   </button>

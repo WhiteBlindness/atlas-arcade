@@ -33,9 +33,9 @@ export function ArcadeHeader() {
         <button
           onClick={cycleLang}
           aria-label="Change language"
-          className="sm:hidden flex items-center gap-1 text-gray-400 hover:text-arcade-neon-green transition-colors"
+          className="sm:hidden flex items-center gap-1 min-h-[40px] px-1 text-gray-400 hover:text-arcade-neon-green active:scale-90 transition-all"
         >
-          <Globe size={13} />
+          <Globe size={15} />
           <span className="font-pixel text-[9px]">{lang.toUpperCase()}</span>
         </button>
         <div className="hidden sm:flex items-center" role="group" aria-label="Language">
@@ -79,9 +79,9 @@ export function ArcadeHeader() {
           onClick={() => { toggleSound(); if (!sound) sfx.click(); }}
           title={sound ? "Sound on" : "Sound off"}
           aria-label={sound ? "Mute sound" : "Unmute sound"}
-          className={`shrink-0 transition-colors ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
+          className={`shrink-0 w-10 h-10 flex items-center justify-center active:scale-90 transition-all ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
         >
-          {sound ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          {sound ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>
 
         {user ? (
@@ -102,9 +102,9 @@ export function ArcadeHeader() {
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
               aria-label={t("insertCoin")}
-              className="sm:hidden shrink-0 flex items-center justify-center w-8 h-8 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black transition-all"
+              className="sm:hidden shrink-0 flex items-center justify-center w-10 h-10 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 transition-all"
             >
-              <LogIn size={14} />
+              <LogIn size={16} />
             </button>
             {/* Desktop: full label */}
             <button

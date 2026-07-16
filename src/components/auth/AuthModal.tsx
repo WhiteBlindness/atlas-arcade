@@ -50,8 +50,8 @@ export function AuthModal() {
           <h2 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-wider">
             {tab === "signin" ? "INSERT COIN" : "NEW PLAYER"}
           </h2>
-          <button onClick={closeModal} className="text-gray-500 hover:text-white transition-colors">
-            <X size={16} />
+          <button onClick={closeModal} aria-label="Close" className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-500 hover:text-white active:scale-90 transition-all">
+            <X size={18} />
           </button>
         </div>
 
@@ -60,7 +60,7 @@ export function AuthModal() {
             <button
               key={t}
               onClick={() => { setTab(t); setError(""); }}
-              className={`flex-1 py-2 font-pixel text-[10px] transition-all ${
+              className={`flex-1 min-h-[44px] py-2 font-pixel text-[10px] active:brightness-125 transition-all ${
                 tab === t ? "bg-arcade-neon-cyan text-black" : "text-gray-500 hover:text-white"
               }`}
             >
@@ -83,7 +83,7 @@ export function AuthModal() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="mt-2 min-h-[44px] py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? <span className="animate-blink">PROCESSING...</span> : tab === "signin" ? "INSERT COIN" : "CREATE"}
           </button>

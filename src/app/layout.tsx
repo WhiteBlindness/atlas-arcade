@@ -10,6 +10,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#080810",
+  width: "device-width",
+  initialScale: 1,
+  // reflow the UI when the mobile keyboard opens (GeoRadar input)
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -19,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
       </head>
-      <body className="font-mono antialiased min-h-dvh overflow-x-hidden bg-arcade-bg bg-scanlines">
+      <body className="font-mono antialiased min-h-dvh overflow-x-hidden overscroll-y-none bg-arcade-bg bg-scanlines">
         <AuthProvider>
           {children}
           <AuthModal />

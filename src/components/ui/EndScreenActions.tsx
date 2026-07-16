@@ -47,7 +47,7 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
           <ShareButton gameTitle={gameTitle} score={score} performance={performance} squares={squares} />
           <button
             onClick={onExit}
-            className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all"
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 transition-all"
           >
             {t("backToGames")}
           </button>
@@ -56,13 +56,13 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
         <>
           <button
             onClick={playAgain}
-            className="py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black transition-all"
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 transition-all"
           >
             {t("playAgainCoin")}
           </button>
           <button
             onClick={onExit}
-            className="py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white transition-all"
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 transition-all"
           >
             {t("backToArcade")}
           </button>

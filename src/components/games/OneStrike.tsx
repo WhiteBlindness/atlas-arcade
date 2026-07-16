@@ -122,7 +122,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
 
   if (status === "done") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">ONE STRIKE</h1>
         <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
           <Skull size={28} className="mx-auto text-arcade-neon-red" />
@@ -207,7 +207,7 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
                 key={country.numeric}
                 onClick={() => handleAnswer(country.numeric)}
                 disabled={isAnswered}
-                className={`py-3 px-3 border font-mono text-sm transition-all disabled:cursor-default ${cls}`}
+                className={`py-3 px-3 border font-mono text-sm active:scale-95 transition-all disabled:cursor-default ${cls}`}
               >
                 {label}
               </button>

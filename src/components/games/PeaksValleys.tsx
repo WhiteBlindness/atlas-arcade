@@ -107,13 +107,13 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
         <div className="relative flex flex-col gap-3 w-full max-w-[260px]">
           <button
             onClick={onHigher}
-            className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-green text-arcade-neon-green neon-text-green hover:bg-arcade-neon-green hover:text-black transition-all tracking-widest"
+            className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-green text-arcade-neon-green neon-text-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all tracking-widest"
           >
             <TrendingUp size={12} /> HIGHER
           </button>
           <button
             onClick={onLower}
-            className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-red text-arcade-neon-red neon-text-red hover:bg-arcade-neon-red hover:text-black transition-all tracking-widest"
+            className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-red text-arcade-neon-red neon-text-red hover:bg-arcade-neon-red hover:text-black active:scale-95 transition-all tracking-widest"
           >
             <TrendingDown size={12} /> LOWER
           </button>

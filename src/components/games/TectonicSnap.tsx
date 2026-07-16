@@ -221,7 +221,7 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
 
   if (phase === "done") {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan">TECTONIC SNAP</h1>
         <div className="border border-arcade-neon-cyan p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>

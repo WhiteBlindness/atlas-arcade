@@ -42,14 +42,19 @@ export function GameCard({ slug, title, description, Icon, highScore, comingSoon
     onPlay();
   };
 
+  const inert = comingSoon || locked;
+
   return (
-    <div
-      className={`relative flex flex-col gap-4 p-5 bg-arcade-surface border transition-all duration-200 group ${
+    <button
+      type="button"
+      disabled={inert}
+      aria-label={title}
+      className={`relative flex flex-col gap-4 p-5 bg-arcade-surface border text-left transition-all duration-200 group ${
         locked
           ? "border-arcade-neon-yellow cursor-default"
           : comingSoon
           ? "border-arcade-border opacity-60 cursor-default"
-          : `${a.border} ${a.hover} cursor-pointer`
+          : `${a.border} ${a.hover} cursor-pointer active:scale-[0.98] active:brightness-125`
       }`}
       style={locked ? { boxShadow: "0 0 10px #ffe60066, 0 0 28px #ffe60022, inset 0 0 18px #ffe60011" } : undefined}
       onClick={handleClick}
@@ -92,6 +97,6 @@ export function GameCard({ slug, title, description, Icon, highScore, comingSoon
           {t("play")}
         </div>
       )}
-    </div>
+    </button>
   );
 }

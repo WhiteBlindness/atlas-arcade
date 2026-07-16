@@ -123,7 +123,7 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
     const dailyComplete = isDaily && cleared >= DAILY_LEVELS;
     const performance = 0.6 * (cleared / DAILY_LEVELS) + 0.4 * Math.min(1, score / (DAILY_LEVELS * 170));
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center gap-6 bg-arcade-bg px-4">
+      <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-gray-500">
@@ -199,7 +199,7 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
                 key={country.numeric}
                 onClick={() => handleAnswer(country.numeric)}
                 disabled={isAnswered}
-                className={`py-4 px-3 border font-mono text-sm transition-all disabled:cursor-default ${cls}`}
+                className={`py-4 px-3 border font-mono text-sm active:scale-95 transition-all disabled:cursor-default ${cls}`}
               >
                 {country.name}
               </button>

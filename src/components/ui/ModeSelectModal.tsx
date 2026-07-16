@@ -36,9 +36,9 @@ export function ModeSelectModal() {
         <button
           onClick={closeModeSelect}
           aria-label={t("cancel")}
-          className="absolute top-3 right-3 text-gray-600 hover:text-white transition-colors"
+          className="absolute top-1 right-1 w-11 h-11 flex items-center justify-center text-gray-600 hover:text-white active:scale-90 transition-all"
         >
-          <X size={14} />
+          <X size={16} />
         </button>
 
         <p className="font-pixel text-[11px] text-arcade-neon-cyan neon-text-cyan tracking-widest text-center">
@@ -48,7 +48,7 @@ export function ModeSelectModal() {
         {/* Daily */}
         <button
           onClick={playDaily}
-          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-green text-left hover:bg-arcade-neon-green/10 hover:shadow-neon-green transition-all group"
+          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-green text-left hover:bg-arcade-neon-green/10 hover:shadow-neon-green active:scale-95 transition-all group"
         >
           <span className="flex items-center justify-between">
             <span className="flex items-center gap-2 font-pixel text-[10px] text-arcade-neon-green neon-text-green">
@@ -65,7 +65,7 @@ export function ModeSelectModal() {
         {/* Arcade */}
         <button
           onClick={playArcade}
-          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-yellow text-left hover:bg-arcade-neon-yellow/10 hover:shadow-neon-yellow transition-all"
+          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-yellow text-left hover:bg-arcade-neon-yellow/10 hover:shadow-neon-yellow active:scale-95 transition-all"
         >
           <span className="flex items-center justify-between">
             <span className="flex items-center gap-2 font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">
@@ -85,7 +85,7 @@ export function ModeSelectModal() {
 
         <button
           onClick={closeModeSelect}
-          className="w-full py-2 font-pixel text-[8px] text-gray-600 hover:text-white transition-colors"
+          className="w-full min-h-[44px] py-2 font-pixel text-[8px] text-gray-600 hover:text-white active:scale-95 transition-all"
         >
           {t("cancel")}
         </button>

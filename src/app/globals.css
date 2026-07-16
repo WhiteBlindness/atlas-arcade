@@ -103,6 +103,11 @@ html {
   color: white;
 }
 
+/* Kill the 300ms mobile tap delay on every interactive control */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
 body::before {
   content: "";
   position: fixed;
