@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import type { Country } from "@/data/countries";
+import { COUNTRY_ALIASES } from "@/data/countryAliases";
 
 interface Props {
   countries: Country[];
@@ -9,21 +10,51 @@ interface Props {
   onGuess: (country: Country) => void;
 }
 
+// strip accents + lowercase for forgiving matches
+const norm = (s: string) =>
+  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+
 export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
   const [query, setQuery] = useState("");
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filtered =
-    query.length >= 2
-      ? countries
-          .filter(
-            (c) =>
-              !guessedCodes.has(c.numeric) &&
-              c.name.toLowerCase().includes(query.toLowerCase())
-          )
-          .slice(0, 8)
-      : [];
+  const aliasIndex = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const [k, v] of Object.entries(COUNTRY_ALIASES)) m.set(norm(k), v);
+    return m;
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = norm(query);
+    if (q.length < 2) return [];
+
+    const available = countries.filter((c) => !guessedCodes.has(c.numeric));
+    const scored: { c: Country; rank: number }[] = [];
+
+    // exact alias hit (e.g. "usa" -> United States) ranks first
+    const aliasTarget = aliasIndex.get(q);
+
+    for (const c of available) {
+      const name = norm(c.name);
+      let rank = -1;
+      if (aliasTarget && norm(aliasTarget) === name) rank = 0;
+      else if (name === q) rank = 1;
+      else if (name.startsWith(q)) rank = 2;
+      else if (name.includes(q)) rank = 3;
+      else {
+        // partial alias: query is a prefix of an alias that maps to this country
+        for (const [ak, av] of aliasIndex) {
+          if (ak.startsWith(q) && norm(av) === name) { rank = 4; break; }
+        }
+      }
+      if (rank >= 0) scored.push({ c, rank });
+    }
+
+    return scored.sort((a, b) => a.rank - b.rank || a.c.name.localeCompare(b.c.name))
+      .slice(0, 8)
+      .map((s) => s.c);
+  }, [query, countries, guessedCodes, aliasIndex]);
 
   const select = useCallback(
     (country: Country) => {

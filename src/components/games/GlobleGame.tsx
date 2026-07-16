@@ -9,9 +9,12 @@ import { gameRng, seededPick } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
-import { WorldMap } from "./globle/WorldMap";
 import { GuessInput } from "./globle/GuessInput";
 import { GuessHistory } from "./globle/GuessHistory";
+import { WorldMap } from "./globle/WorldMap";
+
+// NOTE: MapLibre globe (WorldMapGlobe) is in progress — projection + dark
+// theming + heat overlay still need work before it replaces the SVG map.
 
 const MAX_GUESSES = 6;
 
