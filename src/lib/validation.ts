@@ -30,19 +30,21 @@ export function isValidUsername(name: string): boolean {
   return name.trim().length >= 3;
 }
 
-/** First failing rule as a user-facing message, or null when the form is valid. */
+/** i18n key of the first failing rule, or null when the form is valid. */
+export type AuthErrorCode = "errEmail" | "errUsername" | "errPasswordPolicy" | "errPasswordEmpty";
+
 export function firstAuthError(
   tab: "signin" | "signup",
   email: string,
   password: string,
   username: string,
-): string | null {
-  if (!isValidEmail(email)) return "Enter a valid email address.";
+): AuthErrorCode | null {
+  if (!isValidEmail(email)) return "errEmail";
   if (tab === "signup") {
-    if (!isValidUsername(username)) return "Username must be at least 3 characters.";
-    if (!passwordStrength(password).valid) return "Password needs 8+ characters, an uppercase letter and a number.";
+    if (!isValidUsername(username)) return "errUsername";
+    if (!passwordStrength(password).valid) return "errPasswordPolicy";
   } else if (!password) {
-    return "Enter your password.";
+    return "errPasswordEmpty";
   }
   return null;
 }

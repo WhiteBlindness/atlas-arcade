@@ -12,6 +12,7 @@ import { gameRng, seededShuffle, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { useT } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -130,6 +131,7 @@ export default function TectonicSnap({ onExit, isMashupMode, onMashupComplete, m
 }
 
 function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   const [phase, setPhase] = useState<"loading" | "play" | "round-done" | "done">("loading");
   const [roundIdx, setRoundIdx] = useState(0);
@@ -232,7 +234,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan">TECTONIC SNAP</h1>
         <div className="border border-arcade-neon-cyan p-10 text-center space-y-3">
-          <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{misses} MISSED DROPS</p>
           <DailyPercentile performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)} />

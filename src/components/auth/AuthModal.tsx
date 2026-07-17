@@ -5,56 +5,66 @@ import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/store/toastStore";
 import { firstAuthError, isValidEmail, passwordStrength } from "@/lib/validation";
+import { useT } from "@/lib/i18n";
 import { X } from "lucide-react";
 
 type View = "signin" | "signup" | "reset";
 
 export function AuthModal() {
   const { modalOpen, closeModal } = useAuthStore();
+  const t = useT();
   const [view, setView] = useState<View>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!modalOpen) return null;
 
-  const reset = () => { setEmail(""); setPassword(""); setUsername(""); };
-  const switchView = (v: View) => { setView(v); };
+  const clearFields = () => { setEmail(""); setPassword(""); setUsername(""); setError(null); };
+  // Clearing fields on tab swap avoids leaking a half-typed password between views.
+  const switchView = (v: View) => { setView(v); clearFields(); };
 
   const strength = passwordStrength(password);
+  const strengthLabel = strength.score === 3 ? t("strengthStrong") : strength.score === 2 ? t("strengthMedium") : t("strengthWeak");
+  // Signup CREATE stays disabled until the password meets the policy (blocks WEAK).
+  const signupBlocked = view === "signup" && !strength.valid;
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
-    if (m.includes("already registered") || m.includes("already in use")) return "Email already in use.";
-    if (m.includes("invalid login") || m.includes("invalid credentials")) return "Invalid credentials.";
-    if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts — wait a moment.";
-    if (m.includes("confirm")) return "Please confirm your email first.";
+    if (m.includes("already registered") || m.includes("already in use")) return t("errEmailInUse");
+    if (m.includes("invalid login") || m.includes("invalid credentials")) return t("errInvalidCreds");
+    if (m.includes("rate limit") || m.includes("too many")) return t("errRateLimit");
+    if (m.includes("confirm")) return t("errConfirmFirst");
     return msg;
   };
+
+  const fail = (msg: string) => { setError(msg); toast.error(msg); };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return; // anti-spam: ignore double submits
+    setError(null);
 
     if (view === "reset") {
-      if (!isValidEmail(email)) { toast.error("Enter a valid email address."); return; }
+      if (!isValidEmail(email)) { fail(t("errEmail")); return; }
       setLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: typeof window !== "undefined" ? `${window.location.origin}/reset` : undefined,
       });
       setLoading(false);
-      if (error) toast.error(humanizeError(error.message));
-      else { toast.success("Password reset link sent — check your email."); switchView("signin"); }
+      if (err) fail(humanizeError(err.message));
+      else { toast.success(t("toastResetSent")); switchView("signin"); }
       return;
     }
 
-    const validationError = firstAuthError(view, email, password, username);
-    if (validationError) { toast.error(validationError); return; }
+    const code = firstAuthError(view, email, password, username);
+    if (code) { fail(t(code)); return; }
 
     setLoading(true);
     if (view === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { error: err } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -63,18 +73,18 @@ export function AuthModal() {
         },
       });
       setLoading(false);
-      if (error) toast.error(humanizeError(error.message));
-      else { toast.success("Check your email to confirm your account!"); reset(); closeModal(); }
+      if (err) fail(humanizeError(err.message));
+      else { toast.success(t("toastConfirmEmail")); clearFields(); closeModal(); }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
-      if (error) toast.error(humanizeError(error.message));
-      else { toast.success("Welcome back, player!"); reset(); closeModal(); }
+      if (err) fail(humanizeError(err.message));
+      else { toast.success(t("toastWelcome")); clearFields(); closeModal(); }
     }
   };
 
-  const title = view === "reset" ? "RESET PASSWORD" : view === "signin" ? "INSERT COIN" : "NEW PLAYER";
-  const submitLabel = view === "reset" ? "SEND RESET LINK" : view === "signin" ? "INSERT COIN" : "CREATE";
+  const title = view === "reset" ? t("authTitleReset") : view === "signin" ? t("authTitleSignin") : t("authTitleSignup");
+  const submitLabel = view === "reset" ? t("authBtnReset") : view === "signin" ? t("authBtnSignin") : t("authBtnCreate");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" onClick={closeModal}>
@@ -84,7 +94,7 @@ export function AuthModal() {
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-wider">{title}</h2>
-          <button onClick={closeModal} aria-label="Close" className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-500 hover:text-white active:scale-90 transition-all">
+          <button onClick={closeModal} aria-label={t("cancel")} className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-500 hover:text-white active:scale-90 transition-all">
             <X size={18} />
           </button>
         </div>
@@ -100,7 +110,7 @@ export function AuthModal() {
                   view === v ? "bg-arcade-neon-cyan text-black" : "text-gray-500 hover:text-white"
                 }`}
               >
-                {v === "signin" ? "SIGN IN" : "SIGN UP"}
+                {v === "signin" ? t("authTabSignin") : t("authTabSignup")}
               </button>
             ))}
           </div>
@@ -108,16 +118,16 @@ export function AuthModal() {
 
         <form onSubmit={handleAuth} className="flex flex-col gap-3">
           {view === "signup" && (
-            <ArcadeInput placeholder="USERNAME" value={username} onChange={setUsername} autoComplete="username" disabled={loading} />
+            <ArcadeInput placeholder={t("authPhUsername")} value={username} onChange={(v) => { setUsername(v); setError(null); }} autoComplete="username" disabled={loading} />
           )}
-          <ArcadeInput placeholder="EMAIL" type="email" value={email} onChange={setEmail} autoComplete="email" disabled={loading} />
+          <ArcadeInput placeholder={t("authPhEmail")} type="email" value={email} onChange={(v) => { setEmail(v); setError(null); }} autoComplete="email" disabled={loading} />
 
           {view !== "reset" && (
             <ArcadeInput
-              placeholder="PASSWORD"
+              placeholder={t("authPhPassword")}
               type="password"
               value={password}
-              onChange={setPassword}
+              onChange={(v) => { setPassword(v); setError(null); }}
               autoComplete={view === "signup" ? "new-password" : "current-password"}
               disabled={loading}
             />
@@ -135,17 +145,22 @@ export function AuthModal() {
                   />
                 ))}
               </div>
-              <span className="font-pixel text-[7px]" style={{ color: strength.color }}>{strength.label}</span>
+              <span className="font-pixel text-[7px]" style={{ color: strength.color }}>{strengthLabel}</span>
             </div>
+          )}
+
+          {/* Inline validation / server error — clear text, not just a border tint */}
+          {error && (
+            <p role="alert" className="font-mono text-[13px] text-arcade-neon-red leading-snug">{error}</p>
           )}
 
           <button
             type="submit"
-            disabled={loading}
-            className="mt-2 min-h-[44px] py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all disabled:cursor-not-allowed"
+            disabled={loading || signupBlocked}
+            className="mt-2 min-h-[44px] py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
-              <span className="text-arcade-neon-green" style={{ animation: "neonPulse 1s ease-in-out infinite" }}>LOADING...</span>
+              <span className="text-arcade-neon-green" style={{ animation: "neonPulse 1s ease-in-out infinite" }}>{t("authLoading")}</span>
             ) : submitLabel}
           </button>
         </form>
@@ -158,7 +173,7 @@ export function AuthModal() {
               onClick={() => switchView("reset")}
               className="font-pixel text-[8px] text-gray-500 hover:text-arcade-neon-cyan active:scale-95 transition-all"
             >
-              FORGOT PASSWORD?
+              {t("authForgot")}
             </button>
           )}
           {view === "reset" && (
@@ -167,7 +182,7 @@ export function AuthModal() {
               onClick={() => switchView("signin")}
               className="font-pixel text-[8px] text-gray-500 hover:text-arcade-neon-cyan active:scale-95 transition-all"
             >
-              ← BACK TO SIGN IN
+              {t("authBack")}
             </button>
           )}
         </div>

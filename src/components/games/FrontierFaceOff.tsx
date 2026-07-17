@@ -12,6 +12,7 @@ import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
+import { useT } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 import { MashupQuiz } from "./MashupShell";
 
@@ -98,6 +99,7 @@ export default function FrontierFaceOff({ onExit, isMashupMode, onMashupComplete
 }
 
 function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   // daily: 10 questions, 3 lives. arcade: endless survival, one mistake ends it.
   const isDaily = useGameStore((s) => s.mode) === "daily";
@@ -179,7 +181,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
-          <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
             {correct}{isDaily ? ` / ${TOTAL_QUESTIONS}` : ""} BORDERS NAILED

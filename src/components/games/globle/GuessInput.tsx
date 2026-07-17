@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import type { Country } from "@/data/countries";
 import { COUNTRY_ALIASES } from "@/data/countryAliases";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   countries: Country[];
@@ -15,6 +16,7 @@ const norm = (s: string) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +82,7 @@ export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
         value={query}
         onChange={(e) => { setQuery(e.target.value); setIdx(0); }}
         onKeyDown={handleKeyDown}
-        placeholder="TYPE COUNTRY NAME..."
+        placeholder={t("typeCountry")}
         autoComplete="off"
         autoFocus
         className="w-full bg-arcade-bg border border-arcade-neon-cyan shadow-neon-cyan outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600"

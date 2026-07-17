@@ -10,6 +10,7 @@ import { createDailyRng, createSeededRng, seededShuffle, seededPick, type Rng } 
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { useT } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 import { MashupQuiz } from "./MashupShell";
 
@@ -76,6 +77,7 @@ export default function UrbanLegends({ onExit, isMashupMode, onMashupComplete, m
 }
 
 function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   const [tier, setTier] = useState<CityTier | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
@@ -171,7 +173,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
         <h1 className="font-pixel text-xs text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
         <div className="border border-arcade-neon-green p-10 text-center space-y-3">
-          <p className="font-pixel text-[8px] text-gray-500">FINAL SCORE</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{ROUNDS} CITIES · {tier?.toUpperCase()}</p>
           <DailyPercentile performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0} />

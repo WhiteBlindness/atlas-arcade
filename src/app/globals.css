@@ -16,8 +16,9 @@
   --color-arcade-neon-yellow:  #ffe600;
   --color-arcade-neon-red:     #ff3333;
 
-  /* Fonts */
-  --font-pixel: "Press Start 2P", monospace;
+  /* Fonts. VT323 sits before monospace so accented uppercase (Í, Ã, Ç) that
+     Press Start 2P lacks fall back to a retro glyph instead of tofu. */
+  --font-pixel: "Press Start 2P", "VT323", monospace;
   --font-mono:  "VT323", monospace;
 
   /* Neon box shadows */
