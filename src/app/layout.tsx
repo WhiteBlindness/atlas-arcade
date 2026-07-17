@@ -23,6 +23,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        {/* Apply persisted theme before paint to avoid a light/dark flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var s=JSON.parse(localStorage.getItem('atlas-arcade-settings'));if(s&&s.state&&s.state.theme==='light')document.documentElement.classList.add('light')}catch(e){}`,
+          }}
+        />
       </head>
       <body className="font-mono antialiased min-h-dvh overflow-x-hidden overscroll-y-none bg-arcade-bg bg-scanlines">
         <AuthProvider>

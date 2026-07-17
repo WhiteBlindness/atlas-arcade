@@ -6,11 +6,11 @@ import { useCoinStore } from "@/store/coinStore";
 import { useDailyStore } from "@/store/dailyStore";
 import { useT, LANGS } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
-import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe, Gem } from "lucide-react";
+import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe, Gem, Sun, Moon } from "lucide-react";
 
 export function ArcadeHeader() {
   const { user, openModal, signOut } = useAuthStore();
-  const { lang, sound, setLang, toggleSound } = useSettingsStore();
+  const { lang, sound, theme, setLang, toggleSound, toggleTheme } = useSettingsStore();
   const coins = useCoinStore((s) => s.coins);
   const premiumTokens = useCoinStore((s) => s.premiumTokens);
   const streak = useDailyStore((s) => s.streak);
@@ -82,6 +82,16 @@ export function ArcadeHeader() {
             <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-green neon-text-green">{premiumTokens}</span>
           </div>
         )}
+
+        {/* Theme toggle */}
+        <button
+          onClick={() => { toggleTheme(); sfx.click(); }}
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all"
+        >
+          {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+        </button>
 
         {/* Audio toggle */}
         <button

@@ -108,6 +108,41 @@ html {
   color: white;
 }
 
+/* ── Light mode ──────────────────────────────────────────────────────────────
+   Retro arcade "on paper": crisp light background, dark grid/borders, neon
+   accents darkened for readability. Toggled via a `.light` class on <html>. */
+html.light {
+  --color-arcade-bg:           #f4f3ec;
+  --color-arcade-surface:      #e7e6db;
+  --color-arcade-border:       #3a3a4d;
+  --color-arcade-neon-green:   #0a8f34;
+  --color-arcade-neon-cyan:    #0782a6;
+  --color-arcade-neon-magenta: #b30ab3;
+  --color-arcade-neon-yellow:  #9a7d00;
+  --color-arcade-neon-red:     #cc1f1f;
+  --shadow-neon-green:   0 0 6px #0a8f3455;
+  --shadow-neon-cyan:    0 0 6px #0782a655;
+  --shadow-neon-magenta: 0 0 6px #b30ab355;
+  --shadow-neon-yellow:  0 0 6px #9a7d0055;
+  background-color: #f4f3ec;
+  color: #16161f;
+}
+
+/* Neon glow text is illegible on a light background — flatten it. */
+html.light .neon-text-green,
+html.light .neon-text-cyan,
+html.light .neon-text-magenta,
+html.light .neon-text-yellow,
+html.light .neon-text-red { text-shadow: none; }
+
+/* Primary white text becomes ink on light surfaces … */
+html.light .text-white { color: #16161f; }
+/* … but stays white inside dark scrim panels/overlays (modals, HUD, win/lose). */
+html.light [class*="bg-black/"] .text-white { color: #ffffff; }
+
+/* The fixed scanline overlay reads as a faint grid on light — soften it. */
+html.light body::before { opacity: 0.5; }
+
 /* Kill the 300ms mobile tap delay on every interactive control */
 button, a, [role="button"] {
   touch-action: manipulation;
