@@ -96,16 +96,19 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, gameOver }
     map.flyTo({ center: [c.lng, c.lat], zoom: 4.5, duration: 2500, essential: true });
   }, [zoomTarget, ready]);
 
+  const DEFAULT_LAND = "rgba(13,27,42,0.55)";
   const fillPaint = useMemo(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const match: any[] = ["match", ["get", "id"]];
+    const cases: any[] = [];
     for (const [num, hex] of Object.entries(colorMap)) {
       if (mysteryNumeric !== undefined && Number(num) === mysteryNumeric) continue;
-      match.push(Number(num), hex);
+      cases.push(Number(num), hex);
     }
-    if (mysteryNumeric !== undefined) match.push(mysteryNumeric, "#00ff41");
-    match.push("rgba(13,27,42,0.55)");
-    return match;
+    if (mysteryNumeric !== undefined) cases.push(mysteryNumeric, "#00ff41");
+    // A "match" with zero cases (["match", input, default]) is INVALID and makes
+    // MapLibre throw → black canvas. With no guesses yet, use a plain colour.
+    if (cases.length === 0) return DEFAULT_LAND;
+    return ["match", ["get", "id"], ...cases, DEFAULT_LAND];
   }, [colorMap, mysteryNumeric]);
 
   const fillLayer: FillLayerSpecification = useMemo(

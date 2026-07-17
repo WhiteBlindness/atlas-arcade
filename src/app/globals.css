@@ -2,6 +2,9 @@
 @import "@fontsource/press-start-2p";
 @import "@fontsource/vt323";
 
+/* Class-based dark strategy: `dark:` utilities apply under html.dark (default). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Arcade color palette */
   --color-arcade-bg:           #080810;

@@ -19,14 +19,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: the inline script below mutates <html> classes
+    // before hydration (theme), which would otherwise trip a hydration mismatch.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         {/* Apply persisted theme before paint to avoid a light/dark flash. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var s=JSON.parse(localStorage.getItem('atlas-arcade-settings'));if(s&&s.state&&s.state.theme==='light')document.documentElement.classList.add('light')}catch(e){}`,
+            __html: `try{var s=JSON.parse(localStorage.getItem('atlas-arcade-settings'));var t=(s&&s.state&&s.state.theme)||'dark';document.documentElement.classList.add(t);}catch(e){document.documentElement.classList.add('dark');}`,
           }}
         />
       </head>

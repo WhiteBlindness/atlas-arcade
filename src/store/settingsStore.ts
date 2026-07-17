@@ -16,10 +16,13 @@ interface SettingsStore {
   toggleTheme: () => void;
 }
 
-/** Reflect the theme on <html> (Tailwind `.light` variant) — client only. */
+/** Reflect the theme on <html> — client only. Manages both classes so the
+ *  `.light` overrides and any `.dark` variant utilities stay in sync. */
 function applyTheme(theme: Theme) {
   if (typeof document === "undefined") return;
-  document.documentElement.classList.toggle("light", theme === "light");
+  const el = document.documentElement;
+  el.classList.toggle("light", theme === "light");
+  el.classList.toggle("dark", theme === "dark");
 }
 
 export const useSettingsStore = create<SettingsStore>()(
