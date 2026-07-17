@@ -8,10 +8,11 @@ import { CONTINENT_ROUNDS } from "@/data/continents";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
-import { gameRng, seededShuffle, type Rng } from "@/lib/daily";
+import { gameRng, seededShuffle, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import type { MashupProps } from "./mashup";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 800;
@@ -121,7 +122,14 @@ function buildDailyRound(world: any, rng: Rng): RoundData {
   return { label: "MYSTERY COUNTRIES", fixed, pieces: seededShuffle(missing, rng) };
 }
 
-export default function TectonicSnap({ onExit }: { onExit: () => void }) {
+export default function TectonicSnap({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <TectonicSnapMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <TectonicSnapStandalone onExit={onExit} />;
+}
+
+function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const [phase, setPhase] = useState<"loading" | "play" | "round-done" | "done">("loading");
   const [roundIdx, setRoundIdx] = useState(0);
@@ -344,6 +352,135 @@ export default function TectonicSnap({ onExit }: { onExit: () => void }) {
             className="w-full h-full"
             style={{ filter: "drop-shadow(0 0 8px #00d4ff)" }}
           >
+            <path d={dragPiece.d} fill="#00d4ff" opacity={0.9} />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Atlas Jackpot round: place the daily mystery countries; one miss = fail ─────
+function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const [round, setRound] = useState<RoundData | null>(null);
+  const [placed, setPlaced] = useState<Set<number>>(new Set());
+  const [dragId, setDragId] = useState<number | null>(null);
+  const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
+  const [flash, setFlash] = useState<"ok" | "bad" | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const doneRef = useRef(false);
+
+  useEffect(() => {
+    let alive = true;
+    fetchWorld().then((world) => {
+      if (!alive) return;
+      setRound(buildDailyRound(world, createSeededRng(mashupSeed ?? "tectonic-snap")));
+    });
+    return () => { alive = false; };
+  }, [mashupSeed]);
+
+  const finish = useCallback((success: boolean) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    setTimeout(() => onMashupComplete!(success), 500);
+  }, [onMashupComplete]);
+
+  const handleDrop = useCallback((clientX: number, clientY: number) => {
+    if (dragId === null || !round || !svgRef.current) { setDragId(null); return; }
+    const piece = round.pieces.find((p) => p.id === dragId);
+    setDragId(null);
+    if (!piece) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * W;
+    const y = ((clientY - rect.top) / rect.height) * H;
+    const tolerance = Math.max(24, Math.max(piece.bw, piece.bh) / 2 + 12);
+    const dist = Math.hypot(x - piece.cx, y - piece.cy);
+    if (dist <= tolerance) {
+      const next = new Set(placed).add(piece.id);
+      setPlaced(next);
+      setFlash("ok");
+      sfx.snap();
+      if (next.size === round.pieces.length) finish(true);
+    } else {
+      setFlash("bad");
+      sfx.wrong();
+      finish(false); // a single mistake ends the boss-rush round
+    }
+    setTimeout(() => setFlash(null), 350);
+  }, [dragId, round, placed, finish]);
+
+  useEffect(() => {
+    if (dragId === null) return;
+    const move = (e: PointerEvent) => setDragPos({ x: e.clientX, y: e.clientY });
+    const up = (e: PointerEvent) => handleDrop(e.clientX, e.clientY);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+  }, [dragId, handleDrop]);
+
+  if (!round) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="font-pixel text-sm text-arcade-neon-cyan animate-blink">LOADING...</p>
+      </div>
+    );
+  }
+
+  const dragPiece = round.pieces.find((p) => p.id === dragId);
+  const trayPieces = round.pieces.filter((p) => !placed.has(p.id));
+
+  return (
+    <div className="flex-1 flex flex-col px-3 py-3 gap-3 max-w-4xl mx-auto w-full">
+      <div className="flex items-center justify-between">
+        <p className="font-pixel text-[9px] text-arcade-neon-green neon-text-green tracking-widest">{round.label}</p>
+        <p className="font-pixel text-[8px] text-gray-500">{placed.size}/{round.pieces.length} PLACED · NO MISSES</p>
+      </div>
+
+      <div
+        className={`relative border transition-colors ${flash === "ok" ? "border-arcade-neon-green" : flash === "bad" ? "border-arcade-neon-red" : "border-arcade-border"}`}
+        style={flash === "ok" ? { boxShadow: "0 0 24px #00ff4177" } : flash === "bad" ? { boxShadow: "0 0 24px #ff333377" } : undefined}
+      >
+        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full touch-none select-none" style={{ background: "#080810" }} aria-label="World map">
+          {round.fixed.map(({ id, d }) => (
+            <path key={id} d={d} fill="#13233d" stroke="#0f2a44" strokeWidth={0.8} />
+          ))}
+          {round.pieces.map((p) =>
+            placed.has(p.id) ? (
+              <path key={p.id} d={p.d} fill="#00d4ff" stroke="#080810" strokeWidth={0.8} opacity={0.9} />
+            ) : (
+              <path key={p.id} d={p.d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
+            )
+          )}
+        </svg>
+      </div>
+
+      <div className="border border-arcade-border p-2">
+        <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG PIECES ONTO THE MAP</p>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {trayPieces.map((p) => {
+            const pad = Math.max(p.bw, p.bh) * 0.08 + 2;
+            return (
+              <button
+                key={p.id}
+                onPointerDown={(e) => { e.preventDefault(); setDragId(p.id); setDragPos({ x: e.clientX, y: e.clientY }); }}
+                className={`shrink-0 w-20 h-20 border bg-arcade-surface touch-none cursor-grab transition-colors ${dragId === p.id ? "border-arcade-neon-cyan opacity-40" : "border-arcade-border hover:border-arcade-neon-cyan"}`}
+                title={p.name}
+              >
+                <svg viewBox={`${p.bx - pad} ${p.by - pad} ${p.bw + pad * 2} ${p.bh + pad * 2}`} className="w-full h-full pointer-events-none">
+                  <path d={p.d} fill="#00d4ff" opacity={0.85} />
+                </svg>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {dragPiece && dragId !== null && (
+        <div className="fixed z-50 pointer-events-none w-24 h-24" style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)" }}>
+          <svg viewBox={`${dragPiece.bx - 4} ${dragPiece.by - 4} ${dragPiece.bw + 8} ${dragPiece.bh + 8}`} className="w-full h-full" style={{ filter: "drop-shadow(0 0 8px #00d4ff)" }}>
             <path d={dragPiece.d} fill="#00d4ff" opacity={0.9} />
           </svg>
         </div>

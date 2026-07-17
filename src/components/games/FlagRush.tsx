@@ -7,11 +7,13 @@ import { COUNTRY_META } from "@/data/countryMeta";
 import { splitByDifficulty, tierForLevel, type Difficulty } from "@/data/difficulty";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
+import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { sfx } from "@/lib/sfx";
+import type { MashupProps } from "./mashup";
+import { MashupQuiz } from "./MashupShell";
 
 const QUESTION_TIME = 8;
 const DAILY_LEVELS = 10;
@@ -28,7 +30,14 @@ interface FlagQuestion {
 
 const flagUrl = (alpha2: string) => `https://flagcdn.com/w160/${alpha2}.webp`;
 
-export default function FlagRush({ onExit }: { onExit: () => void }) {
+export default function FlagRush({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <FlagRushMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <FlagRushStandalone onExit={onExit} />;
+}
+
+function FlagRushStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const mode = useGameStore((s) => s.mode);
   const isDaily = mode === "daily";
@@ -248,5 +257,32 @@ export default function FlagRush({ onExit }: { onExit: () => void }) {
         <p className="font-pixel text-[7px] text-gray-700 tracking-widest">ONE MISTAKE ENDS THE RUN</p>
       </div>
     </div>
+  );
+}
+
+// ── Atlas Jackpot round: identify one flag, correct = success ───────────────────
+function FlagRushMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
+  const [q] = useState(() => {
+    const rng = createSeededRng(mashupSeed ?? "flag-rush");
+    const correct = seededPick(pool, rng);
+    const distractors = seededShuffle(pool.filter((c) => c.numeric !== correct.numeric), rng).slice(0, 3);
+    return { correct, alpha2: COUNTRY_META[correct.numeric].alpha2, options: seededShuffle([correct, ...distractors], rng) };
+  });
+
+  const prompt = (
+    <div className="border-2 border-arcade-neon-yellow shadow-neon-yellow">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={flagUrl(q.alpha2)} alt="Flag" width={320} height={213} className="block w-72 max-w-full" loading="eager" decoding="async" />
+    </div>
+  );
+
+  return (
+    <MashupQuiz
+      prompt={prompt}
+      options={q.options.map((c) => ({ key: c.numeric, label: c.name }))}
+      correctKey={q.correct.numeric}
+      onComplete={onMashupComplete!}
+    />
   );
 }

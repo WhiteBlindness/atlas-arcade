@@ -6,10 +6,12 @@ import { CITIES, type CityEntry, type CityTier } from "@/data/cities";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
-import { createDailyRng, seededShuffle, type Rng } from "@/lib/daily";
+import { createDailyRng, createSeededRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import type { MashupProps } from "./mashup";
+import { MashupQuiz } from "./MashupShell";
 
 const ROUNDS = 6;
 // index = clues revealed (0-3): guessing blind off the skyline pays the most
@@ -39,16 +41,15 @@ function buildRounds(tier: CityTier, rng: Rng): Round[] {
   }));
 }
 
-/**
- * City photo (Wikimedia Commons) in its original full colour, inside a CRT-style
- * frame. Scanlines use mix-blend-mode overlay so they texture — not tint — the
- * photo. Broken URL → plain glowing icon, no text.
- */
 function SkylineImage({ city }: { city: CityEntry }) {
   const [failed, setFailed] = useState(false);
 
   if (failed) {
-    return <Building2 size={56} className="text-arcade-neon-green/40" aria-label="Skyline unavailable" />;
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Building2 size={56} className="text-arcade-neon-green/40" aria-label="Skyline unavailable" />
+      </div>
+    );
   }
 
   return (
@@ -61,15 +62,20 @@ function SkylineImage({ city }: { city: CityEntry }) {
         onError={() => setFailed(true)}
         draggable={false}
       />
-      {/* CRT scanlines — overlay blend keeps the photo's true colours */}
-      <div className="absolute inset-0 pointer-events-none bg-scanlines opacity-40" style={{ mixBlendMode: "overlay" }} />
-      {/* gentle vignette to seat the photo in the monitor */}
+      {/* subtle vignette — no colour tint */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at center, transparent 62%, #08081099 100%)" }} />
     </div>
   );
 }
 
-export default function UrbanLegends({ onExit }: { onExit: () => void }) {
+export default function UrbanLegends({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <UrbanLegendsMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <UrbanLegendsStandalone onExit={onExit} />;
+}
+
+function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const [tier, setTier] = useState<CityTier | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
@@ -204,7 +210,7 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
         {/* Skyline silhouette — the star of the show */}
         <div
           key={current.city.id}
-          className="w-full h-44 sm:h-52 border border-arcade-neon-green shadow-neon-green bg-arcade-surface p-3 flex items-center justify-center"
+          className="w-full h-44 sm:h-52 border border-arcade-neon-green shadow-neon-green overflow-hidden"
           style={{ animation: "fadeUp 0.25s ease-out" }}
         >
           <SkylineImage city={current.city} />
@@ -275,5 +281,40 @@ export default function UrbanLegends({ onExit }: { onExit: () => void }) {
         )}
       </div>
     </div>
+  );
+}
+
+// ── Atlas Jackpot round: one city, one guess, no clues, correct = success ───────
+function UrbanLegendsMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const [round] = useState(() => {
+    const rng = createSeededRng(mashupSeed ?? "urban-legends");
+    const tier = seededPick(["easy", "medium", "hard"] as const, rng);
+    const pool = CITIES.filter((c) => c.tier === tier);
+    const city = seededPick(pool, rng);
+    const options = seededShuffle(
+      [city, ...seededShuffle(pool.filter((c) => c.id !== city.id), rng).slice(0, 3)],
+      rng,
+    );
+    return { city, options };
+  });
+
+  const prompt = (
+    <div className="w-full h-44 sm:h-52 border border-arcade-neon-green shadow-neon-green overflow-hidden">
+      <SkylineImage city={round.city} />
+    </div>
+  );
+
+  return (
+    <MashupQuiz
+      prompt={
+        <div className="w-full flex flex-col items-center gap-4">
+          {prompt}
+          <p className="font-pixel text-[9px] text-gray-400 tracking-[0.3em]">WHICH CITY IS THIS?</p>
+        </div>
+      }
+      options={round.options.map((c) => ({ key: c.id, label: c.name }))}
+      correctKey={round.city.id}
+      onComplete={onMashupComplete!}
+    />
   );
 }

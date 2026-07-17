@@ -45,3 +45,8 @@ export const UrbanLegends = dynamic(() => import("./UrbanLegends"), {
   loading: () => <Loader color="text-arcade-neon-green" />,
   ssr: false,
 });
+
+export const AtlasJackpot = dynamic(() => import("./AtlasJackpot"), {
+  loading: () => <Loader color="text-arcade-neon-yellow" />,
+  ssr: false,
+});

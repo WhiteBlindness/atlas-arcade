@@ -11,7 +11,9 @@ import { sfx } from "@/lib/sfx";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
-import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
+import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
+import type { MashupProps } from "./mashup";
+import { MashupQuiz } from "./MashupShell";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 480;
@@ -68,9 +70,14 @@ function buildQuestions(world: any, rng: Rng, count: number): BorderQuestion[] {
       .filter((n) => n !== targetId && !neighborIds.includes(n));
     const distractors = seededShuffle(wrongPool, rng).slice(0, 3);
 
-    // local projection fitted around target + neighbors
-    const group = { type: "FeatureCollection" as const, features: [feats[idx], ...neighborIdx.map((n) => feats[n])] };
-    const projection = geoNaturalEarth1().fitExtent([[12, 12], [W - 12, H - 12]], group);
+    // Fit the projection to the TARGET country (not the whole group) so it always
+    // fills the display prominently — otherwise a country with far-flung neighbors
+    // (Russia, Brazil) shrinks to a dot. Target fills the central ~60%; neighbours
+    // spill into the surrounding margin as context.
+    const projection = geoNaturalEarth1().fitExtent(
+      [[W * 0.2, H * 0.2], [W * 0.8, H * 0.8]],
+      feats[idx],
+    );
     const pathGen = geoPath(projection);
 
     return {
@@ -83,7 +90,14 @@ function buildQuestions(world: any, rng: Rng, count: number): BorderQuestion[] {
   });
 }
 
-export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
+export default function FrontierFaceOff({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <FrontierFaceOffMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <FrontierFaceOffStandalone onExit={onExit} />;
+}
+
+function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   // daily: 10 questions, 3 lives. arcade: endless survival, one mistake ends it.
   const isDaily = useGameStore((s) => s.mode) === "daily";
@@ -266,5 +280,56 @@ export default function FrontierFaceOff({ onExit }: { onExit: () => void }) {
         </>
       )}
     </div>
+  );
+}
+
+// ── Atlas Jackpot round: name one border neighbour, correct = success ───────────
+function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const [q, setQ] = useState<BorderQuestion | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetchWorld().then((world) => {
+      if (!alive) return;
+      const [built] = buildQuestions(world, createSeededRng(mashupSeed ?? "frontier-faceoff"), 1);
+      setQ(built ?? null);
+    });
+    return () => { alive = false; };
+  }, [mashupSeed]);
+
+  if (!q) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="font-pixel text-sm text-arcade-neon-magenta animate-blink">LOADING...</p>
+      </div>
+    );
+  }
+
+  const prompt = (
+    <div className="w-full flex flex-col items-center gap-4">
+      <div className="w-full border border-arcade-neon-magenta shadow-neon-magenta">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ background: "#080810" }} aria-label="Border map">
+          {q.neighborPaths.map((d, i) => (
+            <path key={i} d={d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
+          ))}
+          <path d={q.targetPath} fill="#ff00ff" opacity={0.85} stroke="#080810" strokeWidth={1} />
+        </svg>
+      </div>
+      <p className="font-pixel text-[10px] text-center text-white leading-relaxed">
+        WHO BORDERS{" "}
+        <span className="text-arcade-neon-magenta neon-text-magenta">
+          {COUNTRY_BY_NUMERIC[q.target]?.name.toUpperCase()}
+        </span>?
+      </p>
+    </div>
+  );
+
+  return (
+    <MashupQuiz
+      prompt={prompt}
+      options={q.options.map((n) => ({ key: n, label: COUNTRY_BY_NUMERIC[n]?.name ?? "?" }))}
+      correctKey={q.answer}
+      onComplete={onMashupComplete!}
+    />
   );
 }

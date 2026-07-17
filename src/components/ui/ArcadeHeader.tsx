@@ -6,12 +6,13 @@ import { useCoinStore } from "@/store/coinStore";
 import { useDailyStore } from "@/store/dailyStore";
 import { useT, LANGS } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
-import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe } from "lucide-react";
+import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe, Gem } from "lucide-react";
 
 export function ArcadeHeader() {
   const { user, openModal, signOut } = useAuthStore();
   const { lang, sound, setLang, toggleSound } = useSettingsStore();
   const coins = useCoinStore((s) => s.coins);
+  const premiumTokens = useCoinStore((s) => s.premiumTokens);
   const streak = useDailyStore((s) => s.streak);
   const t = useT();
 
@@ -71,6 +72,14 @@ export function ArcadeHeader() {
               style={{ background: "radial-gradient(circle at 35% 35%, #ffe600, #b8860b)" }}
             />
             <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-yellow neon-text-yellow">{coins}</span>
+          </div>
+        )}
+
+        {/* Premium token counter — accounts only */}
+        {premiumTokens !== null && (
+          <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-green/60" title={t("premiumTokensTip")}>
+            <Gem size={12} className="text-arcade-neon-green" />
+            <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-green neon-text-green">{premiumTokens}</span>
           </div>
         )}
 

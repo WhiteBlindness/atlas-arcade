@@ -7,10 +7,12 @@ import { COUNTRY_META } from "@/data/countryMeta";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
-import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
+import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import type { MashupProps } from "./mashup";
+import { MashupQuiz } from "./MashupShell";
 
 // Sudden death: the timer shrinks as the streak grows. One wrong answer ends the run.
 const BASE_TIME = 6;
@@ -52,7 +54,14 @@ function makeQuestion(pool: Country[], rng: Rng): Question {
   };
 }
 
-export default function OneStrike({ onExit }: { onExit: () => void }) {
+export default function OneStrike({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <OneStrikeMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <OneStrikeStandalone onExit={onExit} />;
+}
+
+function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
   // persistent rng: in daily mode the whole question sequence is shared globally
@@ -222,5 +231,34 @@ export default function OneStrike({ onExit }: { onExit: () => void }) {
         )}
       </div>
     </div>
+  );
+}
+
+// ── Atlas Jackpot round: one question, correct = success ────────────────────────
+function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
+  const [q] = useState(() => makeQuestion(pool, createSeededRng(mashupSeed ?? "one-strike")));
+
+  const prompt = q.kind === "flag" ? (
+    <div className="border-2 border-arcade-neon-yellow shadow-neon-yellow">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={flagUrl(q.alpha2!)} alt="Flag" width={320} height={213} className="block w-72 max-w-full" loading="eager" />
+    </div>
+  ) : (
+    <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">
+      <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">
+        {q.kind === "capital" ? "CAPITAL OF?" : "CAPITAL IS?"}
+      </p>
+      <h2 className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow leading-tight">{q.prompt}</h2>
+    </div>
+  );
+
+  return (
+    <MashupQuiz
+      prompt={prompt}
+      options={q.options.map((c, i) => ({ key: c.numeric, label: q.optionLabels ? q.optionLabels[i] : c.name }))}
+      correctKey={q.correct.numeric}
+      onComplete={onMashupComplete!}
+    />
   );
 }

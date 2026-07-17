@@ -1,20 +1,26 @@
 "use client";
 import { useState, useCallback, useMemo, useRef } from "react";
+import dynamic from "next/dynamic";
 
 import { COUNTRIES, type Country } from "@/data/countries";
+import { COUNTRY_META } from "@/data/countryMeta";
+import { COUNTRY_CLUES, formatPopulation } from "@/data/countryClues";
 import { haversine, bearing, distanceToHex, distanceHeat, calculateScore } from "@/lib/geo";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededPick } from "@/lib/daily";
+import { gameRng, seededPick, createSeededRng } from "@/lib/daily";
+import { sfx } from "@/lib/sfx";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import type { MashupProps } from "./mashup";
 import { GuessInput } from "./globle/GuessInput";
 import { GuessHistory } from "./globle/GuessHistory";
-import { WorldMap } from "./globle/WorldMap";
 
-// NOTE: MapLibre globe (WorldMapGlobe) is in progress — projection + dark
-// theming + heat overlay still need work before it replaces the SVG map.
+const WorldMap = dynamic(
+  () => import("./globle/WorldMapGlobe").then((m) => ({ default: m.WorldMapGlobe })),
+  { ssr: false, loading: () => <div className="w-full h-full bg-arcade-bg" /> }
+);
 
 const MAX_GUESSES = 6;
 
@@ -30,7 +36,14 @@ function bearingArrow(deg: number) {
   return ARROWS[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
 }
 
-export default function GlobleGame({ onExit }: { onExit: () => void }) {
+export default function GlobleGame({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <GlobleMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <GlobleStandalone onExit={onExit} />;
+}
+
+function GlobleStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   // daily: unlimited tries, scored by how few guesses were needed
   const isDaily = useGameStore((s) => s.mode) === "daily";
@@ -98,14 +111,15 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
         </p>
       </div>
 
-      {/* Mobile: input/history on top (keyboard-safe), map below. Desktop: side-by-side. */}
-      <div className="flex-1 flex flex-col-reverse lg:flex-row lg:overflow-hidden">
+      {/* Mobile (< md): sidebar at top, map below. Desktop (md+): side-by-side. */}
+      <div className="flex-1 flex flex-col-reverse md:flex-row md:overflow-hidden">
         {/* Map + overlays — grows to fill the middle, map graphic covers the box */}
-        <div className="flex-1 min-h-[50vh] lg:min-h-0 relative">
+        <div className="flex-1 min-h-[40vh] md:min-h-0 relative">
           <WorldMap
             colorMap={colorMap}
             mysteryNumeric={status !== "playing" ? mystery.numeric : undefined}
             zoomTarget={zoomTarget}
+            gameOver={status !== "playing"}
           />
 
           {/* In-game stats HUD */}
@@ -181,10 +195,11 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
           )}
         </div>
 
-        {/* Sidebar — top on mobile, right on desktop */}
-        <div className="w-full lg:w-72 flex flex-col gap-3 p-4 border-b lg:border-b-0 lg:border-l border-arcade-border overflow-y-auto lg:max-h-none max-h-[45vh]">
+        {/* Sidebar — top on mobile (flex-col-reverse hoists this above map), right on desktop */}
+        <div className="w-full md:w-72 flex flex-col border-b md:border-b-0 md:border-l border-arcade-border">
+          {/* Input zone: no overflow so autocomplete dropdown is never clipped */}
           {status === "playing" && (
-            <>
+            <div className="p-4 flex flex-col gap-3">
               <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />
               <div className="border border-arcade-border p-2 space-y-1">
                 <p className="font-pixel text-[7px] text-gray-600 leading-relaxed">
@@ -197,10 +212,102 @@ export default function GlobleGame({ onExit }: { onExit: () => void }) {
                   <span style={{ color: "#3b82f6" }}>■5000+ KM</span>
                 </p>
               </div>
-            </>
+            </div>
           )}
-          <GuessHistory guesses={guesses} />
+          {/* History zone: scrollable, height-capped on mobile */}
+          <div className="overflow-y-auto max-h-40 md:max-h-none md:flex-1 px-4 pb-4">
+            <GuessHistory guesses={guesses} />
+          </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Atlas Jackpot round: one guess must land within 2000 km, with the 3D globe ──
+// for geographic context. Clues get harder as the ladder climbs:
+//   L1-5  → Capital, Hemisphere, Initial   (3 easy clues)
+//   L6-10 → Population, Region             (2 harder clues)
+//   L11-15 → Fun Fact only                 (1 cryptic clue)
+const MASHUP_WIN_KM = 2000;
+
+// Mystery pool is restricted to well-known countries with full clue data so
+// every difficulty tier stays fair (no obscure country behind a single fun fact).
+const CLUE_POOL = COUNTRIES.filter((c) => COUNTRY_CLUES[c.numeric]);
+
+function cluesForLevel(mystery: Country, level: number): string[] {
+  const clue = COUNTRY_CLUES[mystery.numeric];
+  if (level >= 11) return [`Fun fact: ${clue.funFact}`];
+  if (level >= 6) return [`Population: ${formatPopulation(clue.population)}`, `Region: ${clue.region}`];
+  const capital = COUNTRY_META[mystery.numeric]?.capital;
+  const ns = mystery.lat >= 0 ? "Northern" : "Southern";
+  const ew = mystery.lng >= 0 ? "Eastern" : "Western";
+  return [
+    capital ? `Capital: ${capital}` : `Starts with "${mystery.name[0]}"`,
+    `Hemisphere: ${ns} & ${ew}`,
+    `Starts with "${mystery.name[0]}"`,
+  ];
+}
+
+function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps) {
+  const level = mashupLevel ?? 1;
+  const [mystery] = useState<Country>(() => seededPick(CLUE_POOL, createSeededRng(mashupSeed ?? "globle")));
+  const [result, setResult] = useState<{ country: Country; km: number; success: boolean } | null>(null);
+
+  const clues = useMemo(() => cluesForLevel(mystery, level), [mystery, level]);
+
+  const handleGuess = useCallback((country: Country) => {
+    if (result) return;
+    const km = haversine(mystery.lat, mystery.lng, country.lat, country.lng);
+    const success = km <= MASHUP_WIN_KM;
+    setResult({ country, km, success });
+    if (success) sfx.correct(); else sfx.wrong();
+    setTimeout(() => onMashupComplete!(success), 2200);
+  }, [result, mystery, onMashupComplete]);
+
+  const tierLabel = level >= 11 ? "HARD" : level >= 6 ? "MEDIUM" : "EASY";
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* 3D globe — geographic context. Reveals the target + zooms after the guess. */}
+      <div className="relative h-[34vh] min-h-[200px] border-b border-arcade-border shrink-0">
+        <WorldMap
+          colorMap={result ? { [result.country.numeric]: "#00d4ff" } : {}}
+          mysteryNumeric={result ? mystery.numeric : undefined}
+          zoomTarget={result ? result.country.numeric : undefined}
+          gameOver={!!result}
+        />
+      </div>
+
+      <div className="flex-1 overflow-y-auto flex flex-col items-center gap-4 px-4 py-4 max-w-md mx-auto w-full">
+        <p className="font-pixel text-[9px] text-arcade-neon-cyan neon-text-cyan tracking-widest">
+          GUESS WITHIN {MASHUP_WIN_KM} KM · <span className="text-gray-500">{tierLabel}</span>
+        </p>
+
+        <div className="w-full border border-arcade-neon-cyan shadow-neon-cyan p-4 space-y-2">
+          <p className="font-pixel text-[7px] text-gray-500 tracking-widest mb-1">CLUES</p>
+          {clues.map((c, i) => (
+            <p key={i} className="font-mono text-sm text-gray-300 leading-relaxed">
+              <span className="text-arcade-neon-cyan mr-2">{i + 1}▸</span>{c}
+            </p>
+          ))}
+        </div>
+
+        {!result ? (
+          <div className="w-full">
+            <GuessInput countries={COUNTRIES} guessedCodes={new Set()} onGuess={handleGuess} />
+          </div>
+        ) : (
+          <div className="w-full text-center space-y-2" style={{ animation: "fadeUp 0.25s ease-out" }}>
+            <p className={`font-pixel text-[11px] tracking-widest ${result.success ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
+              {result.success ? "CLOSE ENOUGH!" : "TOO FAR!"}
+            </p>
+            <p className="font-mono text-sm text-white">
+              {result.country.name} — {Math.round(result.km).toLocaleString()} km away
+            </p>
+            <p className="font-mono text-[13px] text-gray-500">It was {mystery.name}</p>
+          </div>
+        )}
       </div>
     </div>
   );

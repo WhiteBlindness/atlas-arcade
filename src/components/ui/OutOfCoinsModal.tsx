@@ -1,10 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { X, Clapperboard, Gem } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Clapperboard, Gem, Clock } from "lucide-react";
 import { useCoinStore } from "@/store/coinStore";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
+
+/** Formats ms as "1H 23M" (>1h) or "23M 04S". */
+function fmtCountdown(ms: number): string {
+  const total = Math.ceil(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return h > 0 ? `${h}H ${pad(m)}M` : `${m}M ${pad(s)}S`;
+}
+
+/** Live regen countdown — ticks every second. */
+function TokenTimer() {
+  const msToNext = useCoinStore((s) => s.msToNext);
+  const [, force] = useState(0);
+  const t = useT();
+  useEffect(() => {
+    const id = setInterval(() => force((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const ms = msToNext();
+  if (ms === null) {
+    return <p className="font-pixel text-[8px] text-gray-500 leading-relaxed">{t("dailyTokenCap")}</p>;
+  }
+  return (
+    <p className="flex items-center justify-center gap-2 font-pixel text-[9px] text-arcade-neon-cyan neon-text-cyan">
+      <Clock size={11} /> {t("nextTokenIn").replace("{X}", fmtCountdown(ms))}
+    </p>
+  );
+}
 
 export function OutOfCoinsModal() {
   const { outOfCoinsOpen, closeOutOfCoins, earnOne } = useCoinStore();
@@ -52,6 +82,11 @@ export function OutOfCoinsModal() {
         </p>
         <p className="font-pixel text-2xl">🪙</p>
         <p className="font-mono text-sm text-gray-400 leading-relaxed">{t("outOfCoinsDesc")}</p>
+
+        {/* Regen countdown — when the next free token arrives */}
+        <div className="border border-arcade-border py-2">
+          <TokenTimer />
+        </div>
 
         <button
           onClick={watchAd}

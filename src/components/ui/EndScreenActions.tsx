@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
 import { useDailyStore } from "@/store/dailyStore";
 import { useCoinStore } from "@/store/coinStore";
+import { ATLAS_JACKPOT_COST } from "@/lib/supabase/coins";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
 import { ShareButton } from "./ShareButton";
@@ -28,8 +29,10 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
   const startGame = useGameStore((s) => s.startGame);
   const markCompleted = useDailyStore((s) => s.markCompleted);
   const spend = useCoinStore((s) => s.spend);
+  const spendTokens = useCoinStore((s) => s.spendTokens);
   const t = useT();
   const isDaily = mode === "daily";
+  const isJackpot = slug === "atlas-jackpot";
 
   useEffect(() => {
     if (isDaily) markCompleted(slug, { score, performance, squares });
@@ -37,7 +40,9 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
 
   const playAgain = async () => {
     sfx.click();
-    if (await spend()) startGame(slug, "arcade");
+    // Atlas Jackpot re-entry costs the full token price (daily first, then premium).
+    const paid = isJackpot ? await spendTokens(ATLAS_JACKPOT_COST) : await spend();
+    if (paid) startGame(slug, "arcade");
   };
 
   return (
@@ -58,7 +63,7 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
             onClick={playAgain}
             className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 transition-all"
           >
-            {t("playAgainCoin")}
+            {isJackpot ? t("playAgainTokens").replace("{X}", String(ATLAS_JACKPOT_COST)) : t("playAgainCoin")}
           </button>
           <button
             onClick={onExit}

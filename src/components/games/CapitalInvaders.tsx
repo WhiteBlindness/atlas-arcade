@@ -7,11 +7,13 @@ import { COUNTRY_META } from "@/data/countryMeta";
 import { splitByDifficulty, tierForLevel, type Difficulty } from "@/data/difficulty";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
+import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { sfx } from "@/lib/sfx";
+import type { MashupProps } from "./mashup";
+import { MashupQuiz } from "./MashupShell";
 
 const QUESTION_TIME = 7;
 const DAILY_LEVELS = 10;
@@ -26,7 +28,14 @@ interface Question {
   tier: Difficulty;
 }
 
-export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
+export default function CapitalInvaders({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <CapitalInvadersMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <CapitalInvadersStandalone onExit={onExit} />;
+}
+
+function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const mode = useGameStore((s) => s.mode);
   const isDaily = mode === "daily";
@@ -215,5 +224,32 @@ export default function CapitalInvaders({ onExit }: { onExit: () => void }) {
         <p className="font-pixel text-[7px] text-gray-700 tracking-widest">ONE MISTAKE ENDS THE RUN</p>
       </div>
     </div>
+  );
+}
+
+// ── Atlas Jackpot round: match capital → country, correct = success ─────────────
+function CapitalInvadersMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
+  const [q] = useState(() => {
+    const rng = createSeededRng(mashupSeed ?? "capital-invaders");
+    const correct = seededPick(pool, rng);
+    const distractors = seededShuffle(pool.filter((c) => c.numeric !== correct.numeric), rng).slice(0, 3);
+    return { correct, capital: COUNTRY_META[correct.numeric].capital, options: seededShuffle([correct, ...distractors], rng) };
+  });
+
+  const prompt = (
+    <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
+      <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">CAPITAL OF?</p>
+      <h2 className="font-pixel text-lg text-arcade-neon-magenta neon-text-magenta leading-tight">{q.capital}</h2>
+    </div>
+  );
+
+  return (
+    <MashupQuiz
+      prompt={prompt}
+      options={q.options.map((c) => ({ key: c.numeric, label: c.name }))}
+      correctKey={q.correct.numeric}
+      onComplete={onMashupComplete!}
+    />
   );
 }

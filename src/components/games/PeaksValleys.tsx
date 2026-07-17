@@ -5,10 +5,11 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 import { PEAKS_ENTRIES, type PeaksEntry, type PeaksCategory } from "@/data/peaksValleys";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededShuffle } from "@/lib/daily";
+import { gameRng, seededShuffle, createSeededRng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import type { MashupProps } from "./mashup";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -138,7 +139,14 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
 
 // ── Game ──────────────────────────────────────────────────────────────────────
 
-export default function PeaksValleys({ onExit }: { onExit: () => void }) {
+export default function PeaksValleys({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <PeaksValleysMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <PeaksValleysStandalone onExit={onExit} />;
+}
+
+function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const [deck] = useState<PeaksEntry[]>(() =>
     seededShuffle(PEAKS_ENTRIES, gameRng("peaks-valleys", useGameStore.getState().mode))
@@ -317,6 +325,44 @@ export default function PeaksValleys({ onExit }: { onExit: () => void }) {
           {streak > 1 ? `×${streak} STREAK` : ""}
         </span>
       </div>
+    </div>
+  );
+}
+
+// ── Atlas Jackpot round: one higher/lower call, correct = success ───────────────
+function PeaksValleysMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const [deck] = useState(() => seededShuffle(PEAKS_ENTRIES, createSeededRng(mashupSeed ?? "peaks-valleys")));
+  const [phase, setPhase] = useState<Phase>("input");
+  const cardA = deck[0];
+  const cardB = deck[1];
+
+  const guess = useCallback((guessHigher: boolean) => {
+    if (phase !== "input") return;
+    const correct = cardA.value === cardB.value ? true : guessHigher ? cardB.value > cardA.value : cardB.value < cardA.value;
+    setPhase(correct ? "correct" : "wrong");
+    setTimeout(() => onMashupComplete!(correct), 1200);
+  }, [phase, cardA, cardB, onMashupComplete]);
+
+  return (
+    <div className="flex-1 flex flex-col lg:flex-row relative">
+      <EntryCard entry={cardA} revealed phase={phase} />
+      <div className="relative flex items-center justify-center py-2 lg:hidden">
+        <div className="absolute inset-x-0 top-1/2 border-t border-arcade-border" />
+        <span className="relative font-pixel text-[8px] text-gray-700 bg-arcade-bg px-3">VS</span>
+      </div>
+      <div className="hidden lg:flex flex-col items-center justify-center w-10 shrink-0">
+        <div className="flex-1 border-l border-arcade-border" />
+        <span className="font-pixel text-[8px] text-gray-700 py-3">VS</span>
+        <div className="flex-1 border-l border-arcade-border" />
+      </div>
+      <EntryCard
+        entry={cardB}
+        revealed={phase !== "input"}
+        phase={phase}
+        isRight
+        onHigher={() => guess(true)}
+        onLower={() => guess(false)}
+      />
     </div>
   );
 }
