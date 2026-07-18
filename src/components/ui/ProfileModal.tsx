@@ -73,7 +73,19 @@ export function ProfileModal() {
           </button>
         </div>
 
-        <p className="font-mono text-lg text-arcade-neon-green neon-text-green mb-5 truncate">{name}</p>
+        {/* Deterministic retro avatar (DiceBear pixel-art, seeded by user id) */}
+        <div className="flex items-center gap-3 mb-5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(user.id)}`}
+            alt="Avatar"
+            width={56}
+            height={56}
+            className="w-14 h-14 shrink-0 border border-arcade-neon-cyan bg-arcade-bg"
+            style={{ imageRendering: "pixelated" }}
+          />
+          <p className="font-mono text-lg text-arcade-neon-green neon-text-green truncate">{name}</p>
+        </div>
 
         {/* Token balances */}
         <p className="font-pixel text-[8px] text-gray-500 tracking-widest mb-2">{t("profileTokens")}</p>

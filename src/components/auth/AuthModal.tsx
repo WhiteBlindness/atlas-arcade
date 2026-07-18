@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/store/toastStore";
 import { firstAuthError, isValidEmail, passwordStrength, signupChecks } from "@/lib/validation";
 import { useT } from "@/lib/i18n";
+import { sfx } from "@/lib/sfx";
 import { X } from "lucide-react";
 
 type View = "signin" | "signup" | "reset";
@@ -31,7 +32,7 @@ export function AuthModal() {
 
   const clearFields = () => { setEmail(""); setPassword(""); setUsername(""); setError(null); };
   // Clearing fields on tab swap avoids leaking a half-typed password between views.
-  const switchView = (v: View) => { setView(v); clearFields(); };
+  const switchView = (v: View) => { sfx.click(); setView(v); clearFields(); };
 
   const strength = passwordStrength(password);
   const strengthLabel = strength.score === 3 ? t("strengthStrong") : strength.score === 2 ? t("strengthMedium") : t("strengthWeak");
@@ -54,11 +55,12 @@ export function AuthModal() {
     return msg;
   };
 
-  const fail = (msg: string) => { setError(msg); toast.error(msg); };
+  const fail = (msg: string) => { setError(msg); toast.error(msg); sfx.wrong(); };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return; // anti-spam: ignore double submits
+    sfx.click();
     setError(null);
 
     if (view === "reset") {
@@ -69,7 +71,7 @@ export function AuthModal() {
       });
       setLoading(false);
       if (err) fail(humanizeError(err.message));
-      else { toast.success(t("toastResetSent")); switchView("signin"); }
+      else { sfx.correct(); toast.success(t("toastResetSent")); switchView("signin"); }
       return;
     }
 
@@ -92,12 +94,12 @@ export function AuthModal() {
       });
       setLoading(false);
       if (err) fail(humanizeError(err.message));
-      else { toast.success(t("toastSignupSuccess")); clearFields(); closeModal(); }
+      else { sfx.correct(); toast.success(t("toastSignupSuccess")); clearFields(); closeModal(); }
     } else {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (err) fail(humanizeError(err.message));
-      else { toast.success(t("toastWelcome")); clearFields(); closeModal(); }
+      else { sfx.correct(); toast.success(t("toastWelcome")); clearFields(); closeModal(); }
     }
   };
 

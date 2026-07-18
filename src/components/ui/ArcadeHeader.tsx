@@ -116,7 +116,7 @@ export function ArcadeHeader() {
                 {user.user_metadata?.username ?? user.email?.split("@")[0]}
               </span>
             </button>
-            <button onClick={signOut} className="flex items-center gap-1 text-gray-500 hover:text-arcade-neon-red transition-colors" title="Sign out">
+            <button onClick={() => { sfx.click(); signOut(); }} className="flex items-center gap-1 text-gray-500 hover:text-arcade-neon-red transition-colors" title="Sign out">
               <LogOut size={14} />
             </button>
           </div>
