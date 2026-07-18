@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/store/toastStore";
@@ -19,6 +19,13 @@ export function AuthModal() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Lock background scroll while the modal is open (mobile especially).
+  useEffect(() => {
+    if (!modalOpen) return;
+    document.body.classList.add("overflow-hidden");
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [modalOpen]);
 
   if (!modalOpen) return null;
 

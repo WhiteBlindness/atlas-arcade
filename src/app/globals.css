@@ -112,6 +112,12 @@ html {
   color: white;
 }
 
+/* Native-app feel on mobile: kill the elastic overscroll/rubber-band bounce
+   on both axes so gameplay screens feel locked to the viewport. */
+html, body {
+  overscroll-behavior: none;
+}
+
 /* ── Light mode ──────────────────────────────────────────────────────────────
    Retro arcade "on paper": crisp light background, dark grid/borders, neon
    accents darkened for readability. Toggled via a `.light` class on <html>. */
