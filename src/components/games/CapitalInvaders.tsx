@@ -21,7 +21,6 @@ const TIER_KEY: Record<Difficulty, TKey> = { easy: "igEasy", medium: "igMedium",
 const QUESTION_TIME = 7;
 const DAILY_LEVELS = 10;
 
-const TIER_LABEL: Record<Difficulty, string> = { easy: "EASY", medium: "MEDIUM", hard: "HARD" };
 const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffe600", hard: "#ff00ff" };
 
 interface Question {
@@ -244,7 +243,7 @@ function CapitalInvadersMashup({ mashupSeed, onMashupComplete }: MashupProps) {
 
   const prompt = (
     <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
-      <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">CAPITAL OF?</p>
+      <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">{t("igCapitalOf")}</p>
       <h2 className="font-pixel text-lg text-arcade-neon-magenta neon-text-magenta leading-tight">{q.capital}</h2>
     </div>
   );

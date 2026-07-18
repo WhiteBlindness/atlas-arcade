@@ -12,13 +12,14 @@ import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { sfx } from "@/lib/sfx";
+import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 import { MashupQuiz } from "./MashupShell";
 
 const QUESTION_TIME = 8;
 const DAILY_LEVELS = 10;
+const TIER_KEY: Record<Difficulty, TKey> = { easy: "igEasy", medium: "igMedium", hard: "igHard" };
 
-const TIER_LABEL: Record<Difficulty, string> = { easy: "EASY", medium: "MEDIUM", hard: "HARD" };
 const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffe600", hard: "#ff00ff" };
 
 interface FlagQuestion {
@@ -38,6 +39,7 @@ export default function FlagRush({ onExit, isMashupMode, onMashupComplete, mashu
 }
 
 function FlagRushStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   const mode = useGameStore((s) => s.mode);
   const isDaily = mode === "daily";
@@ -151,11 +153,11 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">FLAG FRENZY</h1>
         <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-gray-500">
-            {dailyComplete ? "DAILY COMPLETE!" : "GAME OVER"}
+            {dailyComplete ? t("igDailyComplete") : t("gameOver")}
           </p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
-            {cleared} {isDaily ? `/ ${DAILY_LEVELS}` : ""} LEVELS CLEARED
+            {t("igLevelsCleared").replace("{X}", `${cleared}${isDaily ? ` / ${DAILY_LEVELS}` : ""}`)}
           </p>
           <DailyPercentile performance={performance} />
         </div>
@@ -201,10 +203,10 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
       <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 py-6 max-w-md mx-auto w-full">
         <div className="flex items-center justify-between w-full">
           <p className="font-pixel text-[8px] text-gray-600">
-            LEVEL {level}{isDaily ? ` / ${DAILY_LEVELS}` : ""}
+            {t("igLevel")} {level}{isDaily ? ` / ${DAILY_LEVELS}` : ""}
           </p>
           <p className="flex items-center gap-1 font-pixel text-[8px]" style={{ color: TIER_COLOR[question.tier] }}>
-            <Shield size={10} /> {TIER_LABEL[question.tier]}
+            <Shield size={10} /> {t(TIER_KEY[question.tier])}
           </p>
         </div>
 
@@ -251,10 +253,10 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
 
         {isAnswered && !isLastCorrect && (
           <p className="font-pixel text-[9px] text-red-400">
-            {chosen === -1 ? "TIME!" : "WRONG!"} → {question.correct.name}
+            {chosen === -1 ? t("igTime") : t("igWrong")} → {question.correct.name}
           </p>
         )}
-        <p className="font-pixel text-[7px] text-gray-700 tracking-widest">ONE MISTAKE ENDS THE RUN</p>
+        <p className="font-pixel text-[7px] text-gray-700 tracking-widest">{t("igOneMistake")}</p>
       </div>
     </div>
   );
