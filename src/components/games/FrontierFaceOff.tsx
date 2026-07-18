@@ -184,7 +184,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
-            {correct}{isDaily ? ` / ${TOTAL_QUESTIONS}` : ""} BORDERS NAILED
+            {t("igBordersNailed").replace("{X}", `${correct}${isDaily ? ` / ${TOTAL_QUESTIONS}` : ""}`)}
           </p>
           <DailyPercentile performance={0.6 * (correct / TOTAL_QUESTIONS) + 0.4 * Math.min(1, score / (TOTAL_QUESTIONS * 170))} />
         </div>
@@ -221,7 +221,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
 
       {status === "loading" || !current ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-magenta animate-blink">LOADING...</p>
+          <p className="font-pixel text-sm text-arcade-neon-magenta animate-blink">{t("authLoading")}</p>
         </div>
       ) : (
         <>
@@ -232,7 +232,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
           )}
 
           <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-md mx-auto w-full">
-            <p className="font-pixel text-[8px] text-gray-600 self-end">{isDaily ? `${idx + 1} / ${TOTAL_QUESTIONS}` : `Q${idx + 1} · SUDDEN DEATH`}</p>
+            <p className="font-pixel text-[8px] text-gray-600 self-end">{isDaily ? `${idx + 1} / ${TOTAL_QUESTIONS}` : `Q${idx + 1} · ${t("igSuddenDeath")}`}</p>
 
             <div className="w-full border border-arcade-neon-magenta shadow-neon-magenta">
               <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ background: "#080810" }} aria-label="Border map">
@@ -244,7 +244,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
             </div>
 
             <p className="font-pixel text-[10px] text-center text-white leading-relaxed">
-              WHO BORDERS{" "}
+              {t("igWhoBorders")}{" "}
               <span className="text-arcade-neon-magenta neon-text-magenta">
                 {COUNTRY_BY_NUMERIC[current.target]?.name.toUpperCase()}
               </span>
@@ -275,7 +275,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
 
             {chosen === -1 && (
               <p className="font-pixel text-[9px] text-red-400 animate-blink">
-                TIME! → {COUNTRY_BY_NUMERIC[current.answer]?.name}
+                {t("igTime")} → {COUNTRY_BY_NUMERIC[current.answer]?.name}
               </p>
             )}
           </div>
@@ -287,6 +287,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
 
 // ── Atlas Jackpot round: name one border neighbour, correct = success ───────────
 function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
   const [q, setQ] = useState<BorderQuestion | null>(null);
 
   useEffect(() => {
@@ -318,7 +319,7 @@ function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
         </svg>
       </div>
       <p className="font-pixel text-[10px] text-center text-white leading-relaxed">
-        WHO BORDERS{" "}
+        {t("igWhoBorders")}{" "}
         <span className="text-arcade-neon-magenta neon-text-magenta">
           {COUNTRY_BY_NUMERIC[q.target]?.name.toUpperCase()}
         </span>?
