@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { COUNTRY_CLUES, formatPopulation } from "@/data/countryClues";
+import { useT, type TKey } from "@/lib/i18n";
 import { haversine, bearing, distanceToHex, distanceHeat, calculateScore } from "@/lib/geo";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
@@ -44,6 +45,7 @@ export default function GlobleGame({ onExit, isMashupMode, onMashupComplete, mas
 }
 
 function GlobleStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   // daily: unlimited tries, scored by how few guesses were needed
   const isDaily = useGameStore((s) => s.mode) === "daily";
@@ -110,7 +112,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
         <p className="font-pixel text-[9px] text-gray-500">
-          {isDaily ? `${guesses.length} ${guesses.length === 1 ? "GUESS" : "GUESSES"}` : `${guesses.length}/${MAX_GUESSES}`}
+          {isDaily ? `${guesses.length} ${guesses.length === 1 ? t("igGuessOne") : t("igGuessMany")}` : `${guesses.length}/${MAX_GUESSES}`}
         </p>
       </div>
 
@@ -151,16 +153,16 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                 style={{ boxShadow: "0 0 40px #00ff4155" }}
               >
                 <p className="font-pixel text-[11px] text-arcade-neon-green neon-text-green tracking-widest">
-                  CORRECT!
+                  {t("correct")}
                 </p>
                 <p className="font-mono text-lg text-white">{mystery.name}</p>
                 <div className="h-px bg-arcade-border" />
                 <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-left">
-                  <span className="font-pixel text-[8px] text-gray-500">GUESSES</span>
+                  <span className="font-pixel text-[8px] text-gray-500">{t("igGuessMany")}</span>
                   <span className="font-mono text-[11px] text-white text-right">
                     {guesses.length}{isDaily ? "" : ` / ${MAX_GUESSES}`}
                   </span>
-                  <span className="font-pixel text-[8px] text-gray-500">SCORE</span>
+                  <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
                   <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">+{finalScore} PTS</span>
                 </div>
                 <DailyPercentile performance={1 / (1 + (guesses.length - 1) / 3)} />
@@ -184,12 +186,12 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                 style={{ boxShadow: "0 0 40px #ff004455" }}
               >
                 <p className="font-pixel text-[11px] text-arcade-neon-red neon-text-red tracking-widest">
-                  GAME OVER
+                  {t("gameOver")}
                 </p>
                 <p className="font-mono text-lg text-white">{mystery.name}</p>
                 <div className="h-px bg-arcade-border" />
                 <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-left">
-                  <span className="font-pixel text-[8px] text-gray-500">GUESSES</span>
+                  <span className="font-pixel text-[8px] text-gray-500">{t("igGuessMany")}</span>
                   <span className="font-mono text-[11px] text-white text-right">{guesses.length} / {MAX_GUESSES}</span>
                 </div>
                 <EndScreenActions slug="globle" gameTitle="GEORADAR" score={0} performance={0} onExit={onExit} />
@@ -207,7 +209,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
               <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />
               <div className="border border-arcade-border p-2 space-y-1 hidden md:block">
                 <p className="font-pixel text-[7px] text-gray-600 leading-relaxed">
-                  N ↑ · ARROW POINTS TOWARD THE MYSTERY COUNTRY
+                  {t("igArrowHint")}
                 </p>
                 <p className="font-mono text-[11px] leading-relaxed">
                   <span style={{ color: "#ff3333" }}>■&lt;500</span>{" "}
@@ -239,26 +241,31 @@ const MASHUP_WIN_KM = 2000;
 // every difficulty tier stays fair (no obscure country behind a single fun fact).
 const CLUE_POOL = COUNTRIES.filter((c) => COUNTRY_CLUES[c.numeric]);
 
-function cluesForLevel(mystery: Country, level: number): string[] {
+function cluesForLevel(mystery: Country, level: number, t: (key: TKey) => string): string[] {
   const clue = COUNTRY_CLUES[mystery.numeric];
-  if (level >= 11) return [`Fun fact: ${clue.funFact}`];
-  if (level >= 6) return [`Population: ${formatPopulation(clue.population)}`, `Region: ${clue.region}`];
+  if (level >= 11) return [t("igClueFun").replace("{X}", clue.funFact)];
+  if (level >= 6) return [
+    t("igCluePopulation").replace("{X}", formatPopulation(clue.population)),
+    t("igClueRegion").replace("{X}", clue.region),
+  ];
   const capital = COUNTRY_META[mystery.numeric]?.capital;
-  const ns = mystery.lat >= 0 ? "Northern" : "Southern";
-  const ew = mystery.lng >= 0 ? "Eastern" : "Western";
+  const ns = mystery.lat >= 0 ? t("igNorthern") : t("igSouthern");
+  const ew = mystery.lng >= 0 ? t("igEastern") : t("igWestern");
+  const initial = t("igClueStarts").replace("{X}", mystery.name[0]);
   return [
-    capital ? `Capital: ${capital}` : `Starts with "${mystery.name[0]}"`,
-    `Hemisphere: ${ns} & ${ew}`,
-    `Starts with "${mystery.name[0]}"`,
+    capital ? t("igClueCapital").replace("{X}", capital) : initial,
+    t("igClueHemisphere").replace("{A}", ns).replace("{B}", ew),
+    initial,
   ];
 }
 
 function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps) {
+  const t = useT();
   const level = mashupLevel ?? 1;
   const [mystery] = useState<Country>(() => seededPick(CLUE_POOL, createSeededRng(mashupSeed ?? "globle")));
   const [result, setResult] = useState<{ country: Country; km: number; success: boolean } | null>(null);
 
-  const clues = useMemo(() => cluesForLevel(mystery, level), [mystery, level]);
+  const clues = useMemo(() => cluesForLevel(mystery, level, t), [mystery, level, t]);
 
   const handleGuess = useCallback((country: Country) => {
     if (result) return;
@@ -269,7 +276,7 @@ function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps
     setTimeout(() => onMashupComplete!(success), 2200);
   }, [result, mystery, onMashupComplete]);
 
-  const tierLabel = level >= 11 ? "HARD" : level >= 6 ? "MEDIUM" : "EASY";
+  const tierLabel = level >= 11 ? t("igHard") : level >= 6 ? t("igMedium") : t("igEasy");
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -285,11 +292,11 @@ function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps
 
       <div className="flex-1 overflow-y-auto flex flex-col items-center gap-4 px-4 py-4 max-w-md mx-auto w-full">
         <p className="font-pixel text-[9px] text-arcade-neon-cyan neon-text-cyan tracking-widest">
-          GUESS WITHIN {MASHUP_WIN_KM} KM · <span className="text-gray-500">{tierLabel}</span>
+          {t("igGuessWithin").replace("{X}", String(MASHUP_WIN_KM))} · <span className="text-gray-500">{tierLabel}</span>
         </p>
 
         <div className="w-full border border-arcade-neon-cyan shadow-neon-cyan p-4 space-y-2">
-          <p className="font-pixel text-[7px] text-gray-500 tracking-widest mb-1">CLUES</p>
+          <p className="font-pixel text-[7px] text-gray-500 tracking-widest mb-1">{t("igClues")}</p>
           {clues.map((c, i) => (
             <p key={i} className="font-mono text-sm text-gray-300 leading-relaxed">
               <span className="text-arcade-neon-cyan mr-2">{i + 1}▸</span>{c}
@@ -304,12 +311,12 @@ function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps
         ) : (
           <div className="w-full text-center space-y-2" style={{ animation: "fadeUp 0.25s ease-out" }}>
             <p className={`font-pixel text-[11px] tracking-widest ${result.success ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
-              {result.success ? "CLOSE ENOUGH!" : "TOO FAR!"}
+              {result.success ? t("igCloseEnough") : t("igTooFar")}
             </p>
             <p className="font-mono text-sm text-white">
-              {result.country.name} — {Math.round(result.km).toLocaleString()} km away
+              {t("igKmAway").replace("{C}", result.country.name).replace("{K}", Math.round(result.km).toLocaleString())}
             </p>
-            <p className="font-mono text-[13px] text-gray-500">It was {mystery.name}</p>
+            <p className="font-mono text-[13px] text-gray-500">{t("igItWasCity").replace("{X}", mystery.name)}</p>
           </div>
         )}
       </div>
