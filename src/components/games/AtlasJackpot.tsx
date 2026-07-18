@@ -7,6 +7,7 @@ import { useCoinStore } from "@/store/coinStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { seededShuffle } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
+import { useT } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
@@ -64,6 +65,7 @@ const TITLES: Record<string, string> = {
 };
 
 export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
+  const t = useT();
   // No daily mode — always a fresh random 15-game sequence. A per-run salt keeps
   // each rung's question distinct even when a game repeats within the ladder.
   const [runSalt] = useState(() => Math.random().toString(36).slice(2, 8));
@@ -133,7 +135,7 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
       {/* Current game title */}
       {status === "playing" && (
         <p className="text-center font-pixel text-[8px] text-gray-500 py-2 tracking-widest">
-          STAGE {level} · <span className="text-arcade-neon-cyan">{TITLES[slug]}</span>
+          {t("igStage")} {level} · <span className="text-arcade-neon-cyan">{TITLES[slug]}</span>
         </p>
       )}
 
@@ -155,8 +157,8 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
           <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
             <Trophy size={48} className="text-arcade-neon-yellow neon-text-yellow" />
             <div className="border border-arcade-neon-yellow p-8 text-center space-y-3" style={{ boxShadow: "0 0 40px #ffe60055" }}>
-              <p className="font-pixel text-sm text-arcade-neon-yellow neon-text-yellow tracking-widest">JACKPOT!</p>
-              <p className="font-mono text-lg text-white">All {LADDER} stages cleared.</p>
+              <p className="font-pixel text-sm text-arcade-neon-yellow neon-text-yellow tracking-widest">{t("igJackpot")}</p>
+              <p className="font-mono text-lg text-white">{t("igAllStages").replace("{X}", String(LADDER))}</p>
               <RewardBadge reward={reward} />
               <DailyPercentile performance={1} />
             </div>
@@ -169,11 +171,11 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
           <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
             <Skull size={40} className="text-arcade-neon-red" />
             <div className="border border-arcade-neon-red p-8 text-center space-y-3" style={{ boxShadow: "0 0 40px #ff333355" }}>
-              <p className="font-pixel text-sm text-arcade-neon-red neon-text-red tracking-widest">GAME OVER</p>
-              <p className="font-mono text-lg text-white">Fell at stage {level}.</p>
+              <p className="font-pixel text-sm text-arcade-neon-red neon-text-red tracking-widest">{t("gameOver")}</p>
+              <p className="font-mono text-lg text-white">{t("igFellAt").replace("{X}", String(level))}</p>
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-left">
-                <span className="font-pixel text-[8px] text-gray-500">CLEARED</span>
+                <span className="font-pixel text-[8px] text-gray-500">{t("igCleared")}</span>
                 <span className="font-mono text-sm text-white text-right">{cleared} / {LADDER}</span>
               </div>
               <RewardBadge reward={reward} />
@@ -195,12 +197,13 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
 }
 
 function RewardBadge({ reward }: { reward: number }) {
+  const t = useT();
   if (reward <= 0) {
-    return <p className="font-pixel text-[7px] text-gray-600 tracking-widest">NO PREMIUM THIS RUN — REACH STAGE 5</p>;
+    return <p className="font-pixel text-[7px] text-gray-600 tracking-widest">{t("igNoPremium")}</p>;
   }
   return (
     <p className="flex items-center justify-center gap-2 font-pixel text-[10px] text-arcade-neon-green neon-text-green tracking-widest">
-      <Gem size={12} /> +{reward} PREMIUM {reward === 1 ? "TOKEN" : "TOKENS"}
+      <Gem size={12} /> {(reward === 1 ? t("igPremiumToken") : t("igPremiumTokens")).replace("{X}", String(reward))}
     </p>
   );
 }
