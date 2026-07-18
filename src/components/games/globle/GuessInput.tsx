@@ -87,8 +87,10 @@ export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
         autoFocus
         className="w-full bg-arcade-bg border border-arcade-neon-cyan shadow-neon-cyan outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600"
       />
+      {/* Dropdown opens upward on mobile (bottom-full) so the keyboard never
+          covers it; downward on desktop (md:top-full). */}
       {filtered.length > 0 && (
-        <ul className="absolute z-50 w-full bg-arcade-surface border border-arcade-neon-cyan border-t-0 max-h-52 overflow-y-auto shadow-lg shadow-black/60">
+        <ul className="absolute left-0 right-0 z-50 bottom-full mb-1 md:bottom-auto md:mb-0 md:top-full bg-arcade-surface border border-arcade-neon-cyan max-h-52 overflow-y-auto shadow-lg shadow-black/60">
           {filtered.map((c, i) => (
             <li
               key={c.numeric}

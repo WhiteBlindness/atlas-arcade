@@ -30,9 +30,21 @@ interface Round {
   options: CityEntry[];
 }
 
+// Remembers the last city shown so a new run never opens with the same image
+// as the previous run ended on. Skipped in daily mode to keep the run identical
+// for every player. Within a single run the picks are already distinct.
+let lastShownCityId: string | null = null;
+
 function buildRounds(tier: CityTier, rng: Rng): Round[] {
   const pool = CITIES.filter((c) => c.tier === tier);
   const picked = seededShuffle(pool, rng).slice(0, ROUNDS);
+
+  const isDaily = useGameStore.getState().mode === "daily";
+  if (!isDaily && picked.length > 1 && picked[0].id === lastShownCityId) {
+    [picked[0], picked[1]] = [picked[1], picked[0]]; // avoid a back-to-back repeat image
+  }
+  lastShownCityId = picked[picked.length - 1]?.id ?? lastShownCityId;
+
   return picked.map((city) => ({
     city,
     options: seededShuffle(
@@ -292,7 +304,12 @@ function UrbanLegendsMashup({ mashupSeed, onMashupComplete }: MashupProps) {
     const rng = createSeededRng(mashupSeed ?? "urban-legends");
     const tier = seededPick(["easy", "medium", "hard"] as const, rng);
     const pool = CITIES.filter((c) => c.tier === tier);
-    const city = seededPick(pool, rng);
+    let city = seededPick(pool, rng);
+    // never show the same city image twice in a row across boss-rush rungs
+    if (city.id === lastShownCityId && pool.length > 1) {
+      city = seededPick(pool.filter((c) => c.id !== lastShownCityId), rng);
+    }
+    lastShownCityId = city.id;
     const options = seededShuffle(
       [city, ...seededShuffle(pool.filter((c) => c.id !== city.id), rng).slice(0, 3)],
       rng,

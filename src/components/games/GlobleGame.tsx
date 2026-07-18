@@ -102,8 +102,11 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
   const finalScore = status === "won" ? calculateScore(guesses.length) : 0;
 
   return (
-    <div className="min-h-dvh flex flex-col bg-arcade-bg">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
+    // h-dvh (not min-h) + overflow-hidden so the layout is locked to the viewport;
+    // with interactive-widget=resizes-content the keyboard shrinks it and pushes
+    // the sticky input up instead of covering it.
+    <div className="h-dvh overflow-hidden flex flex-col bg-arcade-bg">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
         <p className="font-pixel text-[9px] text-gray-500">
@@ -111,8 +114,8 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
         </p>
       </div>
 
-      {/* Mobile (< md): sidebar at top, map below. Desktop (md+): side-by-side. */}
-      <div className="flex-1 flex flex-col-reverse md:flex-row md:overflow-hidden">
+      {/* Mobile (< md): map on top, guess input pinned at the bottom. Desktop: side-by-side. */}
+      <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden">
         {/* Map + overlays — grows to fill the middle, map graphic covers the box */}
         <div className="flex-1 min-h-[40vh] md:min-h-0 relative">
           <WorldMap
@@ -195,13 +198,14 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
           )}
         </div>
 
-        {/* Sidebar — top on mobile (flex-col-reverse hoists this above map), right on desktop */}
-        <div className="w-full md:w-72 flex flex-col border-b md:border-b-0 md:border-l border-arcade-border">
-          {/* Input zone: no overflow so autocomplete dropdown is never clipped */}
+        {/* Sidebar — bottom bar on mobile, right column on desktop. Responsive
+            order: input is last (bottom) on mobile, first (top) on desktop. */}
+        <div className="w-full md:w-72 flex flex-col min-h-0 md:min-h-0 border-t md:border-t-0 md:border-l border-arcade-border">
+          {/* Input zone: sticky bottom on mobile so the keyboard pushes it up. */}
           {status === "playing" && (
-            <div className="p-4 flex flex-col gap-3">
+            <div className="order-2 md:order-1 p-4 flex flex-col gap-3 bg-arcade-bg sticky bottom-0 md:static shrink-0">
               <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />
-              <div className="border border-arcade-border p-2 space-y-1">
+              <div className="border border-arcade-border p-2 space-y-1 hidden md:block">
                 <p className="font-pixel text-[7px] text-gray-600 leading-relaxed">
                   N ↑ · ARROW POINTS TOWARD THE MYSTERY COUNTRY
                 </p>
@@ -214,8 +218,8 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
               </div>
             </div>
           )}
-          {/* History zone: scrollable, height-capped on mobile */}
-          <div className="overflow-y-auto max-h-40 md:max-h-none md:flex-1 px-4 pb-4">
+          {/* History zone: scrollable, sits above the input on mobile. */}
+          <div className="order-1 md:order-2 overflow-y-auto max-h-32 md:max-h-none md:flex-1 px-4 py-2 md:pb-4">
             <GuessHistory guesses={guesses} />
           </div>
         </div>
