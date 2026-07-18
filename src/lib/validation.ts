@@ -30,6 +30,23 @@ export function isValidUsername(name: string): boolean {
   return name.trim().length >= 3;
 }
 
+/** Per-rule pass/fail for the sign-up form, used to list what's still missing.
+ *  i18n keys: errEmail-ish reqs map to reqEmail/reqLen/reqUpper/reqNumber. */
+export interface SignupChecks {
+  email: boolean;
+  len: boolean;
+  upper: boolean;
+  number: boolean;
+}
+export function signupChecks(email: string, password: string): SignupChecks {
+  return {
+    email: isValidEmail(email),
+    len: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    number: /[0-9]/.test(password),
+  };
+}
+
 /** i18n key of the first failing rule, or null when the form is valid. */
 export type AuthErrorCode = "errEmail" | "errUsername" | "errPasswordPolicy" | "errPasswordEmpty";
 

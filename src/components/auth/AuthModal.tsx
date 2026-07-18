@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/store/toastStore";
-import { firstAuthError, isValidEmail, passwordStrength } from "@/lib/validation";
+import { firstAuthError, isValidEmail, passwordStrength, signupChecks } from "@/lib/validation";
 import { useT } from "@/lib/i18n";
 import { X } from "lucide-react";
 
@@ -35,8 +35,15 @@ export function AuthModal() {
 
   const strength = passwordStrength(password);
   const strengthLabel = strength.score === 3 ? t("strengthStrong") : strength.score === 2 ? t("strengthMedium") : t("strengthWeak");
-  // Signup CREATE stays disabled until the password meets the policy (blocks WEAK).
-  const signupBlocked = view === "signup" && !strength.valid;
+
+  // Per-rule checks drive an explicit "what's missing" list and block CREATE.
+  const checks = signupChecks(email, password);
+  const missing: string[] = [];
+  if (!checks.email) missing.push(t("reqEmail"));
+  if (!checks.len) missing.push(t("reqLen"));
+  if (!checks.upper) missing.push(t("reqUpper"));
+  if (!checks.number) missing.push(t("reqNumber"));
+  const signupBlocked = view === "signup" && missing.length > 0;
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
@@ -71,6 +78,10 @@ export function AuthModal() {
 
     setLoading(true);
     if (view === "signup") {
+      // Reject taken usernames up front (SECURITY DEFINER rpc, anon-callable).
+      const { data: taken } = await supabase.rpc("is_username_taken", { name: username.trim() });
+      if (taken) { setLoading(false); fail(t("errUsernameTaken")); return; }
+
       const { error: err } = await supabase.auth.signUp({
         email,
         password,
@@ -81,7 +92,7 @@ export function AuthModal() {
       });
       setLoading(false);
       if (err) fail(humanizeError(err.message));
-      else { toast.success(t("toastConfirmEmail")); clearFields(); closeModal(); }
+      else { toast.success(t("toastSignupSuccess")); clearFields(); closeModal(); }
     } else {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
@@ -154,6 +165,13 @@ export function AuthModal() {
               </div>
               <span className="font-pixel text-[7px]" style={{ color: strength.color }}>{strengthLabel}</span>
             </div>
+          )}
+
+          {/* Explicit list of what's still missing (signup) */}
+          {view === "signup" && (password.length > 0 || email.length > 0) && missing.length > 0 && (
+            <p className="font-mono text-[13px] text-arcade-neon-red leading-snug">
+              {t("reqMissing")} {missing.join(" · ")}
+            </p>
           )}
 
           {/* Inline validation / server error — clear text, not just a border tint */}

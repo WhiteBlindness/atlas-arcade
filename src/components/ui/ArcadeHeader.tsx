@@ -9,7 +9,7 @@ import { sfx } from "@/lib/sfx";
 import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe, Gem, Sun, Moon } from "lucide-react";
 
 export function ArcadeHeader() {
-  const { user, openModal, signOut } = useAuthStore();
+  const { user, openModal, openProfile, signOut } = useAuthStore();
   const { lang, sound, theme, setLang, toggleSound, toggleTheme } = useSettingsStore();
   const coins = useCoinStore((s) => s.coins);
   const premiumTokens = useCoinStore((s) => s.premiumTokens);
@@ -105,12 +105,17 @@ export function ArcadeHeader() {
 
         {user ? (
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-gray-400 min-w-0">
-              <User size={12} className="shrink-0" />
-              <span className="font-mono text-xs text-arcade-neon-green neon-text-green truncate max-w-[120px]">
+            {/* Name (desktop) / user icon (mobile) opens the profile modal */}
+            <button
+              onClick={() => { openProfile(); sfx.click(); }}
+              aria-label="Open profile"
+              className="flex items-center gap-2 text-gray-400 min-w-0 hover:text-arcade-neon-green active:scale-95 transition-all"
+            >
+              <User size={13} className="shrink-0" />
+              <span className="hidden sm:inline font-mono text-xs text-arcade-neon-green neon-text-green truncate max-w-[120px]">
                 {user.user_metadata?.username ?? user.email?.split("@")[0]}
               </span>
-            </div>
+            </button>
             <button onClick={signOut} className="flex items-center gap-1 text-gray-500 hover:text-arcade-neon-red transition-colors" title="Sign out">
               <LogOut size={14} />
             </button>
