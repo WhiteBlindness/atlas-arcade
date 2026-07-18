@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Skull } from "lucide-react";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
+import { POP_TRIVIA } from "@/data/popTrivia";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
@@ -19,7 +20,7 @@ const BASE_TIME = 6;
 const MIN_TIME = 2.5;
 const TIME_STEP = 0.35; // seconds removed every 5 questions
 
-type QuestionKind = "capital" | "flag" | "reverse-capital";
+type QuestionKind = "capital" | "flag" | "reverse-capital" | "trivia";
 
 interface Question {
   kind: QuestionKind;
@@ -28,11 +29,24 @@ interface Question {
   correct: Country;
   options: Country[];
   optionLabels?: string[]; // for reverse-capital: capital names aligned with options
+  source?: string;         // for trivia: the show name
 }
 
 const flagUrl = (alpha2: string) => `https://flagcdn.com/w160/${alpha2}.webp`;
 
+// Pop-culture trivia reuses the country-answer machinery via lightweight
+// "fake" Country options (numeric = option index), so nothing else changes.
+function makeTrivia(rng: Rng): Question {
+  const q = seededPick(POP_TRIVIA, rng);
+  const options: Country[] = seededShuffle(q.options, rng).map((label, i) => ({ name: label, numeric: i, lat: 0, lng: 0 }));
+  const correct = options.find((o) => o.name === q.answer) ?? options[0];
+  return { kind: "trivia", prompt: q.prompt, correct, options, source: q.source };
+}
+
 function makeQuestion(pool: Country[], rng: Rng): Question {
+  // ~1 in 4 questions is a pop-culture geography curveball.
+  if (rng() < 0.25) return makeTrivia(rng);
+
   const kind = seededPick(["capital", "flag", "reverse-capital"] as const, rng);
   const correct = seededPick(pool, rng);
   const distractors = seededShuffle(pool.filter((c) => c.numeric !== correct.numeric), rng).slice(0, 3);
@@ -188,6 +202,15 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={flagUrl(question.alpha2!)} alt="Flag" width={320} height={213} className="block w-80 max-w-full" loading="eager" decoding="async" />
           </div>
+        ) : question.kind === "trivia" ? (
+          <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
+            <p className="font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.3em]">
+              CULTURA POP · {question.source}
+            </p>
+            <h2 className="font-mono text-xl text-white leading-snug">
+              {question.prompt}
+            </h2>
+          </div>
         ) : (
           <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">
             <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">
@@ -243,6 +266,11 @@ function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
     <div className="border-2 border-arcade-neon-yellow shadow-neon-yellow">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={flagUrl(q.alpha2!)} alt="Flag" width={320} height={213} className="block w-72 max-w-full" loading="eager" />
+    </div>
+  ) : q.kind === "trivia" ? (
+    <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
+      <p className="font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.3em]">CULTURA POP · {q.source}</p>
+      <h2 className="font-mono text-xl text-white leading-snug">{q.prompt}</h2>
     </div>
   ) : (
     <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">

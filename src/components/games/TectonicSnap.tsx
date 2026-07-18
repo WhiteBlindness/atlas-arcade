@@ -310,34 +310,28 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
             )}
           </div>
 
-          {/* Pieces tray */}
+          {/* Name-label tray — drag the country NAMES onto their outlines */}
           <div className="border border-arcade-border p-2">
-            <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG PIECES ONTO THE MAP</p>
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG THE NAMES ONTO THE MAP</p>
+            <div className="flex flex-wrap gap-2 pb-1">
               {trayPieces.length === 0 && phase === "play" && (
-                <p className="font-mono text-sm text-gray-600 px-2 py-4">All pieces placed!</p>
+                <p className="font-mono text-sm text-gray-600 px-2 py-4">All names placed!</p>
               )}
-              {trayPieces.map((p) => {
-                const pad = Math.max(p.bw, p.bh) * 0.08 + 2;
-                return (
-                  <button
-                    key={p.id}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      setDragId(p.id);
-                      setDragPos({ x: e.clientX, y: e.clientY });
-                    }}
-                    className={`shrink-0 w-20 h-20 border bg-arcade-surface touch-none cursor-grab transition-colors ${
-                      dragId === p.id ? "border-arcade-neon-cyan opacity-40" : "border-arcade-border hover:border-arcade-neon-cyan"
-                    }`}
-                    title={p.name}
-                  >
-                    <svg viewBox={`${p.bx - pad} ${p.by - pad} ${p.bw + pad * 2} ${p.bh + pad * 2}`} className="w-full h-full pointer-events-none">
-                      <path d={p.d} fill="#00d4ff" opacity={0.85} />
-                    </svg>
-                  </button>
-                );
-              })}
+              {trayPieces.map((p) => (
+                <button
+                  key={p.id}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    setDragId(p.id);
+                    setDragPos({ x: e.clientX, y: e.clientY });
+                  }}
+                  className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${
+                    dragId === p.id ? "border-arcade-neon-cyan text-arcade-neon-cyan opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-cyan hover:text-arcade-neon-cyan"
+                  }`}
+                >
+                  {p.name}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -346,16 +340,10 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
       {/* Drag ghost */}
       {dragPiece && dragId !== null && (
         <div
-          className="fixed z-50 pointer-events-none w-24 h-24"
-          style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)" }}
+          className="fixed z-50 pointer-events-none px-3 py-2 border border-arcade-neon-cyan bg-arcade-bg font-mono text-sm text-arcade-neon-cyan whitespace-nowrap"
+          style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)", boxShadow: "0 0 8px #00d4ff" }}
         >
-          <svg
-            viewBox={`${dragPiece.bx - 4} ${dragPiece.by - 4} ${dragPiece.bw + 8} ${dragPiece.bh + 8}`}
-            className="w-full h-full"
-            style={{ filter: "drop-shadow(0 0 8px #00d4ff)" }}
-          >
-            <path d={dragPiece.d} fill="#00d4ff" opacity={0.9} />
-          </svg>
+          {dragPiece.name}
         </div>
       )}
     </div>
@@ -460,31 +448,26 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
       </div>
 
       <div className="border border-arcade-border p-2">
-        <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG PIECES ONTO THE MAP</p>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {trayPieces.map((p) => {
-            const pad = Math.max(p.bw, p.bh) * 0.08 + 2;
-            return (
-              <button
-                key={p.id}
-                onPointerDown={(e) => { e.preventDefault(); setDragId(p.id); setDragPos({ x: e.clientX, y: e.clientY }); }}
-                className={`shrink-0 w-20 h-20 border bg-arcade-surface touch-none cursor-grab transition-colors ${dragId === p.id ? "border-arcade-neon-cyan opacity-40" : "border-arcade-border hover:border-arcade-neon-cyan"}`}
-                title={p.name}
-              >
-                <svg viewBox={`${p.bx - pad} ${p.by - pad} ${p.bw + pad * 2} ${p.bh + pad * 2}`} className="w-full h-full pointer-events-none">
-                  <path d={p.d} fill="#00d4ff" opacity={0.85} />
-                </svg>
-              </button>
-            );
-          })}
+        <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG THE NAMES ONTO THE MAP</p>
+        <div className="flex flex-wrap gap-2 pb-1">
+          {trayPieces.map((p) => (
+            <button
+              key={p.id}
+              onPointerDown={(e) => { e.preventDefault(); setDragId(p.id); setDragPos({ x: e.clientX, y: e.clientY }); }}
+              className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${dragId === p.id ? "border-arcade-neon-cyan text-arcade-neon-cyan opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-cyan hover:text-arcade-neon-cyan"}`}
+            >
+              {p.name}
+            </button>
+          ))}
         </div>
       </div>
 
       {dragPiece && dragId !== null && (
-        <div className="fixed z-50 pointer-events-none w-24 h-24" style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)" }}>
-          <svg viewBox={`${dragPiece.bx - 4} ${dragPiece.by - 4} ${dragPiece.bw + 8} ${dragPiece.bh + 8}`} className="w-full h-full" style={{ filter: "drop-shadow(0 0 8px #00d4ff)" }}>
-            <path d={dragPiece.d} fill="#00d4ff" opacity={0.9} />
-          </svg>
+        <div
+          className="fixed z-50 pointer-events-none px-3 py-2 border border-arcade-neon-cyan bg-arcade-bg font-mono text-sm text-arcade-neon-cyan whitespace-nowrap"
+          style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)", boxShadow: "0 0 8px #00d4ff" }}
+        >
+          {dragPiece.name}
         </div>
       )}
     </div>
