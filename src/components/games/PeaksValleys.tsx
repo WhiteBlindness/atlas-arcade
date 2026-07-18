@@ -9,6 +9,7 @@ import { gameRng, seededShuffle, createSeededRng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { useT } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ interface CardProps {
 }
 
 function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardProps) {
+  const t = useT();
   const accent = CAT_COLOR[entry.category];
   const resultColor = phase === "correct" ? "#00ff41" : "#ff3333";
   const valueBorderColor = isRight && revealed ? resultColor : isRight ? "#1a1a2e" : accent;
@@ -110,13 +112,13 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
             onClick={onHigher}
             className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-green text-arcade-neon-green neon-text-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all tracking-widest"
           >
-            <TrendingUp size={12} /> HIGHER
+            <TrendingUp size={12} /> {t("igHigher")}
           </button>
           <button
             onClick={onLower}
             className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-red text-arcade-neon-red neon-text-red hover:bg-arcade-neon-red hover:text-black active:scale-95 transition-all tracking-widest"
           >
-            <TrendingDown size={12} /> LOWER
+            <TrendingDown size={12} /> {t("igLower")}
           </button>
         </div>
       )}
@@ -130,7 +132,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
             textShadow: `0 0 8px ${resultColor}, 0 0 20px ${resultColor}55`,
           }}
         >
-          {phase === "correct" ? "CORRECT!" : "WRONG!"}
+          {phase === "correct" ? t("correct") : t("igWrong")}
         </p>
       )}
     </div>
@@ -147,6 +149,7 @@ export default function PeaksValleys({ onExit, isMashupMode, onMashupComplete, m
 }
 
 function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   const [deck] = useState<PeaksEntry[]>(() =>
     seededShuffle(PEAKS_ENTRIES, gameRng("peaks-valleys", useGameStore.getState().mode))
@@ -201,7 +204,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
           PEAKS &amp; VALLEYS
         </h1>
         <div className="text-right">
-          <p className="font-pixel text-[7px] text-gray-600">SCORE</p>
+          <p className="font-pixel text-[7px] text-gray-600">{t("igScore")}</p>
           <p className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">{score}</p>
         </div>
       </div>
@@ -209,7 +212,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
       {/* Streak bar */}
       {streak > 0 && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-arcade-border bg-arcade-surface">
-          <span className="font-pixel text-[7px] text-gray-600 shrink-0">STREAK</span>
+          <span className="font-pixel text-[7px] text-gray-600 shrink-0">{t("igStreak")}</span>
           <div className="flex gap-1 flex-wrap flex-1">
             {Array.from({ length: Math.min(streak, 10) }).map((_, i) => (
               <span key={i} className="text-arcade-neon-green text-xs leading-none">●</span>
@@ -219,7 +222,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
             )}
           </div>
           <span className="font-pixel text-[7px] text-arcade-neon-yellow shrink-0">
-            NEXT +{pointsFor(streak)} PTS
+            {t("igNextPts").replace("{X}", String(pointsFor(streak)))}
           </span>
         </div>
       )}
@@ -260,15 +263,15 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               style={{ boxShadow: "0 0 40px #ff333355" }}
             >
               <p className="font-pixel text-sm text-arcade-neon-red neon-text-red tracking-widest">
-                GAME OVER
+                {t("gameOver")}
               </p>
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
-                <span className="font-pixel text-[8px] text-gray-500">SCORE</span>
+                <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
                 <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">
                   {score} PTS
                 </span>
-                <span className="font-pixel text-[8px] text-gray-500">CORRECT</span>
+                <span className="font-pixel text-[8px] text-gray-500">{t("igCorrectCount")}</span>
                 <span className="font-mono text-sm text-white text-right">{ptr}</span>
               </div>
               <DailyPercentile performance={Math.min(1, score / 1500)} />
@@ -292,12 +295,12 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               style={{ boxShadow: "0 0 40px #00ff4155" }}
             >
               <p className="font-pixel text-sm text-arcade-neon-green neon-text-green tracking-widest">
-                PERFECT!
+                {t("igPerfect")}
               </p>
-              <p className="font-mono text-sm text-gray-500">All {deck.length - 1} rounds cleared.</p>
+              <p className="font-mono text-sm text-gray-500">{t("igAllCleared").replace("{X}", String(deck.length - 1))}</p>
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
-                <span className="font-pixel text-[8px] text-gray-500">SCORE</span>
+                <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
                 <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">
                   {score} PTS
                 </span>
@@ -319,10 +322,10 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-2 border-t border-arcade-border">
         <span className="font-pixel text-[7px] text-gray-700">
-          ROUND {ptr + 1} / {deck.length - 1}
+          {t("igRound")} {ptr + 1} / {deck.length - 1}
         </span>
         <span className="font-pixel text-[7px] text-gray-700">
-          {streak > 1 ? `×${streak} STREAK` : ""}
+          {streak > 1 ? `×${streak} ${t("igStreak")}` : ""}
         </span>
       </div>
     </div>
