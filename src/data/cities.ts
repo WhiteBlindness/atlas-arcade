@@ -237,4 +237,255 @@ export const CITIES: CityEntry[] = [
     ],
     funFact: "Poet Pablo Neruda owned a quirky five-storey house in Valparaíso — now one of Chile's most visited museums.",
   },
+
+  // ——— EASY (expansion) ———
+  {
+    id: "moscow", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Saint_Basil%27s_Cathedral_and_the_Red_Square.jpg/960px-Saint_Basil%27s_Cathedral_and_the_Red_Square.jpg", name: "Moscovo", country: "Rússia", tier: "easy", emoji: "🏛️",
+    clues: ["Its metro stations look like underground palaces, with marble halls and chandeliers.", "Its historic fortified core is known as the Kremlin.", "Its Red Square is fronted by a cathedral with colourful onion domes."],
+    funFact: "Saint Basil's Cathedral has nine chapels designed to look like flames rising into the sky.",
+  },
+  {
+    id: "berlin", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Museumsinsel_Berlin_Juli_2021_1_%28cropped%29_b.jpg/960px-Museumsinsel_Berlin_Juli_2021_1_%28cropped%29_b.jpg", name: "Berlim", country: "Alemanha", tier: "easy", emoji: "🐻",
+    clues: ["A wall split this city in two for nearly three decades.", "It has more bridges than Venice and a river-island full of museums.", "Its best-known landmark is the Brandenburg Gate."],
+    funFact: "Berlin is about nine times larger than Paris by area, yet far less densely populated.",
+  },
+  {
+    id: "toronto", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Toronto_Skyline_from_Olympic_Island%2C_June_20_2026_%285-3_cropped%29.jpg/960px-Toronto_Skyline_from_Olympic_Island%2C_June_20_2026_%285-3_cropped%29.jpg", name: "Toronto", country: "Canadá", tier: "easy", emoji: "🍁",
+    clues: ["A needle-like tower held the record as the world's tallest free-standing structure for decades.", "It is the largest city of its country, on the shore of Lake Ontario.", "Its country is famous for maple syrup and ice hockey."],
+    funFact: "Over half of Toronto's residents were born outside Canada, making it one of the most multicultural cities on Earth.",
+  },
+  {
+    id: "seoul", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/%EC%A4%91%ED%99%94%EC%A0%84%EC%9D%98_%EB%82%AE.jpg/960px-%EC%A4%91%ED%99%94%EC%A0%84%EC%9D%98_%EB%82%AE.jpg", name: "Seul", country: "Coreia do Sul", tier: "easy", emoji: "🏯",
+    clues: ["A river of the same name splits this megacity, crossed by dozens of bridges.", "It blends royal Joseon palaces with the home of K-pop.", "It is the capital of South Korea."],
+    funFact: "Seoul offers some of the fastest internet on the planet, with free public Wi-Fi across the city.",
+  },
+  {
+    id: "shanghai", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Huangpu_Park_20124-Shanghai_%2832208802494%29.jpg/960px-Huangpu_Park_20124-Shanghai_%2832208802494%29.jpg", name: "Xangai", country: "China", tier: "easy", emoji: "🌆",
+    clues: ["Its waterfront promenade, the Bund, faces a futuristic skyline across the river.", "It is its country's largest city and busiest port.", "The Oriental Pearl Tower rises over its Pudong district."],
+    funFact: "Shanghai's maglev train hits 431 km/h — the fastest commercial train service in the world.",
+  },
+  {
+    id: "bangkok", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/4Y1A1159_Bangkok_%2833536795515%29.jpg/960px-4Y1A1159_Bangkok_%2833536795515%29.jpg", name: "Banguecoque", country: "Tailândia", tier: "easy", emoji: "🛕",
+    clues: ["Its full ceremonial name is the longest city name in the world.", "Golden Buddhist temples and canals earned it comparisons to Venice.", "It is the capital of Thailand."],
+    funFact: "Bangkok's full ceremonial name runs to 168 letters and holds a Guinness world record.",
+  },
+  {
+    id: "beijing", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Skyline_of_Beijing_CBD_with_B-5906_approaching_%2820211016171955%29_%281%29.jpg/960px-Skyline_of_Beijing_CBD_with_B-5906_approaching_%2820211016171955%29_%281%29.jpg", name: "Pequim", country: "China", tier: "easy", emoji: "🏯",
+    clues: ["A vast walled palace complex at its heart was off-limits to commoners for 500 years.", "The Great Wall winds through the mountains just north of it.", "It is the capital of China."],
+    funFact: "The Forbidden City has 9,999 rooms — one short of the 10,000 believed to belong only to heaven.",
+  },
+  {
+    id: "los-angeles", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hollywood_sign_%288485145044%29.jpg/960px-Hollywood_sign_%288485145044%29.jpg", name: "Los Angeles", country: "Estados Unidos", tier: "easy", emoji: "🎬",
+    clues: ["A white hillside sign spells out its film district.", "It sprawls across Southern California and is famous for traffic and beaches.", "It is the home of Hollywood."],
+    funFact: "The Hollywood sign originally read 'HOLLYWOODLAND' and advertised a housing development.",
+  },
+  {
+    id: "chicago", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Chicago_River_ferry_b.jpg/960px-Chicago_River_ferry_b.jpg", name: "Chicago", country: "Estados Unidos", tier: "easy", emoji: "🌃",
+    clues: ["The world's first modern skyscraper rose here in 1885.", "It sits on a Great Lake and is nicknamed the 'Windy City'.", "A giant mirrored bean sculpture reflects its skyline in a downtown park."],
+    funFact: "Engineers reversed the flow of the Chicago River in 1900 so the city's waste flowed away from its drinking water.",
+  },
+  {
+    id: "madrid", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Plaza_Mayor_De_Madrid_%28215862629%29_edited.jpeg/960px-Plaza_Mayor_De_Madrid_%28215862629%29_edited.jpeg", name: "Madrid", country: "Espanha", tier: "easy", emoji: "🎨",
+    clues: ["Its 'golden triangle' of art museums includes the Prado.", "It is the highest capital city in Europe, on a plateau in the centre of its country.", "It is the capital of Spain."],
+    funFact: "Madrid's coat of arms features a bear reaching for a strawberry tree.",
+  },
+  {
+    id: "mexico-city", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Sobrevuelos_CDMX_HJ2A4913_%2825514321687%29_%28cropped%29.jpg/960px-Sobrevuelos_CDMX_HJ2A4913_%2825514321687%29_%28cropped%29.jpg", name: "Cidade do México", country: "México", tier: "easy", emoji: "🌮",
+    clues: ["It was built on the ruins of the Aztec capital Tenochtitlan.", "It sits in a high valley and slowly sinks into the old lakebed beneath it.", "It is the capital of Mexico."],
+    funFact: "Mexico City is sinking up to 50 cm a year as it drains the aquifer under its former lake.",
+  },
+  {
+    id: "mumbai", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Mumbai_Bandra-Worli_Sea_Link.jpg/960px-Mumbai_Bandra-Worli_Sea_Link.jpg", name: "Bombaim", country: "Índia", tier: "easy", emoji: "🌉",
+    clues: ["It is the home of the world's most prolific film industry, Bollywood.", "A cable-stayed sea link curves across its bay.", "It is India's financial capital, on the Arabian Sea."],
+    funFact: "Mumbai's dabbawalas deliver 200,000 home-cooked lunches a day with almost no errors.",
+  },
+  {
+    id: "delhi", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Jama_Masjid_2011.jpg/960px-Jama_Masjid_2011.jpg", name: "Deli", country: "Índia", tier: "easy", emoji: "🕌",
+    clues: ["It has served as a capital for many empires across a thousand years.", "Its old quarter is crowned by the vast Jama Masjid mosque.", "Its metropolitan area is the capital region of India."],
+    funFact: "Delhi has been destroyed and rebuilt at least seven times through its long history.",
+  },
+  {
+    id: "miami", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Villa_Vizcaya_20110228.jpg/960px-Villa_Vizcaya_20110228.jpg", name: "Miami", country: "Estados Unidos", tier: "easy", emoji: "🌴",
+    clues: ["Its Art Deco district glows in pastel neon along the beach.", "It is a gateway between the United States and Latin America.", "It sits on the warm coast of southern Florida."],
+    funFact: "More than half of Miami's residents were born abroad, and most speak Spanish at home.",
+  },
+  {
+    id: "las-vegas", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Las_Vegas_from_above_%2840064746644%29.jpg/960px-Las_Vegas_from_above_%2840064746644%29.jpg", name: "Las Vegas", country: "Estados Unidos", tier: "easy", emoji: "🎰",
+    clues: ["Its main strip recreates Paris, Venice and ancient Egypt side by side.", "It rose out of the Mojave Desert as a gambling and entertainment capital.", "It is nicknamed 'Sin City'."],
+    funFact: "Las Vegas has so many hotel rooms that it would take decades to sleep one night in each.",
+  },
+  {
+    id: "washington-dc", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/12-07-13-washington-by-RalfR-08.jpg/960px-12-07-13-washington-by-RalfR-08.jpg", name: "Washington", country: "Estados Unidos", tier: "easy", emoji: "🦅",
+    clues: ["Its skyline is deliberately low — no building may overshadow the Capitol.", "A tall marble obelisk stands on its central grassy Mall.", "It is the capital of the United States."],
+    funFact: "By law, Washington's buildings stay low, so it has almost no skyscrapers despite its importance.",
+  },
+
+  // ——— MEDIUM (expansion) ———
+  {
+    id: "cape-town", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Camps_bay_%2853460319478%29_%28cropped%29.jpg/960px-Camps_bay_%2853460319478%29_%28cropped%29.jpg", name: "Cidade do Cabo", country: "África do Sul", tier: "medium", emoji: "🏔️",
+    clues: ["A flat-topped mountain looms directly over this coastal city.", "It lies near the meeting point of two oceans at Africa's south-west tip.", "It is one of South Africa's three capital cities."],
+    funFact: "Table Mountain is among the oldest mountains on Earth and hosts over 2,200 plant species.",
+  },
+  {
+    id: "buenos-aires", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Puerto_Madero%2C_Buenos_Aires_%2840689219792%29_%28cropped%29.jpg/960px-Puerto_Madero%2C_Buenos_Aires_%2840689219792%29_%28cropped%29.jpg", name: "Buenos Aires", country: "Argentina", tier: "medium", emoji: "💃",
+    clues: ["Its residents are called porteños — 'people of the port'.", "It is the birthplace of tango, with European-style boulevards.", "It is the capital of Argentina."],
+    funFact: "The 9 de Julio avenue in Buenos Aires is one of the widest in the world, with up to 16 lanes.",
+  },
+  {
+    id: "vienna", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Schoenbrunn_philharmoniker_2012.jpg/960px-Schoenbrunn_philharmoniker_2012.jpg", name: "Viena", country: "Áustria", tier: "medium", emoji: "🎻",
+    clues: ["It was home to Mozart, Beethoven and Freud.", "Its grand Schönbrunn Palace rivals Versailles.", "It is the capital of Austria, on the Danube."],
+    funFact: "Vienna is regularly ranked the most liveable city in the world.",
+  },
+  {
+    id: "lisbon", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Lisboa_-_Portugal_%2852597836992%29.jpg/960px-Lisboa_-_Portugal_%2852597836992%29.jpg", name: "Lisboa", country: "Portugal", tier: "medium", emoji: "🚋",
+    clues: ["Yellow trams climb its seven steep hills above a wide river estuary.", "A 1755 earthquake reshaped much of its downtown grid.", "It is the capital of Portugal."],
+    funFact: "Lisbon is one of the oldest cities in Western Europe, predating Rome by centuries.",
+  },
+  {
+    id: "athens", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Monastiraki_Square_and_Acropolis_in_Athens_%2844149181684%29.jpg/960px-Monastiraki_Square_and_Acropolis_in_Athens_%2844149181684%29.jpg", name: "Atenas", country: "Grécia", tier: "medium", emoji: "🏺",
+    clues: ["It is named after a goddess of wisdom who, in myth, won it with an olive tree.", "A marble temple, the Parthenon, crowns its ancient citadel.", "It is the capital of Greece and cradle of democracy."],
+    funFact: "Athens has been continuously inhabited for over 3,400 years.",
+  },
+  {
+    id: "kuala-lumpur", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Bukit_Bintang_junction_in_2024_2.jpg/960px-Bukit_Bintang_junction_in_2024_2.jpg", name: "Kuala Lumpur", country: "Malásia", tier: "medium", emoji: "🌇",
+    clues: ["Its name means 'muddy confluence' in Malay.", "Twin silver towers linked by a skybridge define its skyline.", "It is the capital of Malaysia."],
+    funFact: "The Petronas Towers were the tallest buildings in the world from 1998 to 2004.",
+  },
+  {
+    id: "budapest", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/View_from_Gell%C3%A9rt_Hill_to_the_Danube%2C_Hungary_-_Budapest_%2828493220635%29.jpg/960px-View_from_Gell%C3%A9rt_Hill_to_the_Danube%2C_Hungary_-_Budapest_%2828493220635%29.jpg", name: "Budapeste", country: "Hungria", tier: "medium", emoji: "🌉",
+    clues: ["It formed when two cities on opposite banks of the Danube merged.", "It is famous for grand thermal bathhouses fed by hot springs.", "It is the capital of Hungary."],
+    funFact: "Budapest sits on over 100 thermal springs and has been a spa city since Roman times.",
+  },
+  {
+    id: "warsaw", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Aleja_Niepdleglosci_Warsaw_2022_aerial_%28cropped%29.jpg/960px-Aleja_Niepdleglosci_Warsaw_2022_aerial_%28cropped%29.jpg", name: "Varsóvia", country: "Polónia", tier: "medium", emoji: "🏙️",
+    clues: ["Its old town was rebuilt brick by brick after near-total wartime destruction.", "A mermaid is its official civic symbol.", "It is the capital of Poland."],
+    funFact: "Warsaw's reconstructed Old Town is a UNESCO site precisely because it was rebuilt so faithfully.",
+  },
+  {
+    id: "helsinki", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Suomenlinna_%28cropped%29.jpg/960px-Suomenlinna_%28cropped%29.jpg", name: "Helsínquia", country: "Finlândia", tier: "medium", emoji: "🏰",
+    clues: ["A sea fortress on islands guards its harbour.", "It is a Nordic capital of clean design and long winters.", "It is the capital of Finland."],
+    funFact: "Helsinki's sea fortress Suomenlinna is spread across eight islands and is a UNESCO site.",
+  },
+  {
+    id: "dublin", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Dublin_-_aerial_-_2025-07-07_01.jpg/960px-Dublin_-_aerial_-_2025-07-07_01.jpg", name: "Dublin", country: "Irlanda", tier: "medium", emoji: "☘️",
+    clues: ["Writers James Joyce and Oscar Wilde called it home.", "A dark stout beer was born at a brewery here in 1759.", "It is the capital of Ireland."],
+    funFact: "The Guinness brewery in Dublin once signed a 9,000-year lease on its land.",
+  },
+  {
+    id: "oslo", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Nationaltheatret_evening.jpg/960px-Nationaltheatret_evening.jpg", name: "Oslo", country: "Noruega", tier: "medium", emoji: "🎭",
+    clues: ["It sits at the head of a long fjord ringed by forested hills.", "It awards the Nobel Peace Prize each year.", "It is the capital of Norway."],
+    funFact: "Oslo hands out the Nobel Peace Prize, the only Nobel not awarded in Sweden.",
+  },
+  {
+    id: "copenhagen", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/2018_-_Christiansborg_from_the_Marble_Bridge.jpg/960px-2018_-_Christiansborg_from_the_Marble_Bridge.jpg", name: "Copenhaga", country: "Dinamarca", tier: "medium", emoji: "🚲",
+    clues: ["A small bronze mermaid sits on a rock in its harbour.", "More people here commute by bicycle than by car.", "It is the capital of Denmark."],
+    funFact: "Copenhagen has more bicycles than residents, and cyclists outnumber cars downtown.",
+  },
+  {
+    id: "zurich", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Altstadt_Z%C3%BCrich_2015.jpg/960px-Altstadt_Z%C3%BCrich_2015.jpg", name: "Zurique", country: "Suíça", tier: "medium", emoji: "🏦",
+    clues: ["It sits at the tip of a lake with the Alps on the horizon.", "It is a global hub of banking and private wealth.", "It is the largest city of Switzerland."],
+    funFact: "Zurich regularly tops rankings for quality of life — and for the world's highest wages.",
+  },
+  {
+    id: "munich", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/960px-Stadtbild_M%C3%BCnchen.jpg", name: "Munique", country: "Alemanha", tier: "medium", emoji: "🍺",
+    clues: ["It throws the world's largest beer festival every autumn.", "It sits at the foot of the Bavarian Alps.", "It is the capital of Bavaria, in southern Germany."],
+    funFact: "Munich's Oktoberfest draws around six million visitors who drink over seven million litres of beer.",
+  },
+  {
+    id: "montreal", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Montreal%2C_Quebec_skyline.jpg/960px-Montreal%2C_Quebec_skyline.jpg", name: "Montreal", country: "Canadá", tier: "medium", emoji: "⛪",
+    clues: ["It is the largest French-speaking city in the Americas.", "A hill named Mont Royal gives it its name.", "It is the cultural heart of Quebec, Canada."],
+    funFact: "Montreal has a 33 km network of underground tunnels so people can avoid its harsh winters.",
+  },
+  {
+    id: "stockholm", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Royal_Dramatic_Theatre_Stockholm.jpg/960px-Royal_Dramatic_Theatre_Stockholm.jpg", name: "Estocolmo", country: "Suécia", tier: "medium", emoji: "👑",
+    clues: ["It is built across 14 islands linked by dozens of bridges.", "It hosts most of the Nobel Prize ceremonies each December.", "It is the capital of Sweden."],
+    funFact: "Stockholm's clean metro is often called the world's longest art gallery, station by station.",
+  },
+  {
+    id: "brussels", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Grand_Place_Bruselas_2.jpg/960px-Grand_Place_Bruselas_2.jpg", name: "Bruxelas", country: "Bélgica", tier: "medium", emoji: "🍟",
+    clues: ["Its ornate central square, the Grand-Place, is a UNESCO gem.", "It hosts the headquarters of the European Union.", "It is the capital of Belgium."],
+    funFact: "Brussels honours a tiny statue of a urinating boy, dressed in hundreds of costumes through the year.",
+  },
+
+  // ——— HARD (expansion) ———
+  {
+    id: "tbilisi", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/View_of_Tbilisi_from_Tabori_Church_2023-10-08-2.jpg/960px-View_of_Tbilisi_from_Tabori_Church_2023-10-08-2.jpg", name: "Tbilisi", country: "Geórgia", tier: "hard", emoji: "♨️",
+    clues: ["Its name comes from an old word for 'warm', after its sulphur springs.", "It straddles a river below a hilltop fortress called Narikala.", "It is the capital of Georgia, in the Caucasus."],
+    funFact: "Legend says a king founded Tbilisi after his falcon fell into a natural hot spring.",
+  },
+  {
+    id: "ljubljana", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Ljubljana_Old_Town%2C_Slovenia_%28Old_Camera%29_%2833286165680%29.jpg/960px-Ljubljana_Old_Town%2C_Slovenia_%28Old_Camera%29_%2833286165680%29.jpg", name: "Liubliana", country: "Eslovénia", tier: "hard", emoji: "🐉",
+    clues: ["A dragon is its civic symbol, guarding a famous bridge.", "A hilltop castle overlooks its car-free old town on a small river.", "It is the compact capital of Slovenia."],
+    funFact: "Ljubljana's name is thought to relate to a Slavic word for 'beloved'.",
+  },
+  {
+    id: "bruges", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Br%C3%BCgge_Blick_vom_Belfried_4.jpg/960px-Br%C3%BCgge_Blick_vom_Belfried_4.jpg", name: "Bruges", country: "Bélgica", tier: "hard", emoji: "🍫",
+    clues: ["Its medieval canals earned it the nickname 'Venice of the North'.", "A tall belfry tower overlooks its cobbled market square.", "It is a preserved medieval city in Belgium, famed for chocolate and lace."],
+    funFact: "Bruges was one of the world's most important trading cities back in the 13th century.",
+  },
+  {
+    id: "chefchaouen", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Chefchaouen_%2852189357475%29.jpg/960px-Chefchaouen_%2852189357475%29.jpg", name: "Chefchaouen", country: "Marrocos", tier: "hard", emoji: "🔵",
+    clues: ["Nearly every wall and alley of its old town is painted blue.", "It sits in the Rif Mountains of northern Morocco.", "It is nicknamed the 'Blue Pearl'."],
+    funFact: "Nobody fully agrees why Chefchaouen is blue — theories range from cooling to repelling mosquitoes.",
+  },
+  {
+    id: "samarkand", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/RegistanSquare_Samarkand.jpg/960px-RegistanSquare_Samarkand.jpg", name: "Samarcanda", country: "Uzbequistão", tier: "hard", emoji: "🕌",
+    clues: ["It was a jewel of the ancient Silk Road under the conqueror Timur.", "Its Registan square is framed by three tiled madrasas.", "It is one of the oldest cities of Central Asia, in Uzbekistan."],
+    funFact: "Samarkand is over 2,700 years old — roughly the same age as Rome.",
+  },
+  {
+    id: "edinburgh", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Skyline_of_Edinburgh.jpg/960px-Skyline_of_Edinburgh.jpg", name: "Edimburgo", country: "Escócia", tier: "hard", emoji: "🏰",
+    clues: ["A castle sits on an extinct volcano above its old town.", "It hosts the world's largest arts festival every August.", "It is the capital of Scotland."],
+    funFact: "Edinburgh formed one of the world's first organised municipal fire brigades, back in 1824.",
+  },
+  {
+    id: "bergen", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bergen_panorama_at_night_-_panoramio_%281%29.jpg/960px-Bergen_panorama_at_night_-_panoramio_%281%29.jpg", name: "Bergen", country: "Noruega", tier: "hard", emoji: "🐟",
+    clues: ["A row of colourful wooden wharf houses lines its old harbour.", "It is ringed by seven mountains and is a gateway to the fjords.", "It is Norway's second city, on the west coast."],
+    funFact: "Bergen is one of the rainiest cities in Europe, with rain on roughly 240 days a year.",
+  },
+  {
+    id: "ghent", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Gent%2C_de_Graslei_vanaf_de_Korenlei_met_oeg24758tm61%2B25159_IMG_0447_2021-08-13_18.37.jpg/960px-Gent%2C_de_Graslei_vanaf_de_Korenlei_met_oeg24758tm61%2B25159_IMG_0447_2021-08-13_18.37.jpg", name: "Gante", country: "Bélgica", tier: "hard", emoji: "⛪",
+    clues: ["Guild houses line the quays of its medieval river port.", "It holds the celebrated van Eyck altarpiece, the Ghent Altarpiece.", "It is a historic Flemish city in Belgium."],
+    funFact: "The Ghent Altarpiece is one of the most stolen artworks in history, taken at least a dozen times.",
+  },
+  {
+    id: "lviv", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/%D0%9B%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D1%8C%D0%BA%D0%B8%D0%B9_%D0%BA%D0%B0%D1%84%D0%B5%D0%B4%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B8%D0%B9_%D1%81%D0%BE%D0%B1%D0%BE%D1%80_%28%D0%9B%D1%8C%D0%B2%D1%96%D0%B2%29_16.jpg/960px-%D0%9B%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D1%8C%D0%BA%D0%B8%D0%B9_%D0%BA%D0%B0%D1%84%D0%B5%D0%B4%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B8%D0%B9_%D1%81%D0%BE%D0%B1%D0%BE%D1%80_%28%D0%9B%D1%8C%D0%B2%D1%96%D0%B2%29_16.jpg", name: "Lviv", country: "Ucrânia", tier: "hard", emoji: "🎭",
+    clues: ["Its cobbled old town blends Polish, Austrian and Ukrainian history.", "It is famous for coffee houses and chocolate in western Ukraine.", "It is the cultural capital of western Ukraine."],
+    funFact: "Lviv is said to have the highest concentration of coffee houses per person in Ukraine.",
+  },
+  {
+    id: "yerevan", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Mount_Ararat_and_the_Yerevan_skyline_%28June_2018%29.jpg/960px-Mount_Ararat_and_the_Yerevan_skyline_%28June_2018%29.jpg", name: "Erevan", country: "Arménia", tier: "hard", emoji: "🍑",
+    clues: ["Snow-capped Mount Ararat looms over it from across the border.", "It is built largely from local pink volcanic stone.", "It is the capital of Armenia."],
+    funFact: "Yerevan is older than Rome, founded as a fortress in 782 BC.",
+  },
+  {
+    id: "baku", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Baku_Montage.jpg/960px-Baku_Montage.jpg", name: "Baku", country: "Azerbaijão", tier: "hard", emoji: "🔥",
+    clues: ["Three curved skyscrapers shaped like flames light up its skyline.", "It sits below sea level on the shore of the Caspian Sea.", "It is the capital of Azerbaijan, the 'Land of Fire'."],
+    funFact: "Baku lies about 28 m below sea level, making it the lowest-lying national capital in the world.",
+  },
+  {
+    id: "valletta", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/St_Sebastian_Curtain_%28cropped%29.jpg/960px-St_Sebastian_Curtain_%28cropped%29.jpg", name: "Valeta", country: "Malta", tier: "hard", emoji: "🛡️",
+    clues: ["It was built by the Knights of St John as a fortress city.", "One of Europe's smallest capitals, it sits on a rocky Mediterranean peninsula.", "It is the capital of Malta."],
+    funFact: "Valletta packs 320 monuments into just 0.8 km², one of the densest historic areas anywhere.",
+  },
+  {
+    id: "riga", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Riga_%2833844464828%29.jpg/960px-Riga_%2833844464828%29.jpg", name: "Riga", country: "Letónia", tier: "hard", emoji: "🎄",
+    clues: ["It has one of Europe's finest collections of Art Nouveau buildings.", "It sits on a river near the Baltic Sea.", "It is the capital of Latvia."],
+    funFact: "Riga claims the first-ever decorated Christmas tree, put up in its town square in 1510.",
+  },
+  {
+    id: "bratislava", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Slovakia_bratislava.jpg/960px-Slovakia_bratislava.jpg", name: "Bratislava", country: "Eslováquia", tier: "hard", emoji: "🏰",
+    clues: ["A boxy white castle sits on a hill above the Danube.", "It is the only national capital that borders two other countries.", "It is the capital of Slovakia."],
+    funFact: "Bratislava borders both Austria and Hungary — the only capital touching two countries.",
+  },
+  {
+    id: "sarajevo", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Sarajevo_City_Panorama.JPG/960px-Sarajevo_City_Panorama.JPG", name: "Sarajevo", country: "Bósnia e Herzegovina", tier: "hard", emoji: "🌉",
+    clues: ["Mosques, churches and synagogues stand within a few streets of each other here.", "An assassination on its streets in 1914 helped spark the First World War.", "It is the capital of Bosnia and Herzegovina."],
+    funFact: "Sarajevo hosted the 1984 Winter Olympics, a decade before its long wartime siege.",
+  },
+  {
+    id: "porto", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Puente_Don_Luis_I%2C_Oporto%2C_Portugal%2C_2012-05-09%2C_DD_13.JPG/960px-Puente_Don_Luis_I%2C_Oporto%2C_Portugal%2C_2012-05-09%2C_DD_13.JPG", name: "Porto", country: "Portugal", tier: "hard", emoji: "🍷",
+    clues: ["A double-deck iron bridge crosses the river to its wine cellars.", "The fortified wine it ships worldwide takes its name.", "It is Portugal's second city, at the mouth of the Douro."],
+    funFact: "Port wine is aged across the river from Porto, in the cellars of Vila Nova de Gaia.",
+  },
 ];
