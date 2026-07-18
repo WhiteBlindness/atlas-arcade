@@ -12,8 +12,16 @@ import { gameRng, seededShuffle, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
-import { useT } from "@/lib/i18n";
+import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
+
+// Continent / daily round labels are data-layer English; map to i18n keys.
+const ROUND_LABEL_KEY: Record<string, TKey> = {
+  "MYSTERY COUNTRIES": "igMysteryCountries",
+  "SOUTH AMERICA": "igContSAmerica",
+  "AFRICA": "igContAfrica",
+  "EUROPE": "igContEurope",
+};
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const W = 800;
@@ -236,7 +244,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
         <div className="border border-arcade-neon-cyan p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
-          <p className="font-pixel text-[8px] text-gray-500">{misses} MISSED DROPS</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("igMissedDrops").replace("{X}", String(misses))}</p>
           <DailyPercentile performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)} />
         </div>
         <EndScreenActions
@@ -261,16 +269,16 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
 
       {phase === "loading" || !round ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-cyan animate-blink">LOADING...</p>
+          <p className="font-pixel text-sm text-arcade-neon-cyan animate-blink">{t("authLoading")}</p>
         </div>
       ) : (
         <div className="flex-1 flex flex-col px-3 py-3 gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center justify-between">
             <p className="font-pixel text-[9px] text-arcade-neon-green neon-text-green tracking-widest">
-              {round.label}
+              {ROUND_LABEL_KEY[round.label] ? t(ROUND_LABEL_KEY[round.label]) : round.label}
             </p>
             <p className="font-pixel text-[8px] text-gray-500">
-              ROUND {roundIdx + 1}/{totalRounds} · {placed.size}/{round.pieces.length} PLACED
+              {t("igRound")} {roundIdx + 1}/{totalRounds} · {placed.size}/{round.pieces.length} {t("igPlaced")}
             </p>
           </div>
 
@@ -297,13 +305,13 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
             {phase === "round-done" && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                 <div className="border border-arcade-neon-green bg-black/92 p-6 text-center space-y-3" style={{ boxShadow: "0 0 40px #00ff4155" }}>
-                  <p className="font-pixel text-[11px] text-arcade-neon-green neon-text-green">CONTINENT RESTORED!</p>
-                  <p className="font-pixel text-[9px] text-arcade-neon-yellow">+{ROUND_BONUS} BONUS</p>
+                  <p className="font-pixel text-[11px] text-arcade-neon-green neon-text-green">{t("igContinentRestored")}</p>
+                  <p className="font-pixel text-[9px] text-arcade-neon-yellow">{t("igBonus").replace("{X}", String(ROUND_BONUS))}</p>
                   <button
                     onClick={() => { sfx.click(); setRoundIdx((r) => r + 1); }}
                     className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
                   >
-                    NEXT CONTINENT →
+                    {t("igNextContinent")}
                   </button>
                 </div>
               </div>
@@ -312,10 +320,10 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
 
           {/* Name-label tray — drag the country NAMES onto their outlines */}
           <div className="border border-arcade-border p-2">
-            <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG THE NAMES ONTO THE MAP</p>
+            <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">{t("igDragNames")}</p>
             <div className="flex flex-wrap gap-2 pb-1">
               {trayPieces.length === 0 && phase === "play" && (
-                <p className="font-mono text-sm text-gray-600 px-2 py-4">All names placed!</p>
+                <p className="font-mono text-sm text-gray-600 px-2 py-4">{t("igAllPlaced")}</p>
               )}
               {trayPieces.map((p) => (
                 <button
@@ -352,6 +360,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
 
 // ── Atlas Jackpot round: place the daily mystery countries; one miss = fail ─────
 function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
   const [round, setRound] = useState<RoundData | null>(null);
   const [placed, setPlaced] = useState<Set<number>>(new Set());
   const [dragId, setDragId] = useState<number | null>(null);
@@ -425,8 +434,8 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   return (
     <div className="flex-1 flex flex-col px-3 py-3 gap-3 max-w-4xl mx-auto w-full">
       <div className="flex items-center justify-between">
-        <p className="font-pixel text-[9px] text-arcade-neon-green neon-text-green tracking-widest">{round.label}</p>
-        <p className="font-pixel text-[8px] text-gray-500">{placed.size}/{round.pieces.length} PLACED · NO MISSES</p>
+        <p className="font-pixel text-[9px] text-arcade-neon-green neon-text-green tracking-widest">{ROUND_LABEL_KEY[round.label] ? t(ROUND_LABEL_KEY[round.label]) : round.label}</p>
+        <p className="font-pixel text-[8px] text-gray-500">{placed.size}/{round.pieces.length} {t("igPlaced")} · {t("igNoMisses")}</p>
       </div>
 
       <div
@@ -448,7 +457,7 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
       </div>
 
       <div className="border border-arcade-border p-2">
-        <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">DRAG THE NAMES ONTO THE MAP</p>
+        <p className="font-pixel text-[7px] text-gray-600 mb-2 tracking-widest">{t("igDragNames")}</p>
         <div className="flex flex-wrap gap-2 pb-1">
           {trayPieces.map((p) => (
             <button
