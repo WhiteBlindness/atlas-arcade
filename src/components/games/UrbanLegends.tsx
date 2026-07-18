@@ -10,7 +10,7 @@ import { createDailyRng, createSeededRng, seededShuffle, seededPick, type Rng } 
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
-import { useT } from "@/lib/i18n";
+import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 import { MashupQuiz } from "./MashupShell";
 
@@ -19,11 +19,14 @@ const ROUNDS = 6;
 const CLUE_POINTS = [300, 200, 100, 50];
 const TIER_MULTIPLIER: Record<CityTier, number> = { easy: 1, medium: 1.5, hard: 2 };
 
-const TIERS: { tier: CityTier; label: string; desc: string; color: string; border: string }[] = [
-  { tier: "easy",   label: "TOURIST",  desc: "World-famous cities. Warm-up run.",        color: "text-arcade-neon-green neon-text-green",     border: "border-arcade-neon-green" },
-  { tier: "medium", label: "TRAVELER", desc: "You'll need more than postcards.",         color: "text-arcade-neon-yellow neon-text-yellow",   border: "border-arcade-neon-yellow" },
-  { tier: "hard",   label: "LEGEND",   desc: "Obscure gems. Double points.",             color: "text-arcade-neon-magenta neon-text-magenta", border: "border-arcade-neon-magenta" },
+const TIERS: { tier: CityTier; labelKey: TKey; descKey: TKey; color: string; border: string }[] = [
+  { tier: "easy",   labelKey: "igTourist",  descKey: "igTouristDesc",  color: "text-arcade-neon-green neon-text-green",     border: "border-arcade-neon-green" },
+  { tier: "medium", labelKey: "igTraveler", descKey: "igTravelerDesc", color: "text-arcade-neon-yellow neon-text-yellow",   border: "border-arcade-neon-yellow" },
+  { tier: "hard",   labelKey: "igLegend",   descKey: "igLegendDesc",   color: "text-arcade-neon-magenta neon-text-magenta", border: "border-arcade-neon-magenta" },
 ];
+
+// Difficulty tier → i18n label key.
+const TIER_KEY: Record<CityTier, TKey> = { easy: "igEasy", medium: "igMedium", hard: "igHard" };
 
 interface Round {
   city: CityEntry;
@@ -160,17 +163,17 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
           <span className="w-14" />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-8 px-4">
-          <p className="font-pixel text-[10px] text-gray-400 tracking-widest">SELECT DIFFICULTY</p>
+          <p className="font-pixel text-[10px] text-gray-400 tracking-widest">{t("igSelectDiff")}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
-            {TIERS.map(({ tier: t, label, desc, color, border }) => (
+            {TIERS.map(({ tier: ti, labelKey, descKey, color, border }) => (
               <button
-                key={t}
-                onClick={() => startTier(t)}
+                key={ti}
+                onClick={() => startTier(ti)}
                 className={`flex flex-col gap-3 p-6 bg-arcade-surface border ${border} hover:scale-105 active:scale-95 transition-transform text-left`}
               >
-                <span className={`font-pixel text-xs ${color}`}>{label}</span>
-                <span className="font-mono text-sm text-gray-500">{desc}</span>
-                <span className="font-pixel text-[8px] text-gray-600">×{TIER_MULTIPLIER[t]} POINTS</span>
+                <span className={`font-pixel text-xs ${color}`}>{t(labelKey)}</span>
+                <span className="font-mono text-sm text-gray-500">{t(descKey)}</span>
+                <span className="font-pixel text-[8px] text-gray-600">{t("igPoints").replace("{X}", String(TIER_MULTIPLIER[ti]))}</span>
               </button>
             ))}
           </div>
@@ -187,7 +190,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
         <div className="border border-arcade-neon-green p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
-          <p className="font-pixel text-[8px] text-gray-500">{ROUNDS} CITIES · {tier?.toUpperCase()}</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("igCities").replace("{X}", String(ROUNDS))} · {tier ? t(TIER_KEY[tier]) : ""}</p>
           <DailyPercentile performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0} />
         </div>
         <EndScreenActions
@@ -215,9 +218,9 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
 
       <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 max-w-lg mx-auto w-full">
         <div className="flex items-center justify-between w-full">
-          <p className="font-pixel text-[8px] text-gray-600">{idx + 1} / {ROUNDS} · {tier?.toUpperCase()}</p>
+          <p className="font-pixel text-[8px] text-gray-600">{idx + 1} / {ROUNDS} · {tier ? t(TIER_KEY[tier]) : ""}</p>
           <p className="font-pixel text-[8px] text-arcade-neon-yellow">
-            WORTH {tier ? Math.round(CLUE_POINTS[cluesShown] * TIER_MULTIPLIER[tier]) : 0} PTS
+            {t("igWorth").replace("{X}", String(tier ? Math.round(CLUE_POINTS[cluesShown] * TIER_MULTIPLIER[tier]) : 0))}
           </p>
         </div>
 
@@ -230,7 +233,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
           <SkylineImage city={current.city} />
         </div>
 
-        <p className="font-pixel text-[9px] text-gray-400 tracking-[0.3em]">WHICH CITY IS THIS?</p>
+        <p className="font-pixel text-[9px] text-gray-400 tracking-[0.3em]">{t("igWhichCity")}</p>
 
         {/* Options — available immediately */}
         <div className="grid grid-cols-2 gap-3 w-full">
@@ -269,7 +272,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
                 className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow active:scale-95 transition-all min-h-[44px]"
               >
                 <Lightbulb size={10} />
-                REVEAL CLUE (DROPS TO {Math.round(CLUE_POINTS[cluesShown + 1] * TIER_MULTIPLIER[tier])} PTS)
+                {t("igReveal").replace("{X}", String(Math.round(CLUE_POINTS[cluesShown + 1] * TIER_MULTIPLIER[tier])))}
               </button>
             )}
           </div>
@@ -279,17 +282,17 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
         {isAnswered && (
           <div className="w-full space-y-3" style={{ animation: "fadeUp 0.25s ease-out" }}>
             <p className={`font-pixel text-[10px] text-center ${wasCorrect ? "text-arcade-neon-green neon-text-green" : "text-red-400"}`}>
-              {wasCorrect ? "CORRECT!" : `IT WAS ${current.city.name.toUpperCase()} ${current.city.emoji}`}
+              {wasCorrect ? t("correct") : `${t("igItWas")} ${current.city.name.toUpperCase()} ${current.city.emoji}`}
             </p>
             <div className="border border-arcade-border bg-arcade-surface p-4">
-              <p className="font-pixel text-[7px] text-arcade-neon-yellow mb-2 tracking-widest">FUN FACT</p>
+              <p className="font-pixel text-[7px] text-arcade-neon-yellow mb-2 tracking-widest">{t("igFunFact")}</p>
               <p className="font-mono text-sm text-gray-400 leading-relaxed">{current.city.funFact}</p>
             </div>
             <button
               onClick={nextRound}
               className="w-full py-2 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black transition-all"
             >
-              {idx + 1 >= ROUNDS ? "FINISH" : "NEXT CITY →"}
+              {idx + 1 >= ROUNDS ? t("igFinish") : t("igNextCity")}
             </button>
           </div>
         )}
@@ -300,6 +303,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
 
 // ── Atlas Jackpot round: one city, one guess, no clues, correct = success ───────
 function UrbanLegendsMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
   const [round] = useState(() => {
     const rng = createSeededRng(mashupSeed ?? "urban-legends");
     const tier = seededPick(["easy", "medium", "hard"] as const, rng);
@@ -328,7 +332,7 @@ function UrbanLegendsMashup({ mashupSeed, onMashupComplete }: MashupProps) {
       prompt={
         <div className="w-full flex flex-col items-center gap-4">
           {prompt}
-          <p className="font-pixel text-[9px] text-gray-400 tracking-[0.3em]">WHICH CITY IS THIS?</p>
+          <p className="font-pixel text-[9px] text-gray-400 tracking-[0.3em]">{t("igWhichCity")}</p>
         </div>
       }
       options={round.options.map((c) => ({ key: c.id, label: c.name }))}
