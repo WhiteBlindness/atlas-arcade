@@ -12,8 +12,11 @@ import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { sfx } from "@/lib/sfx";
+import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 import { MashupQuiz } from "./MashupShell";
+
+const TIER_KEY: Record<Difficulty, TKey> = { easy: "igEasy", medium: "igMedium", hard: "igHard" };
 
 const QUESTION_TIME = 7;
 const DAILY_LEVELS = 10;
@@ -36,6 +39,7 @@ export default function CapitalInvaders({ onExit, isMashupMode, onMashupComplete
 }
 
 function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   const mode = useGameStore((s) => s.mode);
   const isDaily = mode === "daily";
@@ -136,11 +140,11 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-gray-500">
-            {dailyComplete ? "DAILY COMPLETE!" : "GAME OVER"}
+            {dailyComplete ? t("igDailyComplete") : t("gameOver")}
           </p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
-            {cleared} {isDaily ? `/ ${DAILY_LEVELS}` : ""} LEVELS CLEARED
+            {t("igLevelsCleared").replace("{X}", `${cleared}${isDaily ? ` / ${DAILY_LEVELS}` : ""}`)}
           </p>
           <DailyPercentile performance={performance} />
         </div>
@@ -178,15 +182,15 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-4 py-8 max-w-md mx-auto w-full">
         <div className="flex items-center justify-between w-full">
           <p className="font-pixel text-[8px] text-gray-600">
-            LEVEL {level}{isDaily ? ` / ${DAILY_LEVELS}` : ""}
+            {t("igLevel")} {level}{isDaily ? ` / ${DAILY_LEVELS}` : ""}
           </p>
           <p className="flex items-center gap-1 font-pixel text-[8px]" style={{ color: TIER_COLOR[question.tier] }}>
-            <Shield size={10} /> {TIER_LABEL[question.tier]}
+            <Shield size={10} /> {t(TIER_KEY[question.tier])}
           </p>
         </div>
 
         <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
-          <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">CAPITAL OF?</p>
+          <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">{t("igCapitalOf")}</p>
           <h2 className="font-pixel text-lg text-arcade-neon-magenta neon-text-magenta leading-tight">
             {question.capital}
           </h2>
@@ -218,10 +222,10 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
 
         {isAnswered && !isLastCorrect && (
           <p className="font-pixel text-[9px] text-red-400">
-            {chosen === -1 ? "TIME!" : "WRONG!"} → {question.correct.name}
+            {chosen === -1 ? t("igTime") : t("igWrong")} → {question.correct.name}
           </p>
         )}
-        <p className="font-pixel text-[7px] text-gray-700 tracking-widest">ONE MISTAKE ENDS THE RUN</p>
+        <p className="font-pixel text-[7px] text-gray-700 tracking-widest">{t("igOneMistake")}</p>
       </div>
     </div>
   );
@@ -229,6 +233,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
 
 // ── Atlas Jackpot round: match capital → country, correct = success ─────────────
 function CapitalInvadersMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
   const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
   const [q] = useState(() => {
     const rng = createSeededRng(mashupSeed ?? "capital-invaders");

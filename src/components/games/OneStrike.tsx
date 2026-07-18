@@ -5,6 +5,7 @@ import { Skull } from "lucide-react";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { POP_TRIVIA } from "@/data/popTrivia";
+import { useT } from "@/lib/i18n";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
@@ -76,6 +77,7 @@ export default function OneStrike({ onExit, isMashupMode, onMashupComplete, mash
 }
 
 function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
+  const t = useT();
   const { addScore } = useGameStore();
   const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
   // persistent rng: in daily mode the whole question sequence is shared globally
@@ -149,7 +151,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">ONE STRIKE</h1>
         <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
           <Skull size={28} className="mx-auto text-arcade-neon-red" />
-          <p className="font-pixel text-[8px] text-gray-500">SURVIVED {streak} QUESTIONS</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("igSurvived").replace("{X}", String(streak))}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <DailyPercentile performance={Math.min(1, streak / 15)} />
         </div>
@@ -191,7 +193,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
       )}
 
       <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4 py-6 max-w-md mx-auto w-full">
-        <p className="font-pixel text-[8px] text-gray-600 self-end">NO MISTAKES ALLOWED</p>
+        <p className="font-pixel text-[8px] text-gray-600 self-end">{t("igNoMistakes")}</p>
 
         {question.kind === "flag" ? (
           <div className={`border-2 transition-colors ${
@@ -214,7 +216,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
         ) : (
           <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">
             <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">
-              {question.kind === "capital" ? "CAPITAL OF?" : "CAPITAL IS?"}
+              {question.kind === "capital" ? t("igCapitalOf") : t("igCapitalIs")}
             </p>
             <h2 className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow leading-tight">
               {question.prompt}
@@ -249,7 +251,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
 
         {isAnswered && !isLastCorrect && (
           <p className="font-pixel text-[10px] text-red-400">
-            {chosen === -1 ? "TIME!" : "WRONG!"} → {question.kind === "reverse-capital" ? COUNTRY_META[question.correct.numeric].capital : question.correct.name}
+            {chosen === -1 ? t("igTime") : t("igWrong")} → {question.kind === "reverse-capital" ? COUNTRY_META[question.correct.numeric].capital : question.correct.name}
           </p>
         )}
       </div>
@@ -259,6 +261,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
 
 // ── Atlas Jackpot round: one question, correct = success ────────────────────────
 function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
   const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
   const [q] = useState(() => makeQuestion(pool, createSeededRng(mashupSeed ?? "one-strike")));
 
@@ -275,7 +278,7 @@ function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   ) : (
     <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">
       <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">
-        {q.kind === "capital" ? "CAPITAL OF?" : "CAPITAL IS?"}
+        {q.kind === "capital" ? t("igCapitalOf") : t("igCapitalIs")}
       </p>
       <h2 className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow leading-tight">{q.prompt}</h2>
     </div>
