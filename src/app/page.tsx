@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2 } from "lucide-react";
+import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2, Landmark } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
 import { useT, type TKey } from "@/lib/i18n";
@@ -13,7 +13,7 @@ import { AtlasJackpotBanner } from "@/components/ui/AtlasJackpotBanner";
 import { DailyResultScreen } from "@/components/ui/DailyResultScreen";
 import { useDailyStore } from "@/store/dailyStore";
 import { useCoinStore } from "@/store/coinStore";
-import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends, AtlasJackpot } from "@/components/games";
+import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends, SkylineSilhouette, AtlasJackpot } from "@/components/games";
 
 interface GameEntry {
   slug: GameSlug;
@@ -33,6 +33,7 @@ const GAMES: GameEntry[] = [
   { slug: "frontier-faceoff", title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords },
   { slug: "one-strike",       title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull },
   { slug: "urban-legends",    title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2 },
+  { slug: "skyline-silhouette", title: "SKYLINE SILHOUETTE", descKey: "descSkyline", Icon: Landmark },
   // atlas-jackpot is the Boss Stage — rendered as a hero banner, not a grid card.
 ];
 
@@ -45,6 +46,7 @@ const GAME_COMPONENTS: Partial<Record<GameSlug, React.ComponentType<{ onExit: ()
   "frontier-faceoff": FrontierFaceOff,
   "one-strike": OneStrike,
   "urban-legends": UrbanLegends,
+  "skyline-silhouette": SkylineSilhouette,
   "atlas-jackpot": AtlasJackpot,
 };
 

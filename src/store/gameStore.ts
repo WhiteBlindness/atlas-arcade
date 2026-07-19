@@ -11,6 +11,7 @@ export type GameSlug =
   | "frontier-faceoff"
   | "one-strike"
   | "urban-legends"
+  | "skyline-silhouette"
   | "atlas-jackpot";
 
 export type GameMode = "daily" | "arcade";

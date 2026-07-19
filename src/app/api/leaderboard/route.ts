@@ -4,7 +4,8 @@ import { getLeaderboard } from "@/lib/supabase/leaderboard";
 // Known game slugs — validated before any DB work so junk never reaches Supabase.
 const GAME_SLUGS = new Set([
   "globle", "capital-invaders", "flag-rush", "peaks-valleys",
-  "tectonic-snap", "frontier-faceoff", "one-strike", "urban-legends", "atlas-jackpot",
+  "tectonic-snap", "frontier-faceoff", "one-strike", "urban-legends",
+  "skyline-silhouette", "atlas-jackpot",
 ]);
 
 // NOTE (rate limiting): this handler is the single choke point for leaderboard
