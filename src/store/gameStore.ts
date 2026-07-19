@@ -13,6 +13,7 @@ export type GameSlug =
   | "urban-legends"
   | "skyline-silhouette"
   | "border-blitz"
+  | "stat-attack"
   | "atlas-jackpot";
 
 export type GameMode = "daily" | "arcade";

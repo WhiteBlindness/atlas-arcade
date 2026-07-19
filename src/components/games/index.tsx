@@ -56,6 +56,11 @@ export const BorderBlitz = dynamic(() => import("./BorderBlitz"), {
   ssr: false,
 });
 
+export const StatAttack = dynamic(() => import("./StatAttack"), {
+  loading: () => <Loader color="text-arcade-neon-cyan" />,
+  ssr: false,
+});
+
 export const AtlasJackpot = dynamic(() => import("./AtlasJackpot"), {
   loading: () => <Loader color="text-arcade-neon-yellow" />,
   ssr: false,

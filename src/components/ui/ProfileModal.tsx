@@ -21,6 +21,7 @@ const GAME_TITLES: Record<GameSlug, string> = {
   "urban-legends": "URBAN LEGENDS",
   "skyline-silhouette": "SKYLINE SILHOUETTE",
   "border-blitz": "BORDER BLITZ",
+  "stat-attack": "STAT ATTACK",
   "atlas-jackpot": "ATLAS JACKPOT",
 };
 

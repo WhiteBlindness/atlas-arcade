@@ -15,7 +15,7 @@ import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const REVEAL_MS = 15000;         // silhouette → clear over 15s
+const REVEAL_MS = 25000;         // silhouette → clear over 25s (slow, dramatic reveal)
 const MAX_POINTS = 600;
 const DIST_ZERO_KM = 3000;       // score reaches 0 at this distance
 const CORRECT_KM = 300;          // within this = "correct" feedback
@@ -137,8 +137,8 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
         )}
       </div>
 
-      {/* Pin-drop globe */}
-      <div className="flex-1 min-h-0 relative">
+      {/* Pin-drop globe — min-h forces a real height so MapLibre never collapses to 0 on mobile */}
+      <div className="flex-1 min-h-[50vh] w-full relative">
         <Map
           ref={mapRef}
           onClick={onMapClick}

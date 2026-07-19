@@ -5,7 +5,7 @@ import { getLeaderboard } from "@/lib/supabase/leaderboard";
 const GAME_SLUGS = new Set([
   "globle", "capital-invaders", "flag-rush", "peaks-valleys",
   "tectonic-snap", "frontier-faceoff", "one-strike", "urban-legends",
-  "skyline-silhouette", "border-blitz", "atlas-jackpot",
+  "skyline-silhouette", "border-blitz", "stat-attack", "atlas-jackpot",
 ]);
 
 // NOTE (rate limiting): this handler is the single choke point for leaderboard

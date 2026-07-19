@@ -22,6 +22,7 @@ const GAME_TABS: { slug: string; title: string }[] = [
   { slug: "urban-legends", title: "URBAN LEGENDS" },
   { slug: "skyline-silhouette", title: "SKYLINE SILHOUETTE" },
   { slug: "border-blitz", title: "BORDER BLITZ" },
+  { slug: "stat-attack", title: "STAT ATTACK" },
   { slug: "atlas-jackpot", title: "ATLAS JACKPOT" },
 ];
 
