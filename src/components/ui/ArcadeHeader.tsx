@@ -6,10 +6,10 @@ import { useCoinStore } from "@/store/coinStore";
 import { useDailyStore } from "@/store/dailyStore";
 import { useT, LANGS } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
-import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe, Gem, Sun, Moon } from "lucide-react";
+import { LogOut, LogIn, User, Volume2, VolumeX, Flame, Globe, Gem, Sun, Moon, Trophy } from "lucide-react";
 
 export function ArcadeHeader() {
-  const { user, openModal, openProfile, signOut } = useAuthStore();
+  const { user, openModal, openProfile, openLeaderboard, signOut } = useAuthStore();
   const { lang, sound, theme, setLang, toggleSound, toggleTheme } = useSettingsStore();
   const coins = useCoinStore((s) => s.coins);
   const premiumTokens = useCoinStore((s) => s.premiumTokens);
@@ -82,6 +82,16 @@ export function ArcadeHeader() {
             <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-green neon-text-green">{premiumTokens}</span>
           </div>
         )}
+
+        {/* Leaderboard */}
+        <button
+          onClick={() => { openLeaderboard(); sfx.click(); }}
+          title="Leaderboard"
+          aria-label="Leaderboard"
+          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all"
+        >
+          <Trophy size={17} />
+        </button>
 
         {/* Theme toggle */}
         <button

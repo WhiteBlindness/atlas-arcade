@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { ProfileModal } from "@/components/ui/ProfileModal";
+import { LeaderboardModal } from "@/components/ui/LeaderboardModal";
 import { Toaster } from "@/components/ui/Toaster";
 
 export const metadata: Metadata = {
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <AuthModal />
           <ProfileModal />
+          <LeaderboardModal />
           <Toaster />
         </AuthProvider>
       </body>

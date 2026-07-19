@@ -14,35 +14,43 @@ export const ATLAS_JACKPOT_COST = 5;
 //   premium_tokens  int         — permanent earned balance
 // Regen/reset maths live in src/lib/tokens.ts; this module only reads/writes.
 
-/** Read the raw stored token state (pre-accrual), or null when logged out. */
-export async function fetchTokenRow(): Promise<TokenState | null> {
+export interface UserState {
+  tokens: TokenState;        // raw stored token row (pre-accrual)
+  premiumTokens: number;
+  highScores: Record<string, number>; // game_slug → score
+}
+
+/**
+ * ONE round-trip for the whole signed-in bootstrap: token row + premium balance
+ * + every high score, via the get_user_state RPC. Replaces the three separate
+ * reads (token row, premium, high scores) — the real free-tier saver.
+ */
+export async function fetchUserState(): Promise<UserState | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data } = await supabase
-    .from("user_coins")
-    .select("coins, granted_today, accrual_at, last_reset")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("get_user_state");
+  if (error || !data) return null;
 
-  if (!data) {
-    const fresh = freshDay(Date.now());
-    await supabase.from("user_coins").insert({
-      user_id: user.id,
-      coins: fresh.coins,
-      granted_today: fresh.grantedToday,
-      accrual_at: new Date(fresh.accrualAt).toISOString(),
-      last_reset: fresh.day,
-    });
-    return fresh;
-  }
-
-  return {
-    coins: data.coins ?? DAILY_COINS,
-    grantedToday: data.granted_today ?? DAILY_COINS,
-    accrualAt: data.accrual_at ? Date.parse(data.accrual_at) : Date.now(),
-    day: data.last_reset ?? todayUTC(),
+  const d = data as {
+    coins: number | null; granted_today: number | null; accrual_at: string | null;
+    last_reset: string | null; premium_tokens: number | null;
+    high_scores: { game_slug: string; score: number }[] | null;
   };
+
+  const tokens: TokenState = d.coins != null
+    ? {
+        coins: d.coins,
+        grantedToday: d.granted_today ?? DAILY_COINS,
+        accrualAt: d.accrual_at ? Date.parse(d.accrual_at) : Date.now(),
+        day: d.last_reset ?? todayUTC(),
+      }
+    : freshDay(Date.now());
+
+  const highScores: Record<string, number> = {};
+  for (const r of d.high_scores ?? []) highScores[r.game_slug] = r.score;
+
+  return { tokens, premiumTokens: d.premium_tokens ?? 0, highScores };
 }
 
 /** Persist a token state for the signed-in user. */
@@ -64,17 +72,6 @@ export async function persistTokenRow(s: TokenState): Promise<void> {
 // ── Premium tokens ──────────────────────────────────────────────────────────
 // Permanent, earned balance in user_coins.premium_tokens. Never touched by the
 // daily refill or regen. Signed-in accounts only (no guest premium).
-
-export async function fetchPremium(): Promise<number | null> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data } = await supabase
-    .from("user_coins")
-    .select("premium_tokens")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  return data?.premium_tokens ?? 0;
-}
 
 async function setPremium(next: number): Promise<number | null> {
   const { data: { user } } = await supabase.auth.getUser();

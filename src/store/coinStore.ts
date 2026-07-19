@@ -2,7 +2,8 @@
 
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
-import { fetchTokenRow, persistTokenRow, fetchPremium, addPremium, spendPremium } from "@/lib/supabase/coins";
+import { fetchUserState, persistTokenRow, addPremium, spendPremium } from "@/lib/supabase/coins";
+import { useGameStore } from "@/store/gameStore";
 import {
   accrue, spend as spendTokensState, msToNextToken, freshDay,
   TOKEN_CEILING, type TokenState,
@@ -88,10 +89,18 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
     const now = Date.now();
 
     if (user) {
-      const [row, premiumTokens] = await Promise.all([fetchTokenRow(), fetchPremium()]);
-      const tokens = accrue(row ?? freshDay(now), now);
-      set({ tokens, coins: tokens.coins, premiumTokens, guest: false, loading: false });
-      if (row && (tokens.coins !== row.coins || tokens.day !== row.day)) persistTokenRow(tokens);
+      // Single RPC: token row + premium + high scores (was 3 separate reads).
+      const state = await fetchUserState();
+      if (!state) {
+        // RPC unavailable — do NOT fabricate a balance, or a later spend would
+        // overwrite the real DB row. Leave it unknown (null) so spends no-op.
+        set({ tokens: null, coins: null, premiumTokens: null, guest: false, loading: false });
+      } else {
+        const tokens = accrue(state.tokens, now);
+        set({ tokens, coins: tokens.coins, premiumTokens: state.premiumTokens, guest: false, loading: false });
+        if (tokens.coins !== state.tokens.coins || tokens.day !== state.tokens.day) persistTokenRow(tokens);
+        useGameStore.getState().setHighScores(state.highScores);
+      }
     } else {
       const tokens = readGuestState();
       set({ tokens, coins: tokens.coins, premiumTokens: null, guest: true, loading: false });

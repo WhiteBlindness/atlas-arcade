@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { supabase } from "@/lib/supabase/client";
 
 export type GameSlug =
   | "globle"
@@ -32,7 +31,8 @@ interface GameStore {
   retryGame: () => void;
   exitGame: () => void;
   addScore: (points: number) => void;
-  loadHighScores: () => Promise<void>;
+  /** Set all high scores at once (hydrated from the consolidated get_user_state RPC). */
+  setHighScores: (scores: Record<string, number>) => void;
 }
 
 export const useGameStore = create<GameStore>((set) => ({
@@ -50,15 +50,5 @@ export const useGameStore = create<GameStore>((set) => ({
   exitGame: () => set({ activeGame: null, mode: null, sessionScore: 0 }),
   addScore: (points) => set((s) => ({ sessionScore: s.sessionScore + points })),
 
-  loadHighScores: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { data } = await supabase
-      .from("high_scores")
-      .select("game_slug, score")
-      .eq("user_id", user.id);
-    if (!data) return;
-    const map = Object.fromEntries(data.map((r) => [r.game_slug, r.score]));
-    set({ highScores: map as Partial<Record<GameSlug, number>> });
-  },
+  setHighScores: (scores) => set({ highScores: scores as Partial<Record<GameSlug, number>> }),
 }));

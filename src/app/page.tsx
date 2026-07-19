@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
@@ -51,14 +50,10 @@ const GAME_COMPONENTS: Partial<Record<GameSlug, React.ComponentType<{ onExit: ()
 
 export default function HomePage() {
   const { user } = useAuthStore();
-  const { activeGame, mode, runId, highScores, openModeSelect, exitGame, retryGame, loadHighScores } = useGameStore();
+  const { activeGame, mode, runId, highScores, openModeSelect, exitGame, retryGame } = useGameStore();
   const getDailyResult = useDailyStore((s) => s.getResult);
   const refundCoin = useCoinStore((s) => s.refund);
   const t = useT();
-
-  useEffect(() => {
-    if (user) loadHighScores();
-  }, [user, loadHighScores]);
 
   if (activeGame) {
     const Game = GAME_COMPONENTS[activeGame];
