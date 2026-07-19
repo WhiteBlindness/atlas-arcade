@@ -12,6 +12,7 @@ export type GameSlug =
   | "one-strike"
   | "urban-legends"
   | "skyline-silhouette"
+  | "border-blitz"
   | "atlas-jackpot";
 
 export type GameMode = "daily" | "arcade";

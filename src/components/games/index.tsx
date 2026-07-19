@@ -51,6 +51,11 @@ export const SkylineSilhouette = dynamic(() => import("./SkylineSilhouette"), {
   ssr: false,
 });
 
+export const BorderBlitz = dynamic(() => import("./BorderBlitz"), {
+  loading: () => <Loader color="text-arcade-neon-magenta" />,
+  ssr: false,
+});
+
 export const AtlasJackpot = dynamic(() => import("./AtlasJackpot"), {
   loading: () => <Loader color="text-arcade-neon-yellow" />,
   ssr: false,

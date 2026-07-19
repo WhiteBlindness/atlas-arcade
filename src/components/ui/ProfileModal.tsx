@@ -20,6 +20,7 @@ const GAME_TITLES: Record<GameSlug, string> = {
   "one-strike": "ONE STRIKE",
   "urban-legends": "URBAN LEGENDS",
   "skyline-silhouette": "SKYLINE SILHOUETTE",
+  "border-blitz": "BORDER BLITZ",
   "atlas-jackpot": "ATLAS JACKPOT",
 };
 

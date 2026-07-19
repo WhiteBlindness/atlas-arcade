@@ -18,6 +18,7 @@ const ACCENTS: Record<GameSlug, Accent> = {
   "one-strike":       { border: "border-arcade-neon-yellow",  text: "text-arcade-neon-yellow neon-text-yellow",   hover: "hover:shadow-neon-yellow hover:border-arcade-neon-yellow" },
   "urban-legends":    { border: "border-arcade-neon-green",   text: "text-arcade-neon-green neon-text-green",     hover: "hover:shadow-neon-green hover:border-arcade-neon-green" },
   "skyline-silhouette": { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
+  "border-blitz":     { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
   "atlas-jackpot":    { border: "border-arcade-neon-yellow",  text: "text-arcade-neon-yellow neon-text-yellow",   hover: "" },
 };
 
