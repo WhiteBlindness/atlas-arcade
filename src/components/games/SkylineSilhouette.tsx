@@ -111,7 +111,7 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
     <div className="h-dvh overflow-hidden flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta tracking-widest">SKYLINE SILHOUETTE</h1>
+        <h1 className="font-pixel text-xs text-arcade-neon-white neon-text-white tracking-widest">SKYLINE SILHOUETTE</h1>
         <span className="w-14" />
       </div>
 
@@ -131,7 +131,7 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
           />
         )}
         {!result && (
-          <p className="absolute top-2 left-0 right-0 text-center font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.3em] pointer-events-none">
+          <p className="absolute top-2 left-0 right-0 text-center font-pixel text-[8px] text-arcade-neon-white neon-text-white tracking-[0.3em] pointer-events-none">
             {t("skDropPin")}
           </p>
         )}
@@ -169,10 +169,10 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
         {result && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-4">
             <div
-              className={`border ${result.correct ? "border-arcade-neon-green" : "border-arcade-neon-magenta"} bg-black/92 p-6 text-center space-y-3 min-w-[240px]`}
+              className={`border ${result.correct ? "border-arcade-neon-green" : "border-arcade-neon-red"} bg-black/92 p-6 text-center space-y-3 min-w-[240px]`}
               style={{ boxShadow: `0 0 40px ${result.correct ? "#00ff4155" : "#ff00ff55"}` }}
             >
-              <p className={`font-pixel text-[11px] tracking-widest ${result.correct ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-magenta neon-text-magenta"}`}>
+              <p className={`font-pixel text-[11px] tracking-widest ${result.correct ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
                 {result.correct ? t("correct") : t("igTooFar")}
               </p>
               <p className="font-mono text-lg text-white">{city.name} {city.emoji}</p>

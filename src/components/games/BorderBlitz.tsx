@@ -13,7 +13,7 @@ import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-const CONQUER_COLOR = "#ff00ff";   // retro magenta for conquered territory
+const CONQUER_COLOR = "#ccff00";   // retro lime for conquered territory
 const BATCH = 20;                  // trivia fetched per request (avoids the 5s rate limit)
 
 // Decode HTML entities safely — textarea.value never executes markup.
@@ -187,8 +187,8 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
     <div className="h-dvh overflow-hidden flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta tracking-widest">BORDER BLITZ</h1>
-        <span className="font-pixel text-[9px] text-arcade-neon-magenta">{t("bbTerritories").replace("{X}", String(territories))}</span>
+        <h1 className="font-pixel text-xs text-arcade-neon-lime neon-text-lime tracking-widest">BORDER BLITZ</h1>
+        <span className="font-pixel text-[9px] text-arcade-neon-lime">{t("bbTerritories").replace("{X}", String(territories))}</span>
       </div>
 
       {status === "error" ? (
@@ -198,7 +198,7 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
         </div>
       ) : status === "loading" ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-magenta animate-blink">{t("authLoading")}</p>
+          <p className="font-pixel text-sm text-arcade-neon-lime animate-blink">{t("authLoading")}</p>
         </div>
       ) : (
         <>
@@ -208,9 +208,9 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
 
             {status === "done" && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-4">
-                <div className="border border-arcade-neon-magenta bg-black/92 p-6 text-center space-y-3 min-w-[240px]" style={{ boxShadow: "0 0 40px #ff00ff55" }}>
+                <div className="border border-arcade-neon-lime bg-black/92 p-6 text-center space-y-3 min-w-[240px]" style={{ boxShadow: "0 0 40px #ccff0055" }}>
                   <p className="font-pixel text-[11px] text-arcade-neon-red neon-text-red tracking-widest">{t("gameOver")}</p>
-                  <p className="font-pixel text-3xl text-arcade-neon-magenta neon-text-magenta">{territories}</p>
+                  <p className="font-pixel text-3xl text-arcade-neon-lime neon-text-lime">{territories}</p>
                   <p className="font-pixel text-[8px] text-gray-500">{t("bbTerritories").replace("{X}", String(territories))}</p>
                   <DailyPercentile performance={Math.min(1, territories / 20)} />
                   <EndScreenActions
@@ -229,7 +229,7 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
           {/* Question panel */}
           {status === "playing" && (
             <div className="shrink-0 border-t border-arcade-border p-4 bg-arcade-bg max-h-[46vh] overflow-y-auto">
-              <p className="font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.2em] mb-2 text-center">{t("bbConquer")}</p>
+              <p className="font-pixel text-[8px] text-arcade-neon-lime neon-text-lime tracking-[0.2em] mb-2 text-center">{t("bbConquer")}</p>
               {current ? (
                 <>
                   <p className="font-mono text-base text-white leading-snug text-center mb-3">{current.q}</p>
@@ -237,7 +237,7 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
                     {current.options.map((opt) => {
                       const isCorrect = opt === current.correct;
                       const isChosen = chosen === opt;
-                      let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-magenta enabled:hover:text-arcade-neon-magenta";
+                      let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-lime enabled:hover:text-arcade-neon-lime";
                       if (chosen) {
                         if (isCorrect) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
                         else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
@@ -256,7 +256,7 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
                   </div>
                 </>
               ) : (
-                <p className="font-pixel text-[9px] text-arcade-neon-magenta animate-blink text-center py-6">{t("authLoading")}</p>
+                <p className="font-pixel text-[9px] text-arcade-neon-lime animate-blink text-center py-6">{t("authLoading")}</p>
               )}
             </div>
           )}

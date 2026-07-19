@@ -83,10 +83,10 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
   if (status === "done") {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">STAT ATTACK</h1>
-        <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-pink neon-text-pink">STAT ATTACK</h1>
+        <div className="border border-arcade-neon-pink p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-arcade-neon-red neon-text-red">{t("gameOver")}</p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-pink neon-text-pink">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("saRounds").replace("{X}", String(score))}</p>
           <DailyPercentile performance={Math.min(1, score / 15)} />
         </div>
@@ -106,16 +106,16 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow tracking-widest">STAT ATTACK</h1>
-        <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-pink neon-text-pink tracking-widest">STAT ATTACK</h1>
+        <span className="font-pixel text-[9px] text-arcade-neon-pink">{score}</span>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-lg mx-auto w-full">
         {/* Scenario */}
-        <div className="w-full border border-arcade-neon-yellow shadow-neon-yellow p-4 text-center">
+        <div className="w-full border border-arcade-neon-pink shadow-neon-pink p-4 text-center">
           <p className="font-pixel text-[7px] text-gray-500 tracking-[0.3em] mb-2">{t("saBrief")}</p>
           <p className="font-mono text-base text-white leading-snug">{t(SCENARIO_KEY[round.stat])}</p>
-          <p className="font-pixel text-[8px] text-arcade-neon-yellow neon-text-yellow mt-2">▸ {t(STAT_LABEL_KEY[round.stat])}</p>
+          <p className="font-pixel text-[8px] text-arcade-neon-pink neon-text-pink mt-2">▸ {t(STAT_LABEL_KEY[round.stat])}</p>
         </div>
 
         {/* Opponent */}
@@ -144,7 +144,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
           {round.hand.map((c) => {
             const isPicked = picked?.name === c.name;
             const beats = revealed && c[round.stat] >= round.opponent[round.stat];
-            let border = "border-arcade-border hover:border-arcade-neon-yellow";
+            let border = "border-arcade-border hover:border-arcade-neon-pink";
             if (revealed) border = isPicked ? (won ? "border-arcade-neon-green" : "border-arcade-neon-red") : beats ? "border-arcade-neon-green/40" : "border-arcade-border opacity-60";
             return (
               <button
@@ -157,7 +157,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
                 <img src={flagUrl(c.alpha2)} alt={c.name} width={64} height={42} className="w-full max-w-[64px] border border-black/40" loading="eager" />
                 <span className="font-mono text-[13px] text-gray-200 text-center leading-tight">{c.name}</span>
                 {revealed && (
-                  <span className="font-pixel text-[8px] text-arcade-neon-yellow">{fmtStat(round.stat, c[round.stat])}</span>
+                  <span className="font-pixel text-[8px] text-arcade-neon-pink">{fmtStat(round.stat, c[round.stat])}</span>
                 )}
               </button>
             );

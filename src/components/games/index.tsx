@@ -47,17 +47,17 @@ export const UrbanLegends = dynamic(() => import("./UrbanLegends"), {
 });
 
 export const SkylineSilhouette = dynamic(() => import("./SkylineSilhouette"), {
-  loading: () => <Loader color="text-arcade-neon-magenta" />,
+  loading: () => <Loader color="text-arcade-neon-white" />,
   ssr: false,
 });
 
 export const BorderBlitz = dynamic(() => import("./BorderBlitz"), {
-  loading: () => <Loader color="text-arcade-neon-magenta" />,
+  loading: () => <Loader color="text-arcade-neon-lime" />,
   ssr: false,
 });
 
 export const StatAttack = dynamic(() => import("./StatAttack"), {
-  loading: () => <Loader color="text-arcade-neon-yellow" />,
+  loading: () => <Loader color="text-arcade-neon-pink" />,
   ssr: false,
 });
 
