@@ -23,23 +23,23 @@ export function ArcadeHeader() {
   };
 
   return (
-    <header className="flex flex-wrap justify-between items-center gap-x-2 gap-y-2 sm:gap-x-4 px-3 sm:px-6 py-3 sm:py-4 border-b border-arcade-border w-full max-w-full overflow-hidden">
+    <header className="flex flex-nowrap justify-between items-center gap-x-2 sm:gap-x-4 px-3 sm:px-6 py-3 sm:py-4 border-b border-arcade-border w-full max-w-full overflow-hidden">
       <div className="shrink-0">
         <h1 className="font-pixel text-xs sm:text-sm text-arcade-neon-cyan neon-text-cyan tracking-widest">ATLAS</h1>
         <p className="font-pixel text-[7px] sm:text-[8px] text-gray-500 mt-1 tracking-wider">ARCADE</p>
       </div>
 
-      <div className="flex items-center flex-wrap justify-end gap-2 sm:gap-4 min-w-0">
+      <div className="flex items-center flex-nowrap justify-end gap-1.5 sm:gap-4 min-w-0 overflow-x-auto scrollbar-hide">
         {/* Language switcher — compact globe on mobile, full EN|PT|ES on desktop */}
         <button
           onClick={cycleLang}
           aria-label="Change language"
-          className="sm:hidden flex items-center gap-1 min-h-[40px] px-1 text-gray-400 hover:text-arcade-neon-green active:scale-90 transition-all"
+          className="sm:hidden shrink-0 flex items-center gap-1 min-h-[40px] px-1 text-gray-400 hover:text-arcade-neon-green active:scale-90 transition-all"
         >
           <Globe size={15} />
           <span className="font-pixel text-[9px]">{lang.toUpperCase()}</span>
         </button>
-        <div className="hidden sm:flex items-center" role="group" aria-label="Language">
+        <div className="hidden sm:flex shrink-0 items-center" role="group" aria-label="Language">
           {LANGS.map((l, i) => (
             <span key={l} className="flex items-center">
               {i > 0 && <span className="font-pixel text-[8px] text-gray-700 px-1">|</span>}
@@ -58,7 +58,7 @@ export function ArcadeHeader() {
 
         {/* Daily streak */}
         {streak > 0 && (
-          <div className="flex items-center gap-1 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-red/60" title="Daily challenge streak">
+          <div className="flex shrink-0 items-center gap-1 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-red/60" title="Daily challenge streak">
             <Flame size={12} className="text-arcade-neon-red fill-arcade-neon-red/40" />
             <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-red neon-text-red">{streak}</span>
           </div>
@@ -66,7 +66,7 @@ export function ArcadeHeader() {
 
         {/* Coin counter */}
         {coins !== null && (
-          <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-yellow/60" title="Arcade coins — 1 per Arcade Mode run, refills daily">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-yellow/60" title="Arcade coins — 1 per Arcade Mode run, refills daily">
             <span
               className="inline-block w-3 h-3 rounded-full border border-yellow-700"
               style={{ background: "radial-gradient(circle at 35% 35%, #ffe600, #b8860b)" }}
@@ -77,7 +77,7 @@ export function ArcadeHeader() {
 
         {/* Premium token counter — accounts only */}
         {premiumTokens !== null && (
-          <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-green/60" title={t("premiumTokensTip")}>
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-green/60" title={t("premiumTokensTip")}>
             <Gem size={12} className="text-arcade-neon-green" />
             <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-green neon-text-green">{premiumTokens}</span>
           </div>
@@ -114,7 +114,7 @@ export function ArcadeHeader() {
         </button>
 
         {user ? (
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {/* Name (desktop) / user icon (mobile) opens the profile modal */}
             <button
               onClick={() => { openProfile(); sfx.click(); }}

@@ -136,8 +136,8 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
     const performance = 0.6 * (cleared / DAILY_LEVELS) + 0.4 * Math.min(1, score / (DAILY_LEVELS * 170));
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
-        <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-orange neon-text-orange">CAPITAL STRIKE</h1>
+        <div className="border border-arcade-neon-orange p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-gray-500">
             {dailyComplete ? t("igDailyComplete") : t("gameOver")}
           </p>
@@ -165,7 +165,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">CAPITAL STRIKE</h1>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-orange neon-text-orange">CAPITAL STRIKE</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>
 
@@ -188,9 +188,9 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
           </p>
         </div>
 
-        <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
+        <div className="text-center space-y-3 w-full border border-arcade-neon-orange shadow-neon-orange p-6">
           <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">{t("igCapitalOf")}</p>
-          <h2 className="font-pixel text-lg text-arcade-neon-magenta neon-text-magenta leading-tight">
+          <h2 className="font-pixel text-lg text-arcade-neon-orange neon-text-orange leading-tight">
             {question.capital}
           </h2>
         </div>
@@ -200,7 +200,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
             const isCorrectOpt = country.numeric === question.correct.numeric;
             const isChosen = chosen === country.numeric;
 
-            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-magenta enabled:hover:text-arcade-neon-magenta";
+            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-orange enabled:hover:text-arcade-neon-orange";
             if (isAnswered) {
               if (isCorrectOpt) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
               else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
@@ -242,9 +242,9 @@ function CapitalInvadersMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   });
 
   const prompt = (
-    <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
+    <div className="text-center space-y-3 w-full border border-arcade-neon-orange shadow-neon-orange p-6">
       <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">{t("igCapitalOf")}</p>
-      <h2 className="font-pixel text-lg text-arcade-neon-magenta neon-text-magenta leading-tight">{q.capital}</h2>
+      <h2 className="font-pixel text-lg text-arcade-neon-orange neon-text-orange leading-tight">{q.capital}</h2>
     </div>
   );
 

@@ -150,12 +150,12 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
     const performance = 0.6 * (cleared / DAILY_LEVELS) + 0.4 * Math.min(1, score / (DAILY_LEVELS * 180));
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">FLAG FRENZY</h1>
-        <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-blue neon-text-blue">FLAG FRENZY</h1>
+        <div className="border border-arcade-neon-blue p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-gray-500">
             {dailyComplete ? t("igDailyComplete") : t("gameOver")}
           </p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-blue neon-text-blue">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
             {t("igLevelsCleared").replace("{X}", `${cleared}${isDaily ? ` / ${DAILY_LEVELS}` : ""}`)}
           </p>
@@ -179,9 +179,9 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">FLAG FRENZY</h1>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-blue neon-text-blue">FLAG FRENZY</h1>
         <div className="flex items-center gap-3">
-          <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+          <span className="font-pixel text-[9px] text-arcade-neon-blue">{score}</span>
           {streak >= 2 && (
             <div className="flex items-center gap-1 text-arcade-neon-green">
               <Zap size={10} className="fill-current" />
@@ -211,7 +211,7 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
         </div>
 
         <div className={`border-2 transition-colors ${
-          !isAnswered ? "border-arcade-neon-yellow shadow-neon-yellow"
+          !isAnswered ? "border-arcade-neon-blue shadow-neon-blue"
           : isLastCorrect ? "border-arcade-neon-green shadow-neon-green"
           : "border-red-500"
         }`}>
@@ -232,7 +232,7 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
             const isCorrectOpt = country.numeric === question.correct.numeric;
             const isChosen = chosen === country.numeric;
 
-            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-yellow enabled:hover:text-arcade-neon-yellow";
+            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-blue enabled:hover:text-arcade-neon-blue";
             if (isAnswered) {
               if (isCorrectOpt) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
               else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
@@ -273,7 +273,7 @@ function FlagRushMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   });
 
   const prompt = (
-    <div className="border-2 border-arcade-neon-yellow shadow-neon-yellow">
+    <div className="border-2 border-arcade-neon-blue shadow-neon-blue">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={flagUrl(q.alpha2)} alt="Flag" width={320} height={213} className="block w-72 max-w-full" loading="eager" decoding="async" />
     </div>

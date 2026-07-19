@@ -240,8 +240,8 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
   if (phase === "done") {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan">TECTONIC SNAP</h1>
-        <div className="border border-arcade-neon-cyan p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-mint neon-text-mint">TECTONIC SNAP</h1>
+        <div className="border border-arcade-neon-mint p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("igMissedDrops").replace("{X}", String(misses))}</p>
@@ -263,13 +263,13 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-cyan neon-text-cyan">TECTONIC SNAP</h1>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-mint neon-text-mint">TECTONIC SNAP</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>
 
       {phase === "loading" || !round ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-cyan animate-blink">{t("authLoading")}</p>
+          <p className="font-pixel text-sm text-arcade-neon-mint animate-blink">{t("authLoading")}</p>
         </div>
       ) : (
         <div className="flex-1 flex flex-col px-3 py-3 gap-3 max-w-4xl mx-auto w-full">
@@ -309,7 +309,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
                   <p className="font-pixel text-[9px] text-arcade-neon-yellow">{t("igBonus").replace("{X}", String(ROUND_BONUS))}</p>
                   <button
                     onClick={() => { sfx.click(); setRoundIdx((r) => r + 1); }}
-                    className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-cyan text-arcade-neon-cyan hover:bg-arcade-neon-cyan hover:text-black transition-all"
+                    className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-mint text-arcade-neon-mint hover:bg-arcade-neon-mint hover:text-black transition-all"
                   >
                     {t("igNextContinent")}
                   </button>
@@ -334,7 +334,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
                     setDragPos({ x: e.clientX, y: e.clientY });
                   }}
                   className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${
-                    dragId === p.id ? "border-arcade-neon-cyan text-arcade-neon-cyan opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-cyan hover:text-arcade-neon-cyan"
+                    dragId === p.id ? "border-arcade-neon-mint text-arcade-neon-mint opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-mint hover:text-arcade-neon-mint"
                   }`}
                 >
                   {p.name}
@@ -348,7 +348,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
       {/* Drag ghost */}
       {dragPiece && dragId !== null && (
         <div
-          className="fixed z-50 pointer-events-none px-3 py-2 border border-arcade-neon-cyan bg-arcade-bg font-mono text-sm text-arcade-neon-cyan whitespace-nowrap"
+          className="fixed z-50 pointer-events-none px-3 py-2 border border-arcade-neon-mint bg-arcade-bg font-mono text-sm text-arcade-neon-mint whitespace-nowrap"
           style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)", boxShadow: "0 0 8px #00d4ff" }}
         >
           {dragPiece.name}
@@ -423,7 +423,7 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   if (!round) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="font-pixel text-sm text-arcade-neon-cyan animate-blink">LOADING...</p>
+        <p className="font-pixel text-sm text-arcade-neon-mint animate-blink">LOADING...</p>
       </div>
     );
   }
@@ -463,7 +463,7 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
             <button
               key={p.id}
               onPointerDown={(e) => { e.preventDefault(); setDragId(p.id); setDragPos({ x: e.clientX, y: e.clientY }); }}
-              className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${dragId === p.id ? "border-arcade-neon-cyan text-arcade-neon-cyan opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-cyan hover:text-arcade-neon-cyan"}`}
+              className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${dragId === p.id ? "border-arcade-neon-mint text-arcade-neon-mint opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-mint hover:text-arcade-neon-mint"}`}
             >
               {p.name}
             </button>
@@ -473,7 +473,7 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
 
       {dragPiece && dragId !== null && (
         <div
-          className="fixed z-50 pointer-events-none px-3 py-2 border border-arcade-neon-cyan bg-arcade-bg font-mono text-sm text-arcade-neon-cyan whitespace-nowrap"
+          className="fixed z-50 pointer-events-none px-3 py-2 border border-arcade-neon-mint bg-arcade-bg font-mono text-sm text-arcade-neon-mint whitespace-nowrap"
           style={{ left: dragPos.x, top: dragPos.y, transform: "translate(-50%, -50%)", boxShadow: "0 0 8px #00d4ff" }}
         >
           {dragPiece.name}

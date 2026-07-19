@@ -12,12 +12,12 @@ export const GlobleGame = dynamic(() => import("./GlobleGame"), {
 });
 
 export const CapitalInvaders = dynamic(() => import("./CapitalInvaders"), {
-  loading: () => <Loader color="text-arcade-neon-magenta" />,
+  loading: () => <Loader color="text-arcade-neon-orange" />,
   ssr: false,
 });
 
 export const FlagRush = dynamic(() => import("./FlagRush"), {
-  loading: () => <Loader color="text-arcade-neon-yellow" />,
+  loading: () => <Loader color="text-arcade-neon-blue" />,
   ssr: false,
 });
 
@@ -27,22 +27,22 @@ export const PeaksValleys = dynamic(() => import("./PeaksValleys"), {
 });
 
 export const TectonicSnap = dynamic(() => import("./TectonicSnap"), {
-  loading: () => <Loader color="text-arcade-neon-cyan" />,
+  loading: () => <Loader color="text-arcade-neon-mint" />,
   ssr: false,
 });
 
 export const FrontierFaceOff = dynamic(() => import("./FrontierFaceOff"), {
-  loading: () => <Loader color="text-arcade-neon-magenta" />,
+  loading: () => <Loader color="text-arcade-neon-purple" />,
   ssr: false,
 });
 
 export const OneStrike = dynamic(() => import("./OneStrike"), {
-  loading: () => <Loader color="text-arcade-neon-yellow" />,
+  loading: () => <Loader color="text-arcade-neon-red" />,
   ssr: false,
 });
 
 export const UrbanLegends = dynamic(() => import("./UrbanLegends"), {
-  loading: () => <Loader color="text-arcade-neon-green" />,
+  loading: () => <Loader color="text-arcade-neon-magenta" />,
   ssr: false,
 });
 
@@ -57,7 +57,7 @@ export const BorderBlitz = dynamic(() => import("./BorderBlitz"), {
 });
 
 export const StatAttack = dynamic(() => import("./StatAttack"), {
-  loading: () => <Loader color="text-arcade-neon-cyan" />,
+  loading: () => <Loader color="text-arcade-neon-yellow" />,
   ssr: false,
 });
 

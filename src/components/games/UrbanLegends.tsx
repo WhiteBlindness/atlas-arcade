@@ -63,7 +63,7 @@ function SkylineImage({ city }: { city: CityEntry }) {
   if (failed) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <Building2 size={56} className="text-arcade-neon-green/40" aria-label="Skyline unavailable" />
+        <Building2 size={56} className="text-arcade-neon-magenta/40" aria-label="Skyline unavailable" />
       </div>
     );
   }
@@ -159,7 +159,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
       <div className="min-h-dvh flex flex-col bg-arcade-bg">
         <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
           <GameBackButton onExit={onExit} />
-          <h1 className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
+          <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">URBAN LEGENDS</h1>
           <span className="w-14" />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-8 px-4">
@@ -186,8 +186,8 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
   if (status === "done") {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
-        <div className="border border-arcade-neon-green p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">URBAN LEGENDS</h1>
+        <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("igCities").replace("{X}", String(ROUNDS))} · {tier ? t(TIER_KEY[tier]) : ""}</p>
@@ -212,7 +212,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">URBAN LEGENDS</h1>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">URBAN LEGENDS</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
       </div>
 
@@ -227,7 +227,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
         {/* Skyline silhouette — the star of the show */}
         <div
           key={current.city.id}
-          className="w-full h-44 sm:h-52 border border-arcade-neon-green shadow-neon-green overflow-hidden"
+          className="w-full h-44 sm:h-52 border border-arcade-neon-magenta shadow-neon-magenta overflow-hidden"
           style={{ animation: "fadeUp 0.25s ease-out" }}
         >
           <SkylineImage city={current.city} />
@@ -240,7 +240,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
           {current.options.map((city) => {
             const isCorrectOpt = city.id === current.city.id;
             const isChosen = chosen === city.id;
-            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-green enabled:hover:text-arcade-neon-green";
+            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-magenta enabled:hover:text-arcade-neon-magenta";
             if (isAnswered) {
               if (isCorrectOpt) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
               else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
@@ -263,7 +263,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
           <div className="w-full border border-arcade-border bg-arcade-surface p-4 space-y-3">
             {current.city.clues.slice(0, cluesShown).map((clue, i) => (
               <p key={i} className="font-mono text-sm text-gray-300 leading-relaxed" style={{ animation: "fadeUp 0.25s ease-out" }}>
-                <span className="text-arcade-neon-green mr-2">{i + 1}▸</span>{clue}
+                <span className="text-arcade-neon-magenta mr-2">{i + 1}▸</span>{clue}
               </p>
             ))}
             {!isAnswered && cluesShown < 3 && tier && (
@@ -290,7 +290,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
             </div>
             <button
               onClick={nextRound}
-              className="w-full py-2 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black transition-all"
+              className="w-full py-2 font-pixel text-[9px] border border-arcade-neon-magenta text-arcade-neon-magenta hover:bg-arcade-neon-magenta hover:text-black transition-all"
             >
               {idx + 1 >= ROUNDS ? t("igFinish") : t("igNextCity")}
             </button>
@@ -322,7 +322,7 @@ function UrbanLegendsMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   });
 
   const prompt = (
-    <div className="w-full h-44 sm:h-52 border border-arcade-neon-green shadow-neon-green overflow-hidden">
+    <div className="w-full h-44 sm:h-52 border border-arcade-neon-magenta shadow-neon-magenta overflow-hidden">
       <SkylineImage city={round.city} />
     </div>
   );

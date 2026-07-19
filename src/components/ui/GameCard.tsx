@@ -10,16 +10,16 @@ type Accent = { border: string; text: string; hover: string };
 
 const ACCENTS: Record<GameSlug, Accent> = {
   "globle":           { border: "border-arcade-neon-cyan",    text: "text-arcade-neon-cyan neon-text-cyan",       hover: "hover:shadow-neon-cyan hover:border-arcade-neon-cyan" },
-  "capital-invaders": { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
-  "flag-rush":        { border: "border-arcade-neon-yellow",  text: "text-arcade-neon-yellow neon-text-yellow",   hover: "hover:shadow-neon-yellow hover:border-arcade-neon-yellow" },
+  "capital-invaders": { border: "border-arcade-neon-orange",  text: "text-arcade-neon-orange neon-text-orange",   hover: "hover:shadow-neon-orange hover:border-arcade-neon-orange" },
+  "flag-rush":        { border: "border-arcade-neon-blue",    text: "text-arcade-neon-blue neon-text-blue",       hover: "hover:shadow-neon-blue hover:border-arcade-neon-blue" },
   "peaks-valleys":    { border: "border-arcade-neon-green",   text: "text-arcade-neon-green neon-text-green",     hover: "hover:shadow-neon-green hover:border-arcade-neon-green" },
-  "tectonic-snap":    { border: "border-arcade-neon-cyan",    text: "text-arcade-neon-cyan neon-text-cyan",       hover: "hover:shadow-neon-cyan hover:border-arcade-neon-cyan" },
-  "frontier-faceoff": { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
-  "one-strike":       { border: "border-arcade-neon-yellow",  text: "text-arcade-neon-yellow neon-text-yellow",   hover: "hover:shadow-neon-yellow hover:border-arcade-neon-yellow" },
-  "urban-legends":    { border: "border-arcade-neon-green",   text: "text-arcade-neon-green neon-text-green",     hover: "hover:shadow-neon-green hover:border-arcade-neon-green" },
+  "tectonic-snap":    { border: "border-arcade-neon-mint",    text: "text-arcade-neon-mint neon-text-mint",       hover: "hover:shadow-neon-mint hover:border-arcade-neon-mint" },
+  "frontier-faceoff": { border: "border-arcade-neon-purple",  text: "text-arcade-neon-purple neon-text-purple",   hover: "hover:shadow-neon-purple hover:border-arcade-neon-purple" },
+  "one-strike":       { border: "border-arcade-neon-red",     text: "text-arcade-neon-red neon-text-red",         hover: "hover:shadow-neon-red hover:border-arcade-neon-red" },
+  "urban-legends":    { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
   "skyline-silhouette": { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
   "border-blitz":     { border: "border-arcade-neon-magenta", text: "text-arcade-neon-magenta neon-text-magenta", hover: "hover:shadow-neon-magenta hover:border-arcade-neon-magenta" },
-  "stat-attack":      { border: "border-arcade-neon-cyan",    text: "text-arcade-neon-cyan neon-text-cyan",       hover: "hover:shadow-neon-cyan hover:border-arcade-neon-cyan" },
+  "stat-attack":      { border: "border-arcade-neon-yellow",  text: "text-arcade-neon-yellow neon-text-yellow",   hover: "hover:shadow-neon-yellow hover:border-arcade-neon-yellow" },
   "atlas-jackpot":    { border: "border-arcade-neon-yellow",  text: "text-arcade-neon-yellow neon-text-yellow",   hover: "" },
 };
 

@@ -15,6 +15,10 @@
   --color-arcade-neon-magenta: #ff00ff;
   --color-arcade-neon-yellow:  #ffe600;
   --color-arcade-neon-red:     #ff3333;
+  --color-arcade-neon-orange:  #ff8c00;
+  --color-arcade-neon-purple:  #b800ff;
+  --color-arcade-neon-blue:    #0088ff;
+  --color-arcade-neon-mint:    #00ffa6;
 
   /* Fonts. VT323 sits before monospace so accented uppercase (Í, Ã, Ç) that
      Press Start 2P lacks fall back to a retro glyph instead of tofu. */
@@ -26,6 +30,11 @@
   --shadow-neon-cyan:    0 0 8px #00d4ff, 0 0 20px #00d4ff55;
   --shadow-neon-magenta: 0 0 8px #ff00ff, 0 0 20px #ff00ff55;
   --shadow-neon-yellow:  0 0 8px #ffe600, 0 0 20px #ffe60055;
+  --shadow-neon-red:     0 0 8px #ff3333, 0 0 20px #ff333355;
+  --shadow-neon-orange:  0 0 8px #ff8c00, 0 0 20px #ff8c0055;
+  --shadow-neon-purple:  0 0 8px #b800ff, 0 0 20px #b800ff55;
+  --shadow-neon-blue:    0 0 8px #0088ff, 0 0 20px #0088ff55;
+  --shadow-neon-mint:    0 0 8px #00ffa6, 0 0 20px #00ffa655;
 
   /* Animations */
   --animate-blink:   blink 1s step-end infinite;
@@ -88,6 +97,17 @@
 @utility neon-text-magenta { text-shadow: 0 0 8px #ff00ff, 0 0 20px #ff00ff55; }
 @utility neon-text-yellow  { text-shadow: 0 0 8px #ffe600, 0 0 20px #ffe60055; }
 @utility neon-text-red     { text-shadow: 0 0 8px #ff3333, 0 0 20px #ff333355; }
+@utility neon-text-orange  { text-shadow: 0 0 8px #ff8c00, 0 0 20px #ff8c0055; }
+@utility neon-text-purple  { text-shadow: 0 0 8px #b800ff, 0 0 20px #b800ff55; }
+@utility neon-text-blue    { text-shadow: 0 0 8px #0088ff, 0 0 20px #0088ff55; }
+@utility neon-text-mint    { text-shadow: 0 0 8px #00ffa6, 0 0 20px #00ffa655; }
+
+/* Hide scrollbars while keeping scroll (used by the header overflow-x row) */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
 
 @utility arcade-border {
   border: 1px solid #00d4ff;
@@ -130,10 +150,19 @@ html.light {
   --color-arcade-neon-magenta: #b30ab3;
   --color-arcade-neon-yellow:  #9a7d00;
   --color-arcade-neon-red:     #cc1f1f;
+  --color-arcade-neon-orange:  #b35f00;
+  --color-arcade-neon-purple:  #8400b8;
+  --color-arcade-neon-blue:    #0062b8;
+  --color-arcade-neon-mint:    #067a52;
   --shadow-neon-green:   0 0 6px #0a8f3455;
   --shadow-neon-cyan:    0 0 6px #0782a655;
   --shadow-neon-magenta: 0 0 6px #b30ab355;
   --shadow-neon-yellow:  0 0 6px #9a7d0055;
+  --shadow-neon-red:     0 0 6px #cc1f1f55;
+  --shadow-neon-orange:  0 0 6px #b35f0055;
+  --shadow-neon-purple:  0 0 6px #8400b855;
+  --shadow-neon-blue:    0 0 6px #0062b855;
+  --shadow-neon-mint:    0 0 6px #067a5255;
   background-color: #f4f3ec;
   color: #16161f;
 }
@@ -143,7 +172,11 @@ html.light .neon-text-green,
 html.light .neon-text-cyan,
 html.light .neon-text-magenta,
 html.light .neon-text-yellow,
-html.light .neon-text-red { text-shadow: none; }
+html.light .neon-text-red,
+html.light .neon-text-orange,
+html.light .neon-text-purple,
+html.light .neon-text-blue,
+html.light .neon-text-mint { text-shadow: none; }
 
 /* Primary white text becomes ink on light surfaces … */
 html.light .text-white { color: #16161f; }

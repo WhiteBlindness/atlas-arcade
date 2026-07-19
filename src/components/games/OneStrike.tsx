@@ -148,11 +148,11 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
   if (status === "done") {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow">ONE STRIKE</h1>
-        <div className="border border-arcade-neon-yellow p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-red neon-text-red">ONE STRIKE</h1>
+        <div className="border border-arcade-neon-red p-10 text-center space-y-3">
           <Skull size={28} className="mx-auto text-arcade-neon-red" />
           <p className="font-pixel text-[8px] text-gray-500">{t("igSurvived").replace("{X}", String(streak))}</p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-red neon-text-red">{score}</p>
           <DailyPercentile performance={Math.min(1, streak / 15)} />
         </div>
         <EndScreenActions
@@ -173,9 +173,9 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">ONE STRIKE</h1>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-red neon-text-red">ONE STRIKE</h1>
         <div className="flex items-center gap-3">
-          <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+          <span className="font-pixel text-[9px] text-arcade-neon-red">{score}</span>
           <div className="flex items-center gap-1 text-arcade-neon-red">
             <Skull size={10} />
             <span className="font-pixel text-[9px]">{streak}</span>
@@ -197,7 +197,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
 
         {question.kind === "flag" ? (
           <div className={`border-2 transition-colors ${
-            !isAnswered ? "border-arcade-neon-yellow shadow-neon-yellow"
+            !isAnswered ? "border-arcade-neon-red shadow-neon-red"
             : isLastCorrect ? "border-arcade-neon-green shadow-neon-green"
             : "border-red-500"
           }`}>
@@ -214,11 +214,11 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
             </h2>
           </div>
         ) : (
-          <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">
+          <div className="text-center space-y-3 w-full border border-arcade-neon-red shadow-neon-red p-6">
             <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">
               {question.kind === "capital" ? t("igCapitalOf") : t("igCapitalIs")}
             </p>
-            <h2 className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow leading-tight">
+            <h2 className="font-pixel text-lg text-arcade-neon-red neon-text-red leading-tight">
               {question.prompt}
             </h2>
           </div>
@@ -230,7 +230,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
             const isChosen = chosen === country.numeric;
             const label = question.optionLabels ? question.optionLabels[i] : country.name;
 
-            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-yellow enabled:hover:text-arcade-neon-yellow";
+            let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-red enabled:hover:text-arcade-neon-red";
             if (isAnswered) {
               if (isCorrectOpt) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
               else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
@@ -266,7 +266,7 @@ function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   const [q] = useState(() => makeQuestion(pool, createSeededRng(mashupSeed ?? "one-strike")));
 
   const prompt = q.kind === "flag" ? (
-    <div className="border-2 border-arcade-neon-yellow shadow-neon-yellow">
+    <div className="border-2 border-arcade-neon-red shadow-neon-red">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={flagUrl(q.alpha2!)} alt="Flag" width={320} height={213} className="block w-72 max-w-full" loading="eager" />
     </div>
@@ -276,11 +276,11 @@ function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
       <h2 className="font-mono text-xl text-white leading-snug">{q.prompt}</h2>
     </div>
   ) : (
-    <div className="text-center space-y-3 w-full border border-arcade-neon-yellow shadow-neon-yellow p-6">
+    <div className="text-center space-y-3 w-full border border-arcade-neon-red shadow-neon-red p-6">
       <p className="font-pixel text-[8px] text-gray-500 tracking-[0.3em]">
         {q.kind === "capital" ? t("igCapitalOf") : t("igCapitalIs")}
       </p>
-      <h2 className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow leading-tight">{q.prompt}</h2>
+      <h2 className="font-pixel text-lg text-arcade-neon-red neon-text-red leading-tight">{q.prompt}</h2>
     </div>
   );
 

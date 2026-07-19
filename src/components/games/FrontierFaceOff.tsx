@@ -179,8 +179,8 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
   if (status === "done") {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-start pt-8 md:justify-center md:pt-0 gap-6 bg-arcade-bg px-4">
-        <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
-        <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
+        <h1 className="font-pixel text-xs text-arcade-neon-purple neon-text-purple">FRONTIER FACE-OFF</h1>
+        <div className="border border-arcade-neon-purple p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
@@ -204,7 +204,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
-        <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">FRONTIER FACE-OFF</h1>
+        <h1 className="font-pixel text-[10px] text-arcade-neon-purple neon-text-purple">FRONTIER FACE-OFF</h1>
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
           {isDaily ? (
@@ -221,7 +221,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
 
       {status === "loading" || !current ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-magenta animate-blink">{t("authLoading")}</p>
+          <p className="font-pixel text-sm text-arcade-neon-purple animate-blink">{t("authLoading")}</p>
         </div>
       ) : (
         <>
@@ -234,7 +234,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
           <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-md mx-auto w-full">
             <p className="font-pixel text-[8px] text-gray-600 self-end">{isDaily ? `${idx + 1} / ${TOTAL_QUESTIONS}` : `Q${idx + 1} · ${t("igSuddenDeath")}`}</p>
 
-            <div className="w-full border border-arcade-neon-magenta shadow-neon-magenta">
+            <div className="w-full border border-arcade-neon-purple shadow-neon-purple">
               <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ background: "#080810" }} aria-label="Border map">
                 {current.neighborPaths.map((d, i) => (
                   <path key={i} d={d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
@@ -245,7 +245,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
 
             <p className="font-pixel text-[10px] text-center text-white leading-relaxed">
               {t("igWhoBorders")}{" "}
-              <span className="text-arcade-neon-magenta neon-text-magenta">
+              <span className="text-arcade-neon-purple neon-text-purple">
                 {COUNTRY_BY_NUMERIC[current.target]?.name.toUpperCase()}
               </span>
               ?
@@ -255,7 +255,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
               {current.options.map((numeric) => {
                 const isCorrectOpt = numeric === current.answer;
                 const isChosen = chosen === numeric;
-                let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-magenta enabled:hover:text-arcade-neon-magenta";
+                let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-purple enabled:hover:text-arcade-neon-purple";
                 if (isAnswered) {
                   if (isCorrectOpt) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
                   else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
@@ -303,14 +303,14 @@ function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   if (!q) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="font-pixel text-sm text-arcade-neon-magenta animate-blink">LOADING...</p>
+        <p className="font-pixel text-sm text-arcade-neon-purple animate-blink">LOADING...</p>
       </div>
     );
   }
 
   const prompt = (
     <div className="w-full flex flex-col items-center gap-4">
-      <div className="w-full border border-arcade-neon-magenta shadow-neon-magenta">
+      <div className="w-full border border-arcade-neon-purple shadow-neon-purple">
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ background: "#080810" }} aria-label="Border map">
           {q.neighborPaths.map((d, i) => (
             <path key={i} d={d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
@@ -320,7 +320,7 @@ function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
       </div>
       <p className="font-pixel text-[10px] text-center text-white leading-relaxed">
         {t("igWhoBorders")}{" "}
-        <span className="text-arcade-neon-magenta neon-text-magenta">
+        <span className="text-arcade-neon-purple neon-text-purple">
           {COUNTRY_BY_NUMERIC[q.target]?.name.toUpperCase()}
         </span>?
       </p>

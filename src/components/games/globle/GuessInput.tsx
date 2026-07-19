@@ -85,7 +85,7 @@ export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
         placeholder={t("typeCountry")}
         autoComplete="off"
         autoFocus
-        className="w-full bg-arcade-bg border border-arcade-neon-cyan shadow-neon-cyan outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600"
+        className="w-full bg-arcade-bg border border-arcade-neon-cyan shadow-neon-cyan outline-none px-3 py-2 font-mono text-base text-white placeholder-gray-600"
       />
       {/* Dropdown opens upward on mobile (bottom-full) so the keyboard never
           covers it; downward on desktop (md:top-full). */}
