@@ -124,7 +124,6 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
             colorMap={colorMap}
             mysteryNumeric={status !== "playing" ? mystery.numeric : undefined}
             zoomTarget={zoomTarget}
-            gameOver={status !== "playing"}
           />
 
           {/* In-game stats HUD */}
@@ -286,7 +285,6 @@ function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps
           colorMap={result ? { [result.country.numeric]: "#00d4ff" } : {}}
           mysteryNumeric={result ? mystery.numeric : undefined}
           zoomTarget={result ? result.country.numeric : undefined}
-          gameOver={!!result}
         />
       </div>
 

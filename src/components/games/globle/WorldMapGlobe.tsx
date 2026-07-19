@@ -24,8 +24,6 @@ interface Props {
   colorMap: Record<number, string>;
   mysteryNumeric?: number;
   zoomTarget?: number;
-  /** When true the round is over — unlock free zoom/pan across the globe. */
-  gameOver?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,7 +58,7 @@ const INITIAL_CAMERA: CameraState = {
   pitch: 0,
 };
 
-export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, gameOver }: Props) {
+export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget }: Props) {
   const mapRef = useRef<MapRef | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [geo, setGeo] = useState<any>(null);
@@ -139,13 +137,14 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, gameOver }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {...({ projection: "globe" } as any)}
         attributionControl={false}
+        // Full free exploration at all times: drag to pan/spin the globe, wheel to
+        // zoom, pinch to zoom + rotate. The map is controlled ({...camera} + onMove),
+        // so flyTo on each guess animates without fighting manual interaction.
         dragRotate={false}
-        // During play: lock scroll/drag so typing guesses never scrolls the map.
-        // Round over: unlock free roam (wheel zoom + drag pan) to explore the globe.
-        scrollZoom={!!gameOver}
-        dragPan={!!gameOver}
-        doubleClickZoom={!!gameOver}
-        touchZoomRotate={!!gameOver}
+        scrollZoom={true}
+        dragPan={true}
+        doubleClickZoom={true}
+        touchZoomRotate={true}
         style={{ width: "100%", height: "100%" }}
       >
         {geo && (

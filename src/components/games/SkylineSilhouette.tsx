@@ -99,9 +99,9 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
     finalize(guess);
   }, [finalize]);
 
-  // brightness(0) = pitch-black silhouette; transitions to full over 15s.
+  // Dark, recognizable silhouette (not solid black); transitions to full over 15s.
   const imgStyle = useMemo<React.CSSProperties>(() => ({
-    filter: reveal ? "brightness(1) contrast(1)" : "brightness(0) contrast(1.2)",
+    filter: reveal ? "brightness(1) contrast(1)" : "brightness(0.15) contrast(2)",
     transition: `filter ${REVEAL_MS}ms linear`,
     // once the round ends we snap to fully clear instantly
     ...(result ? { transition: "filter 300ms ease-out" } : {}),
