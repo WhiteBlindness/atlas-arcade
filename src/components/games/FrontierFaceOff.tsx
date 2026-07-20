@@ -182,7 +182,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-purple neon-text-purple">FRONTIER FACE-OFF</h1>
         <div className="border border-arcade-neon-purple p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-purple neon-text-purple">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
             {t("igBordersNailed").replace("{X}", `${correct}${isDaily ? ` / ${TOTAL_QUESTIONS}` : ""}`)}
           </p>
@@ -206,7 +206,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-purple neon-text-purple">FRONTIER FACE-OFF</h1>
         <div className="flex items-center gap-3">
-          <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+          <span className="font-pixel text-[9px] text-arcade-neon-purple">{score}</span>
           {isDaily ? (
             <div className="flex gap-1">
               {Array.from({ length: START_LIVES }).map((_, i) => (
@@ -221,13 +221,13 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
 
       {status === "loading" || !current ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-purple animate-blink">{t("authLoading")}</p>
+          <p className="font-pixel text-sm text-arcade-neon-purple animate-blink">{t("igLoadingData")}</p>
         </div>
       ) : (
         <>
           {!isAnswered && (
             <div key={`tb-${idx}`} className="h-3 bg-arcade-border overflow-hidden">
-              <div className="h-full w-full origin-left" style={{ backgroundColor: "#ff00ff", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
+              <div className="h-full w-full origin-left" style={{ backgroundColor: "#b800ff", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
             </div>
           )}
 
@@ -239,7 +239,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
                 {current.neighborPaths.map((d, i) => (
                   <path key={i} d={d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
                 ))}
-                <path d={current.targetPath} fill="#ff00ff" opacity={0.85} stroke="#080810" strokeWidth={1} />
+                <path d={current.targetPath} fill="#b800ff" opacity={0.85} stroke="#080810" strokeWidth={1} />
               </svg>
             </div>
 
@@ -303,7 +303,7 @@ function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   if (!q) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="font-pixel text-sm text-arcade-neon-purple animate-blink">LOADING...</p>
+        <p className="font-pixel text-sm text-arcade-neon-purple animate-blink">{t("igLoadingData")}</p>
       </div>
     );
   }
@@ -315,7 +315,7 @@ function FrontierFaceOffMashup({ mashupSeed, onMashupComplete }: MashupProps) {
           {q.neighborPaths.map((d, i) => (
             <path key={i} d={d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
           ))}
-          <path d={q.targetPath} fill="#ff00ff" opacity={0.85} stroke="#080810" strokeWidth={1} />
+          <path d={q.targetPath} fill="#b800ff" opacity={0.85} stroke="#080810" strokeWidth={1} />
         </svg>
       </div>
       <p className="font-pixel text-[10px] text-center text-white leading-relaxed">

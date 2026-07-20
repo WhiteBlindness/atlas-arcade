@@ -182,7 +182,7 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
                   : t("skNoGuess")}
               </p>
               <div className="h-px bg-arcade-border" />
-              <p className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">+{result.points} PTS</p>
+              <p className="font-pixel text-[10px] text-arcade-neon-white neon-text-white">{t("igPtsSplash").replace("{X}", String(result.points))}</p>
               <DailyPercentile performance={Math.min(1, result.points / MAX_POINTS)} />
               <EndScreenActions
                 slug="skyline-silhouette"

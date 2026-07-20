@@ -21,7 +21,7 @@ function pointsFor(streak: number) {
 const CAT_COLOR: Record<PeaksCategory, string> = {
   mountain: "#00d4ff",
   river:    "#00ff41",
-  country:  "#ffe600",
+  country:  "#00ffff",
   city:     "#ff00ff",
   ocean:    "#0099ff",
   lake:     "#44aaff",
@@ -218,10 +218,10 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               <span key={i} className="text-arcade-neon-green text-xs leading-none">●</span>
             ))}
             {streak > 10 && (
-              <span className="font-pixel text-[7px] text-arcade-neon-yellow">+{streak - 10}</span>
+              <span className="font-pixel text-[7px] text-arcade-neon-green">+{streak - 10}</span>
             )}
           </div>
-          <span className="font-pixel text-[7px] text-arcade-neon-yellow shrink-0">
+          <span className="font-pixel text-[7px] text-arcade-neon-green shrink-0">
             {t("igNextPts").replace("{X}", String(pointsFor(streak)))}
           </span>
         </div>
@@ -268,7 +268,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
                 <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
-                <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">
+                <span className="font-pixel text-[9px] text-arcade-neon-green neon-text-green text-right">
                   {score} PTS
                 </span>
                 <span className="font-pixel text-[8px] text-gray-500">{t("igCorrectCount")}</span>
@@ -301,7 +301,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
                 <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
-                <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">
+                <span className="font-pixel text-[9px] text-arcade-neon-green neon-text-green text-right">
                   {score} PTS
                 </span>
               </div>

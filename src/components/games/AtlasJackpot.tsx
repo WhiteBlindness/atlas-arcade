@@ -209,6 +209,7 @@ function RewardBadge({ reward }: { reward: number }) {
 }
 
 function Ladder({ level, status }: { level: number; status: "playing" | "won" | "lost" }) {
+  const t = useT();
   return (
     <div className="flex items-center gap-1 px-4 py-3 border-b border-arcade-border overflow-x-auto">
       {Array.from({ length: LADDER }).map((_, i) => {
@@ -225,7 +226,7 @@ function Ladder({ level, status }: { level: number; status: "playing" | "won" | 
               boxShadow: isCurrent ? "0 0 8px #ffe600" : isCleared ? "0 0 6px #00ff4188" : "none",
               animation: isCurrent ? "neonPulse 1.2s ease-in-out infinite" : undefined,
             }}
-            aria-label={`Stage ${rung}${isCleared ? " cleared" : isCurrent ? " current" : ""}`}
+            aria-label={(isCleared ? t("ajStageCleared") : isCurrent ? t("ajStageCurrent") : t("ajStageLabel")).replace("{X}", String(rung))}
           />
         );
       })}

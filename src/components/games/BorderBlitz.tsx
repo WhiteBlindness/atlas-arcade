@@ -198,7 +198,7 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
         </div>
       ) : status === "loading" ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-lime animate-blink">{t("authLoading")}</p>
+          <p className="font-pixel text-sm text-arcade-neon-lime animate-blink">{t("igLoadingData")}</p>
         </div>
       ) : (
         <>
@@ -256,7 +256,7 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
                   </div>
                 </>
               ) : (
-                <p className="font-pixel text-[9px] text-arcade-neon-lime animate-blink text-center py-6">{t("authLoading")}</p>
+                <p className="font-pixel text-[9px] text-arcade-neon-lime animate-blink text-center py-6">{t("igLoadingData")}</p>
               )}
             </div>
           )}

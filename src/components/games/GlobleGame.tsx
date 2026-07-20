@@ -162,7 +162,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                     {guesses.length}{isDaily ? "" : ` / ${MAX_GUESSES}`}
                   </span>
                   <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
-                  <span className="font-pixel text-[9px] text-arcade-neon-yellow neon-text-yellow text-right">+{finalScore} PTS</span>
+                  <span className="font-pixel text-[9px] text-arcade-neon-cyan neon-text-cyan text-right">{t("igPtsSplash").replace("{X}", String(finalScore))}</span>
                 </div>
                 <DailyPercentile performance={1 / (1 + (guesses.length - 1) / 3)} />
                 <EndScreenActions

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { COUNTRY_STATS, type CountryStat, type StatKey } from "@/data/countryStats";
 import { formatPopulation } from "@/data/countryClues";
 import { useGameStore } from "@/store/gameStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { seededShuffle, gameRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
@@ -26,9 +27,11 @@ const STAT_LABEL_KEY: Record<StatKey, TKey> = {
   borders: "saBorders",
 };
 
-function fmtStat(stat: StatKey, v: number): string {
+function fmtStat(stat: StatKey, v: number, t: (key: TKey) => string, lang: string): string {
   if (stat === "population") return formatPopulation(v);
-  if (stat === "area") return `${v.toLocaleString()} km²`;
+  // Unit label comes from i18n and the number is grouped for the active locale,
+  // so nothing is hardcoded inline.
+  if (stat === "area") return `${v.toLocaleString(lang)} ${t("saAreaUnit")}`;
   return String(v);
 }
 
@@ -47,6 +50,7 @@ function deal(): Round {
 export default function StatAttack({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const t = useT();
+  const lang = useSettingsStore((s) => s.lang);
   // seed only used to vary the opening deal; rounds re-deal with Math.random
   const [round, setRound] = useState<Round>(() => {
     const rng = gameRng("stat-attack", useGameStore.getState().mode);
@@ -56,7 +60,6 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
   const [picked, setPicked] = useState<CountryStat | null>(null);
   const [status, setStatus] = useState<"playing" | "done">("playing");
   const [score, setScore] = useState(0);
-  const savedRef = useRef(false);
 
   const pick = useCallback((card: CountryStat) => {
     if (picked) return;
@@ -66,13 +69,17 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
     if (won) sfx.correct(); else sfx.wrong();
     setTimeout(() => {
       if (won) {
+        // Compute the next score synchronously and hand the SAME value to both
+        // the state setter and the persist call — avoids saving a stale closure
+        // score. saveHighScore keeps the max, so persisting each win == the peak.
+        const nextScore = score + 1;
         addScore(100);
-        setScore((s) => s + 1);
+        setScore(nextScore);
+        saveHighScore("stat-attack", nextScore);
         setRound(deal());
         setPicked(null);
       } else {
         setStatus("done");
-        if (!savedRef.current) { savedRef.current = true; saveHighScore("stat-attack", score); }
       }
     }, 1400);
   }, [picked, round, addScore, score]);
@@ -125,7 +132,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
             {revealed ? (
               <>
                 <span className="font-mono text-[11px] text-gray-300 truncate max-w-[100px] px-1">{round.opponent.name}</span>
-                <span className="font-pixel text-[9px] text-arcade-neon-red">{fmtStat(round.stat, round.opponent[round.stat])}</span>
+                <span className="font-pixel text-[9px] text-arcade-neon-red">{fmtStat(round.stat, round.opponent[round.stat], t, lang)}</span>
               </>
             ) : (
               <span className="font-pixel text-lg text-gray-700">?</span>
@@ -157,7 +164,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
                 <img src={flagUrl(c.alpha2)} alt={c.name} width={64} height={42} className="w-full max-w-[64px] border border-black/40" loading="eager" />
                 <span className="font-mono text-[13px] text-gray-200 text-center leading-tight">{c.name}</span>
                 {revealed && (
-                  <span className="font-pixel text-[8px] text-arcade-neon-pink">{fmtStat(round.stat, c[round.stat])}</span>
+                  <span className="font-pixel text-[8px] text-arcade-neon-pink">{fmtStat(round.stat, c[round.stat], t, lang)}</span>
                 )}
               </button>
             );

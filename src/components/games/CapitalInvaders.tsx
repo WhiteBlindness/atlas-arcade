@@ -21,7 +21,7 @@ const TIER_KEY: Record<Difficulty, TKey> = { easy: "igEasy", medium: "igMedium",
 const QUESTION_TIME = 7;
 const DAILY_LEVELS = 10;
 
-const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffe600", hard: "#ff00ff" };
+const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffa000", hard: "#ff4400" };
 
 interface Question {
   correct: Country;
@@ -141,7 +141,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[9px] text-gray-500">
             {dailyComplete ? t("igDailyComplete") : t("gameOver")}
           </p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-orange neon-text-orange">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">
             {t("igLevelsCleared").replace("{X}", `${cleared}${isDaily ? ` / ${DAILY_LEVELS}` : ""}`)}
           </p>
@@ -166,12 +166,12 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-orange neon-text-orange">CAPITAL STRIKE</h1>
-        <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+        <span className="font-pixel text-[9px] text-arcade-neon-orange">{score}</span>
       </div>
 
       {!isAnswered && (
         <div key={`tb-${level}`} className="h-3 bg-arcade-border overflow-hidden">
-          <div className="h-full w-full origin-left" style={{ backgroundColor: "#ff00ff", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
+          <div className="h-full w-full origin-left" style={{ backgroundColor: "#ff8c00", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
         </div>
       )}
       {isAnswered && (

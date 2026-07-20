@@ -207,7 +207,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
         ) : question.kind === "trivia" ? (
           <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
             <p className="font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.3em]">
-              CULTURA POP · {question.source}
+              {t("igCatPopCulture")} · {question.source}
             </p>
             <h2 className="font-mono text-xl text-white leading-snug">
               {question.prompt}
@@ -272,7 +272,7 @@ function OneStrikeMashup({ mashupSeed, onMashupComplete }: MashupProps) {
     </div>
   ) : q.kind === "trivia" ? (
     <div className="text-center space-y-3 w-full border border-arcade-neon-magenta shadow-neon-magenta p-6">
-      <p className="font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.3em]">CULTURA POP · {q.source}</p>
+      <p className="font-pixel text-[8px] text-arcade-neon-magenta neon-text-magenta tracking-[0.3em]">{t("igCatPopCulture")} · {q.source}</p>
       <h2 className="font-mono text-xl text-white leading-snug">{q.prompt}</h2>
     </div>
   ) : (

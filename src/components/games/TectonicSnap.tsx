@@ -269,7 +269,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
 
       {phase === "loading" || !round ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="font-pixel text-sm text-arcade-neon-mint animate-blink">{t("authLoading")}</p>
+          <p className="font-pixel text-sm text-arcade-neon-mint animate-blink">{t("igLoadingData")}</p>
         </div>
       ) : (
         <div className="flex-1 flex flex-col px-3 py-3 gap-3 max-w-4xl mx-auto w-full">
@@ -423,7 +423,7 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   if (!round) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="font-pixel text-sm text-arcade-neon-mint animate-blink">LOADING...</p>
+        <p className="font-pixel text-sm text-arcade-neon-mint animate-blink">{t("igLoadingData")}</p>
       </div>
     );
   }
