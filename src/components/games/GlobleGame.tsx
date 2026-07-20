@@ -112,7 +112,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
         <p className="font-pixel text-[9px] text-gray-500">
-          {isDaily ? `${guesses.length} ${guesses.length === 1 ? t("igGuessOne") : t("igGuessMany")}` : `${guesses.length}/${MAX_GUESSES}`}
+          {isDaily ? `${guesses.length}` : `${guesses.length} / ${MAX_GUESSES}`}
         </p>
       </div>
 
