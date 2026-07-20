@@ -213,7 +213,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                 <p className="font-mono text-[11px] leading-relaxed">
                   <span style={{ color: "#ff3333" }}>■&lt;500</span>{" "}
                   <span style={{ color: "#ff8800" }}>■&lt;2000</span>{" "}
-                  <span style={{ color: "#ffe600" }}>■&lt;5000</span>{" "}
+                  <span style={{ color: "#ffaa00" }}>■&lt;5000</span>{" "}
                   <span style={{ color: "#3b82f6" }}>■5000+ KM</span>
                 </p>
               </div>

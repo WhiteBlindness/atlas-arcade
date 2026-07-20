@@ -22,7 +22,7 @@ const CAT_COLOR: Record<PeaksCategory, string> = {
   mountain: "#00d4ff",
   river:    "#00ff41",
   country:  "#00ffff",
-  city:     "#ff00ff",
+  city:     "#ff00aa",
   ocean:    "#0099ff",
   lake:     "#44aaff",
   desert:   "#ff8800",

@@ -20,7 +20,7 @@ const QUESTION_TIME = 8;
 const DAILY_LEVELS = 10;
 const TIER_KEY: Record<Difficulty, TKey> = { easy: "igEasy", medium: "igMedium", hard: "igHard" };
 
-const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffe600", hard: "#ff00ff" };
+const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ff8c00", hard: "#ff4400" };
 
 interface FlagQuestion {
   correct: Country;
@@ -193,7 +193,7 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
 
       {!isAnswered && (
         <div key={`tb-${level}`} className="h-3 bg-arcade-border overflow-hidden">
-          <div className="h-full w-full origin-left" style={{ backgroundColor: "#ffe600", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
+          <div className="h-full w-full origin-left" style={{ backgroundColor: "#0088ff", animation: `shrinkBar ${QUESTION_TIME}s linear forwards` }} />
         </div>
       )}
       {isAnswered && (

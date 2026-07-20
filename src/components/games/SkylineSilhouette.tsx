@@ -155,7 +155,7 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
         >
           {pin && (
             <Marker longitude={pin.lng} latitude={pin.lat}>
-              <span className="text-xl" style={{ filter: "drop-shadow(0 0 4px #ff00ff)" }}>📍</span>
+              <span className="text-xl" style={{ filter: "drop-shadow(0 0 4px #f8f8f8)" }}>📍</span>
             </Marker>
           )}
           {result && (
@@ -170,7 +170,7 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
           <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-4">
             <div
               className={`border ${result.correct ? "border-arcade-neon-green" : "border-arcade-neon-red"} bg-black/92 p-6 text-center space-y-3 min-w-[240px]`}
-              style={{ boxShadow: `0 0 40px ${result.correct ? "#00ff4155" : "#ff00ff55"}` }}
+              style={{ boxShadow: `0 0 40px ${result.correct ? "#00ff4155" : "#ff000055"}` }}
             >
               <p className={`font-pixel text-[11px] tracking-widest ${result.correct ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
                 {result.correct ? t("correct") : t("igTooFar")}

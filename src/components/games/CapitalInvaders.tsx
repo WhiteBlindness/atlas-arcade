@@ -21,7 +21,7 @@ const TIER_KEY: Record<Difficulty, TKey> = { easy: "igEasy", medium: "igMedium",
 const QUESTION_TIME = 7;
 const DAILY_LEVELS = 10;
 
-const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ffa000", hard: "#ff4400" };
+const TIER_COLOR: Record<Difficulty, string> = { easy: "#00ff41", medium: "#ff8c00", hard: "#ff4400" };
 
 interface Question {
   correct: Country;

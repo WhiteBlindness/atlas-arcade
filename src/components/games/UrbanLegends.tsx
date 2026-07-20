@@ -21,7 +21,7 @@ const TIER_MULTIPLIER: Record<CityTier, number> = { easy: 1, medium: 1.5, hard: 
 
 const TIERS: { tier: CityTier; labelKey: TKey; descKey: TKey; color: string; border: string }[] = [
   { tier: "easy",   labelKey: "igTourist",  descKey: "igTouristDesc",  color: "text-arcade-neon-green neon-text-green",     border: "border-arcade-neon-green" },
-  { tier: "medium", labelKey: "igTraveler", descKey: "igTravelerDesc", color: "text-arcade-neon-yellow neon-text-yellow",   border: "border-arcade-neon-yellow" },
+  { tier: "medium", labelKey: "igTraveler", descKey: "igTravelerDesc", color: "text-arcade-neon-orange neon-text-orange",   border: "border-arcade-neon-orange" },
   { tier: "hard",   labelKey: "igLegend",   descKey: "igLegendDesc",   color: "text-arcade-neon-magenta neon-text-magenta", border: "border-arcade-neon-magenta" },
 ];
 
@@ -189,7 +189,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-magenta neon-text-magenta">URBAN LEGENDS</h1>
         <div className="border border-arcade-neon-magenta p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-magenta neon-text-magenta">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("igCities").replace("{X}", String(ROUNDS))} · {tier ? t(TIER_KEY[tier]) : ""}</p>
           <DailyPercentile performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0} />
         </div>
@@ -213,13 +213,13 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-magenta neon-text-magenta">URBAN LEGENDS</h1>
-        <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+        <span className="font-pixel text-[9px] text-arcade-neon-magenta">{score}</span>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 py-6 max-w-lg mx-auto w-full">
         <div className="flex items-center justify-between w-full">
           <p className="font-pixel text-[8px] text-gray-600">{idx + 1} / {ROUNDS} · {tier ? t(TIER_KEY[tier]) : ""}</p>
-          <p className="font-pixel text-[8px] text-arcade-neon-yellow">
+          <p className="font-pixel text-[8px] text-arcade-neon-magenta">
             {t("igWorth").replace("{X}", String(tier ? Math.round(CLUE_POINTS[cluesShown] * TIER_MULTIPLIER[tier]) : 0))}
           </p>
         </div>
@@ -269,7 +269,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
             {!isAnswered && cluesShown < 3 && tier && (
               <button
                 onClick={revealClue}
-                className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-yellow hover:border-arcade-neon-yellow active:scale-95 transition-all min-h-[44px]"
+                className="flex items-center gap-2 font-pixel text-[8px] text-gray-500 border border-arcade-border px-3 py-2 hover:text-arcade-neon-magenta hover:border-arcade-neon-magenta active:scale-95 transition-all min-h-[44px]"
               >
                 <Lightbulb size={10} />
                 {t("igReveal").replace("{X}", String(Math.round(CLUE_POINTS[cluesShown + 1] * TIER_MULTIPLIER[tier])))}
@@ -285,7 +285,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
               {wasCorrect ? t("correct") : `${t("igItWas")} ${current.city.name.toUpperCase()} ${current.city.emoji}`}
             </p>
             <div className="border border-arcade-border bg-arcade-surface p-4">
-              <p className="font-pixel text-[7px] text-arcade-neon-yellow mb-2 tracking-widest">{t("igFunFact")}</p>
+              <p className="font-pixel text-[7px] text-arcade-neon-magenta mb-2 tracking-widest">{t("igFunFact")}</p>
               <p className="font-mono text-sm text-gray-400 leading-relaxed">{current.city.funFact}</p>
             </div>
             <button

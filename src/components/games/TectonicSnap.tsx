@@ -243,7 +243,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-mint neon-text-mint">TECTONIC SNAP</h1>
         <div className="border border-arcade-neon-mint p-10 text-center space-y-3">
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
-          <p className="font-pixel text-4xl text-arcade-neon-yellow neon-text-yellow">{score}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-mint neon-text-mint">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("igMissedDrops").replace("{X}", String(misses))}</p>
           <DailyPercentile performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)} />
         </div>
@@ -264,7 +264,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-[10px] text-arcade-neon-mint neon-text-mint">TECTONIC SNAP</h1>
-        <span className="font-pixel text-[9px] text-arcade-neon-yellow">{score}</span>
+        <span className="font-pixel text-[9px] text-arcade-neon-mint">{score}</span>
       </div>
 
       {phase === "loading" || !round ? (
@@ -306,7 +306,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                 <div className="border border-arcade-neon-green bg-black/92 p-6 text-center space-y-3" style={{ boxShadow: "0 0 40px #00ff4155" }}>
                   <p className="font-pixel text-[11px] text-arcade-neon-green neon-text-green">{t("igContinentRestored")}</p>
-                  <p className="font-pixel text-[9px] text-arcade-neon-yellow">{t("igBonus").replace("{X}", String(ROUND_BONUS))}</p>
+                  <p className="font-pixel text-[9px] text-arcade-neon-mint">{t("igBonus").replace("{X}", String(ROUND_BONUS))}</p>
                   <button
                     onClick={() => { sfx.click(); setRoundIdx((r) => r + 1); }}
                     className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-mint text-arcade-neon-mint hover:bg-arcade-neon-mint hover:text-black transition-all"
