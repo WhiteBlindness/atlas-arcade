@@ -9,7 +9,7 @@ import { useT, type TKey } from "@/lib/i18n";
 import { haversine, bearing, distanceToHex, distanceHeat, calculateScore } from "@/lib/geo";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededPick, createSeededRng } from "@/lib/daily";
+import { gameRng, seededWeightedPick, createSeededRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
@@ -24,6 +24,13 @@ const WorldMap = dynamic(
 );
 
 const MAX_GUESSES = 6;
+
+// Difficulty balancer for the mystery TARGET only (the dropdown still offers
+// every country). Countries under 1M people are chosen 1/10th as often as
+// larger ones (weight 1 vs 10). Any country missing from COUNTRY_CLUES is
+// assumed >= 1M — see the invariant note in countryClues.ts.
+const targetPopulation = (c: Country) => COUNTRY_CLUES[c.numeric]?.population ?? 1_000_000;
+const targetWeight = (c: Country) => (targetPopulation(c) >= 1_000_000 ? 10 : 1);
 
 export interface Guess {
   country: Country;
@@ -51,7 +58,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
   const isDaily = useGameStore((s) => s.mode) === "daily";
   // daily mode → same mystery country for every player today
   const [mystery] = useState<Country>(() =>
-    seededPick(COUNTRIES, gameRng("globle", useGameStore.getState().mode))
+    seededWeightedPick(COUNTRIES, gameRng("globle", useGameStore.getState().mode), targetWeight)
   );
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [status, setStatus] = useState<"playing" | "won" | "lost">("playing");
@@ -261,7 +268,7 @@ function cluesForLevel(mystery: Country, level: number, t: (key: TKey) => string
 function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps) {
   const t = useT();
   const level = mashupLevel ?? 1;
-  const [mystery] = useState<Country>(() => seededPick(CLUE_POOL, createSeededRng(mashupSeed ?? "globle")));
+  const [mystery] = useState<Country>(() => seededWeightedPick(CLUE_POOL, createSeededRng(mashupSeed ?? "globle"), targetWeight));
   const [result, setResult] = useState<{ country: Country; km: number; success: boolean } | null>(null);
 
   const clues = useMemo(() => cluesForLevel(mystery, level, t), [mystery, level, t]);

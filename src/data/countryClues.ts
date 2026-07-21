@@ -57,6 +57,36 @@ export const COUNTRY_CLUES: Record<number, CountryClue> = {
   504: { region: "North Africa",        population: 37_000_000,  funFact: "You can see Europe across its northern strait." },
   682: { region: "Middle East",         population: 37_000_000,  funFact: "Holds roughly a sixth of the world's oil reserves." },
   376: { region: "Middle East",         population: 9_000_000,   funFact: "Has more startups per capita than almost anywhere." },
+  // Smaller states. NOTE: every country with population < 1,000,000 MUST have an
+  // entry here — the GeoRadar weighted target-picker treats any country absent
+  // from this map as >= 1,000,000. Luxembourg (existing) is included for that.
+  442: { region: "Western Europe",      population: 660_000,     funFact: "One of the world's last remaining sovereign grand duchies." },
+  499: { region: "Southern Europe",     population: 620_000,     funFact: "Its name means 'Black Mountain'." },
+  470: { region: "Southern Europe",     population: 540_000,     funFact: "One of the world's smallest and most densely populated nations." },
+  20:  { region: "Southern Europe",     population: 80_000,      funFact: "Co-ruled by a French president and a Spanish bishop." },
+  492: { region: "Western Europe",      population: 38_000,      funFact: "The world's most densely populated sovereign state." },
+  674: { region: "Southern Europe",     population: 34_000,      funFact: "Claims to be the world's oldest surviving republic." },
+  438: { region: "Western Europe",      population: 40_000,      funFact: "A doubly landlocked country famed for exporting false teeth." },
+  462: { region: "South Asia",          population: 520_000,     funFact: "The lowest-lying country on Earth." },
+  659: { region: "North America",       population: 48_000,      funFact: "The smallest sovereign state in the Americas." },
+  336: { region: "Southern Europe",     population: 800,         funFact: "The smallest country in the world." },
+  196: { region: "Middle East",         population: 1_300_000,   funFact: "Its capital is the last divided capital in Europe." },
+  48:  { region: "Middle East",         population: 1_500_000,   funFact: "An island nation linked to Saudi Arabia by a causeway." },
+  96:  { region: "Southeast Asia",      population: 450_000,     funFact: "Ruled by one of the world's wealthiest monarchs." },
+  64:  { region: "South Asia",          population: 780_000,     funFact: "Measures success by Gross National Happiness." },
+  242: { region: "Oceania",             population: 930_000,     funFact: "Made up of more than 330 islands." },
+  44:  { region: "North America",       population: 410_000,     funFact: "Spread across some 700 islands and cays." },
+  52:  { region: "North America",       population: 280_000,     funFact: "Became a republic in 2021." },
+  626: { region: "Southeast Asia",      population: 1_360_000,   funFact: "One of Asia's youngest nations." },
+  748: { region: "Sub-Saharan Africa",  population: 1_200_000,   funFact: "One of the world's last absolute monarchies." },
+  262: { region: "Sub-Saharan Africa",  population: 1_100_000,   funFact: "Guards a key Red Sea shipping chokepoint." },
+  132: { region: "Sub-Saharan Africa",  population: 590_000,     funFact: "An Atlantic archipelago off West Africa." },
+  328: { region: "South America",       population: 810_000,     funFact: "The only South American country with English as its official language." },
+  740: { region: "South America",       population: 620_000,     funFact: "The most forested country on Earth by percentage." },
+  84:  { region: "North America",       population: 410_000,     funFact: "Home to the second-largest barrier reef in the world." },
+  780: { region: "North America",       population: 1_500_000,   funFact: "The birthplace of the steelpan and calypso." },
+  426: { region: "Sub-Saharan Africa",  population: 2_300_000,   funFact: "Entirely surrounded by a single other country." },
+  270: { region: "Sub-Saharan Africa",  population: 2_700_000,   funFact: "The smallest country in mainland Africa." },
 };
 
 /** "~335 M" style population hint. */

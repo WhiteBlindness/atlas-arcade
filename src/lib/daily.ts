@@ -67,6 +67,22 @@ export function seededPick<T>(arr: readonly T[], rng: Rng): T {
   return arr[Math.floor(rng() * arr.length)];
 }
 
+/**
+ * Weighted deterministic pick. Each element's `weight(item)` sets its relative
+ * chance of selection (e.g. weight 10 is chosen 10x as often as weight 1).
+ * Weights must be non-negative; at least one must be > 0.
+ */
+export function seededWeightedPick<T>(arr: readonly T[], rng: Rng, weight: (item: T) => number): T {
+  const weights = arr.map(weight);
+  const total = weights.reduce((sum, w) => sum + w, 0);
+  let r = rng() * total;
+  for (let i = 0; i < arr.length; i++) {
+    r -= weights[i];
+    if (r < 0) return arr[i];
+  }
+  return arr[arr.length - 1]; // floating-point safety net
+}
+
 /** Pick n distinct elements deterministically. */
 export function seededSample<T>(arr: readonly T[], n: number, rng: Rng): T[] {
   return seededShuffle(arr, rng).slice(0, Math.min(n, arr.length));
