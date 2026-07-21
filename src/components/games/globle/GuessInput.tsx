@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useCallback, useMemo } from "react";
-import type { Country } from "@/data/countries";
+import { countryName, type Country } from "@/data/countries";
 import { COUNTRY_ALIASES } from "@/data/countryAliases";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useT } from "@/lib/i18n";
 
 interface Props {
@@ -15,8 +16,17 @@ interface Props {
 const norm = (s: string) =>
   s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
+// Best match rank of a single name against the query (lower = better), or -1.
+const rankName = (nameNorm: string, q: string): number => {
+  if (nameNorm === q) return 1;
+  if (nameNorm.startsWith(q)) return 2;
+  if (nameNorm.includes(q)) return 3;
+  return -1;
+};
+
 export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
   const t = useT();
+  const lang = useSettingsStore((s) => s.lang);
   const [query, setQuery] = useState("");
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,25 +48,31 @@ export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
     const aliasTarget = aliasIndex.get(q);
 
     for (const c of available) {
-      const name = norm(c.name);
+      const en = norm(c.name);
+      // Match against all three localized names so a PT/ES player finds their country.
+      const names = [en, norm(c.pt), norm(c.es)];
       let rank = -1;
-      if (aliasTarget && norm(aliasTarget) === name) rank = 0;
-      else if (name === q) rank = 1;
-      else if (name.startsWith(q)) rank = 2;
-      else if (name.includes(q)) rank = 3;
+      // Alias always resolves to the canonical English name.
+      if (aliasTarget && norm(aliasTarget) === en) rank = 0;
       else {
-        // partial alias: query is a prefix of an alias that maps to this country
-        for (const [ak, av] of aliasIndex) {
-          if (ak.startsWith(q) && norm(av) === name) { rank = 4; break; }
+        for (const n of names) {
+          const r = rankName(n, q);
+          if (r >= 0 && (rank < 0 || r < rank)) rank = r;
+        }
+        if (rank < 0) {
+          // partial alias: query is a prefix of an alias that maps to this country
+          for (const [ak, av] of aliasIndex) {
+            if (ak.startsWith(q) && norm(av) === en) { rank = 4; break; }
+          }
         }
       }
       if (rank >= 0) scored.push({ c, rank });
     }
 
-    return scored.sort((a, b) => a.rank - b.rank || a.c.name.localeCompare(b.c.name))
+    return scored.sort((a, b) => a.rank - b.rank || countryName(a.c, lang).localeCompare(countryName(b.c, lang)))
       .slice(0, 8)
       .map((s) => s.c);
-  }, [query, countries, guessedCodes, aliasIndex]);
+  }, [query, countries, guessedCodes, aliasIndex, lang]);
 
   const select = useCallback(
     (country: Country) => {
@@ -100,7 +116,7 @@ export function GuessInput({ countries, guessedCodes, onGuess }: Props) {
               onMouseEnter={() => setIdx(i)}
               onClick={() => select(c)}
             >
-              {c.name}
+              {countryName(c, lang)}
             </li>
           ))}
         </ul>

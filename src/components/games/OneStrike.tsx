@@ -39,7 +39,7 @@ const flagUrl = (alpha2: string) => `https://flagcdn.com/w160/${alpha2}.webp`;
 // "fake" Country options (numeric = option index), so nothing else changes.
 function makeTrivia(rng: Rng): Question {
   const q = seededPick(POP_TRIVIA, rng);
-  const options: Country[] = seededShuffle(q.options, rng).map((label, i) => ({ name: label, numeric: i, lat: 0, lng: 0 }));
+  const options: Country[] = seededShuffle(q.options, rng).map((label, i) => ({ name: label, pt: label, es: label, numeric: i, lat: 0, lng: 0, population: 0, code: "" }));
   const correct = options.find((o) => o.name === q.answer) ?? options[0];
   return { kind: "trivia", prompt: q.prompt, correct, options, source: q.source };
 }

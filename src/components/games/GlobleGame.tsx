@@ -2,7 +2,8 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 
-import { COUNTRIES, type Country } from "@/data/countries";
+import { COUNTRIES, countryName, type Country } from "@/data/countries";
+import { useSettingsStore } from "@/store/settingsStore";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { COUNTRY_CLUES, formatPopulation } from "@/data/countryClues";
 import { useT, type TKey } from "@/lib/i18n";
@@ -27,10 +28,8 @@ const MAX_GUESSES = 15;
 
 // Difficulty balancer for the mystery TARGET only (the dropdown still offers
 // every country). Countries under 1M people are chosen 1/10th as often as
-// larger ones (weight 1 vs 10). Any country missing from COUNTRY_CLUES is
-// assumed >= 1M — see the invariant note in countryClues.ts.
-const targetPopulation = (c: Country) => COUNTRY_CLUES[c.numeric]?.population ?? 1_000_000;
-const targetWeight = (c: Country) => (targetPopulation(c) >= 1_000_000 ? 10 : 1);
+// larger ones (weight 1 vs 10). Population comes from the comprehensive dataset.
+const targetWeight = (c: Country) => (c.population >= 1_000_000 ? 10 : 1);
 
 export interface Guess {
   country: Country;
@@ -53,6 +52,7 @@ export default function GlobleGame({ onExit, isMashupMode, onMashupComplete, mas
 
 function GlobleStandalone({ onExit }: { onExit: () => void }) {
   const t = useT();
+  const lang = useSettingsStore((s) => s.lang);
   const { addScore } = useGameStore();
   // daily: unlimited tries, scored by how few guesses were needed
   const isDaily = useGameStore((s) => s.mode) === "daily";
@@ -161,7 +161,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                 <p className="font-pixel text-[11px] text-arcade-neon-green neon-text-green tracking-widest">
                   {t("correct")}
                 </p>
-                <p className="font-mono text-lg text-white">{mystery.name}</p>
+                <p className="font-mono text-lg text-white">{countryName(mystery, lang)}</p>
                 <div className="h-px bg-arcade-border" />
                 <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-left">
                   <span className="font-pixel text-[8px] text-gray-500">{t("igGuessMany")}</span>
@@ -194,7 +194,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                 <p className="font-pixel text-[11px] text-arcade-neon-red neon-text-red tracking-widest">
                   {t("gameOver")}
                 </p>
-                <p className="font-mono text-lg text-white">{mystery.name}</p>
+                <p className="font-mono text-lg text-white">{countryName(mystery, lang)}</p>
                 <div className="h-px bg-arcade-border" />
                 <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-left">
                   <span className="font-pixel text-[8px] text-gray-500">{t("igGuessMany")}</span>
@@ -251,7 +251,7 @@ const MASHUP_WIN_KM = 2000;
 // every difficulty tier stays fair (no obscure country behind a single fun fact).
 const CLUE_POOL = COUNTRIES.filter((c) => COUNTRY_CLUES[c.numeric]);
 
-function cluesForLevel(mystery: Country, level: number, t: (key: TKey) => string): string[] {
+function cluesForLevel(mystery: Country, level: number, t: (key: TKey) => string, lang: string): string[] {
   const clue = COUNTRY_CLUES[mystery.numeric];
   if (level >= 11) return [t("igClueFun").replace("{X}", clue.funFact)];
   if (level >= 6) return [
@@ -261,7 +261,7 @@ function cluesForLevel(mystery: Country, level: number, t: (key: TKey) => string
   const capital = COUNTRY_META[mystery.numeric]?.capital;
   const ns = mystery.lat >= 0 ? t("igNorthern") : t("igSouthern");
   const ew = mystery.lng >= 0 ? t("igEastern") : t("igWestern");
-  const initial = t("igClueStarts").replace("{X}", mystery.name[0]);
+  const initial = t("igClueStarts").replace("{X}", countryName(mystery, lang)[0]);
   return [
     capital ? t("igClueCapital").replace("{X}", capital) : initial,
     t("igClueHemisphere").replace("{A}", ns).replace("{B}", ew),
@@ -271,11 +271,12 @@ function cluesForLevel(mystery: Country, level: number, t: (key: TKey) => string
 
 function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps) {
   const t = useT();
+  const lang = useSettingsStore((s) => s.lang);
   const level = mashupLevel ?? 1;
   const [mystery] = useState<Country>(() => seededWeightedPick(CLUE_POOL, createSeededRng(mashupSeed ?? "globle"), targetWeight));
   const [result, setResult] = useState<{ country: Country; km: number; success: boolean } | null>(null);
 
-  const clues = useMemo(() => cluesForLevel(mystery, level, t), [mystery, level, t]);
+  const clues = useMemo(() => cluesForLevel(mystery, level, t, lang), [mystery, level, t, lang]);
 
   const handleGuess = useCallback((country: Country) => {
     if (result) return;
@@ -325,7 +326,7 @@ function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps
             <p className="font-mono text-sm text-white">
               {t("igKmAway").replace("{C}", result.country.name).replace("{K}", Math.round(result.km).toLocaleString())}
             </p>
-            <p className="font-mono text-[13px] text-gray-500">{t("igItWasCity").replace("{X}", mystery.name)}</p>
+            <p className="font-mono text-[13px] text-gray-500">{t("igItWasCity").replace("{X}", countryName(mystery, lang))}</p>
           </div>
         )}
       </div>

@@ -1,4 +1,6 @@
 import { bearingToArrow } from "@/lib/geo";
+import { countryName } from "@/data/countries";
+import { useSettingsStore } from "@/store/settingsStore";
 import type { Guess } from "../GlobleGame";
 
 function fmt(km: number) {
@@ -7,6 +9,7 @@ function fmt(km: number) {
 }
 
 export function GuessHistory({ guesses }: { guesses: Guess[] }) {
+  const lang = useSettingsStore((s) => s.lang);
   if (!guesses.length) return null;
 
   return (
@@ -18,7 +21,7 @@ export function GuessHistory({ guesses }: { guesses: Guess[] }) {
           className="flex items-center justify-between px-3 py-2 border transition-colors"
           style={{ borderColor: g.color }}
         >
-          <span className="font-mono text-sm text-white truncate max-w-[130px]">{g.country.name}</span>
+          <span className="font-mono text-sm text-white truncate max-w-[130px]">{countryName(g.country, lang)}</span>
           <div className="flex items-center gap-2 flex-shrink-0 ml-2">
             <span className="font-pixel text-[8px]" style={{ color: g.color }}>{fmt(g.distance)}</span>
             <span className="font-mono text-base text-gray-300">{bearingToArrow(g.bearing)}</span>
