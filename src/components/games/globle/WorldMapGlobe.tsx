@@ -11,11 +11,14 @@ const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
 
 // Minimal arcade-dark style — no tiles, no labels, just our GeoJSON country shapes.
 // Layers use solid (fully opaque) hex colors so there is no alpha overdraw on the
-// globe tile-skirt seams. No emissive-strength / light overrides: those are
-// Mapbox-GL-v3-only and MapLibre's style validator rejects them, blanking the map.
+// globe tile-skirt seams. `light` is a VALID MapLibre root property (unlike the
+// *-emissive-strength paint props, which are Mapbox-GL-v3-only and make MapLibre's
+// strict validator abort the whole map). A very low ambient intensity activates
+// the renderer with near-flat shading, so the tile seams stay unlit.
 const DARK_STYLE = {
   version: 8,
   name: "Arcade Dark",
+  light: { anchor: "viewport", color: "#ffffff", intensity: 0.1 },
   sources: {},
   layers: [
     { id: "background", type: "background", paint: { "background-color": "#080810" } },
