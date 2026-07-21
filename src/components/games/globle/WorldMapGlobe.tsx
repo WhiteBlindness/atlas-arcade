@@ -10,21 +10,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 // Minimal arcade-dark style — no tiles, no labels, just our GeoJSON country shapes.
-// `light.intensity: 0` neutralizes the 3D lighting pipeline so the shader never
-// evaluates surface normals on the globe tessellation seams; every layer is
-// fully emissive (its own light source) and fully opaque so no alpha overdraw
-// on overlapping tile skirts can reveal the mesh. No sky/fog is defined.
+// Layers use solid (fully opaque) hex colors so there is no alpha overdraw on the
+// globe tile-skirt seams. No emissive-strength / light overrides: those are
+// Mapbox-GL-v3-only and MapLibre's style validator rejects them, blanking the map.
 const DARK_STYLE = {
   version: 8,
   name: "Arcade Dark",
-  light: { anchor: "viewport", color: "#ffffff", intensity: 0.0 },
   sources: {},
   layers: [
-    {
-      id: "background",
-      type: "background",
-      paint: { "background-color": "#080810", "background-emissive-strength": 1.0 },
-    },
+    { id: "background", type: "background", paint: { "background-color": "#080810" } },
   ],
   glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
 } as const;
@@ -192,9 +186,8 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": fillPaint as any,
-        // Fully opaque + fully emissive: no alpha overdraw, no shading on the
-        // globe tessellation seams. fill-antialias off removes the mesh edges.
-        "fill-emissive-strength": 1.0,
+        // Fully opaque (solid colors, no alpha) + antialias off: no alpha overdraw
+        // and no antialiased mesh edges on the globe tessellation seams.
         "fill-antialias": false,
       },
     }),
@@ -232,8 +225,7 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
               id="country-borders"
               type="line"
               source="countries"
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- emissive-strength valid at runtime, absent from 5.24 line types
-              paint={{ "line-color": "#1a3a5c", "line-width": 0.5, "line-emissive-strength": 1.0 } as any}
+              paint={{ "line-color": "#1a3a5c", "line-width": 0.5 }}
             />
           </Source>
         )}
@@ -245,9 +237,8 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
             id="equator-line"
             type="line"
             source="equator"
-            // Solid equivalent of #38507a @ 0.55 over #080810 — no alpha, fully emissive.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- emissive-strength valid at runtime, absent from 5.24 line types
-            paint={{ "line-color": "#22304a", "line-width": 1, "line-dasharray": [3, 3], "line-emissive-strength": 1.0 } as any}
+            // Solid equivalent of #38507a @ 0.55 over #080810 — no alpha.
+            paint={{ "line-color": "#22304a", "line-width": 1, "line-dasharray": [3, 3] }}
           />
         </Source>
 
@@ -264,9 +255,7 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
               // circle-blur gives the soft halo falloff; opacity stays 1 (no overdraw).
               "circle-blur": 1,
               "circle-opacity": 1.0,
-              "circle-emissive-strength": 1.0,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- runtime-valid, absent from 5.24 circle types
-            } as any}
+            }}
           />
           <Layer
             id="guess-dots-core"
@@ -276,11 +265,9 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
               "circle-radius": 4.5,
               "circle-color": ["get", "color"],
               "circle-opacity": 1.0,
-              "circle-emissive-strength": 1.0,
               "circle-stroke-width": 1.5,
               "circle-stroke-color": "#080810",
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- runtime-valid, absent from 5.24 circle types
-            } as any}
+            }}
           />
         </Source>
       </Map>
