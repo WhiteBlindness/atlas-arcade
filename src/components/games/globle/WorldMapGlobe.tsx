@@ -88,7 +88,32 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
 
   useEffect(() => { fetchCountries().then(setGeo); }, []);
 
-  const onLoad = useCallback(() => { setReady(true); }, []);
+  // On load, audit the live layer stack and aggressively strip anything that
+  // isn't ours — any graticule/grid/lat-lng lines a base style might inject.
+  // (Our style is blank, so this is defensive + diagnostic; the real ring
+  // artifact is the globe fill subdivision, killed by fill-antialias:false.)
+  const onLoad = useCallback(() => {
+    const map = mapRef.current?.getMap();
+    if (map) {
+      const KEEP = new Set([
+        "background", "country-fills", "country-borders",
+        "equator-line", "guess-dots-glow", "guess-dots-core",
+      ]);
+      const junk = /graticule|grid|latitude|longitude|parallel|meridian/i;
+      for (const l of map.getStyle()?.layers ?? []) {
+        const srcLayer = ("source-layer" in l ? String(l["source-layer"] ?? "") : "");
+        const isJunk = junk.test(l.id) || junk.test(srcLayer);
+        const strayLine = l.type === "line" && !KEEP.has(l.id);
+        if (!KEEP.has(l.id) && (isJunk || strayLine)) {
+          try { map.removeLayer(l.id); } catch { /* already gone */ }
+        }
+      }
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[GeoRadar] map layers:", (map.getStyle()?.layers ?? []).map((l) => `${l.id}(${l.type})`).join(", "));
+      }
+    }
+    setReady(true);
+  }, []);
 
   // onMove keeps React camera state in sync with maplibre's internal position at every
   // animation frame — re-renders pass back the same position, so flyTo is never overridden.
@@ -157,6 +182,10 @@ export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarg
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": fillPaint as any,
         "fill-opacity": 0.9,
+        // On the globe projection, fills are tessellated along a lat/lng grid;
+        // with antialiasing on, those mesh edges show as faint "graticule" rings
+        // over the continents. Disable it to keep fills perfectly flat.
+        "fill-antialias": false,
       },
     }),
     [fillPaint],
