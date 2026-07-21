@@ -110,6 +110,7 @@ const DICT = {
     toastWelcome: "Welcome back, player!",
     // In-game
     typeCountry: "TYPE COUNTRY NAME...",
+    igGeoRadarRule: "Distances are calculated to the geographic center of the mainland.",
     coinsLeft: "{X} COINS LEFT",
     finalScore: "FINAL SCORE",
     gameOver: "GAME OVER",
@@ -327,6 +328,7 @@ const DICT = {
     toastWelcome: "Bem-vindo de volta, jogador!",
     // In-game
     typeCountry: "ESCREVE O NOME DO PAÍS...",
+    igGeoRadarRule: "As distâncias são calculadas até ao centro geográfico do território continental.",
     coinsLeft: "{X} FICHAS RESTANTES",
     finalScore: "PONTUAÇÃO FINAL",
     gameOver: "FIM DE JOGO",
@@ -544,6 +546,7 @@ const DICT = {
     toastWelcome: "¡Bienvenido de nuevo, jugador!",
     // In-game
     typeCountry: "ESCRIBE EL NOMBRE DEL PAÍS...",
+    igGeoRadarRule: "Las distancias se calculan hasta el centro geográfico del territorio continental.",
     coinsLeft: "{X} FICHAS RESTANTES",
     finalScore: "PUNTUACIÓN FINAL",
     gameOver: "FIN DEL JUEGO",

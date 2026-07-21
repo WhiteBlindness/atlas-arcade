@@ -213,6 +213,10 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
           {status === "playing" && (
             <div className="order-2 md:order-1 p-4 flex flex-col gap-3 bg-arcade-bg sticky bottom-0 md:static shrink-0">
               <GuessInput countries={COUNTRIES} guessedCodes={guessedCodes} onGuess={handleGuess} />
+              {/* Subtle disclaimer: distances are centroid-based, not border/capital. */}
+              <p className="font-mono text-xs text-slate-500/80 text-center tracking-wide uppercase leading-snug">
+                {t("igGeoRadarRule")}
+              </p>
               <div className="border border-arcade-border p-2 space-y-1 hidden md:block">
                 <p className="font-pixel text-[7px] text-gray-600 leading-relaxed">
                   {t("igArrowHint")}
