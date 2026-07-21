@@ -22,9 +22,28 @@ const DARK_STYLE = {
 
 interface Props {
   colorMap: Record<number, string>;
+  /** Heat-colored dots for every guessed country (+ the target on reveal). */
+  markers?: { lng: number; lat: number; color: string }[];
   mysteryNumeric?: number;
   zoomTarget?: number;
+  /** Bumping this (new object per click) flies the camera to a guess. */
+  flyTo?: { lng: number; lat: number };
 }
+
+// The Equator, as a densely-sampled LineString so it curves smoothly on the globe.
+const EQUATOR_GEOJSON = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: Array.from({ length: 73 }, (_, i) => [-180 + i * 5, 0]),
+      },
+    },
+  ],
+} as const;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let geoCache: any = null;
@@ -58,7 +77,7 @@ const INITIAL_CAMERA: CameraState = {
   pitch: 0,
 };
 
-export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget }: Props) {
+export function WorldMapGlobe({ colorMap, markers = [], mysteryNumeric, zoomTarget, flyTo }: Props) {
   const mapRef = useRef<MapRef | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [geo, setGeo] = useState<any>(null);
@@ -93,6 +112,26 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget }: Props) {
     // Stay parked at the guessed country; no auto zoom-out.
     map.flyTo({ center: [c.lng, c.lat], zoom: 4.5, duration: 2500, essential: true });
   }, [zoomTarget, ready]);
+
+  // Click-to-fly: a fresh `flyTo` object (new identity per click) pans to a guess.
+  useEffect(() => {
+    if (!ready || !flyTo) return;
+    const map = mapRef.current?.getMap();
+    map?.flyTo({ center: [flyTo.lng, flyTo.lat], zoom: 4, essential: true, speed: 1.5 });
+  }, [flyTo, ready]);
+
+  // Point features for the guessed-country dots (fallback visibility for microstates).
+  const markerGeo = useMemo(
+    () => ({
+      type: "FeatureCollection" as const,
+      features: markers.map((m) => ({
+        type: "Feature" as const,
+        properties: { color: m.color },
+        geometry: { type: "Point" as const, coordinates: [m.lng, m.lat] },
+      })),
+    }),
+    [markers],
+  );
 
   const DEFAULT_LAND = "rgba(13,27,42,0.55)";
   const fillPaint = useMemo(() => {
@@ -158,6 +197,45 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget }: Props) {
             />
           </Source>
         )}
+
+        {/* Equator — the only non-border reference line: muted, dashed. */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <Source id="equator" type="geojson" data={EQUATOR_GEOJSON as any}>
+          <Layer
+            id="equator-line"
+            type="line"
+            source="equator"
+            paint={{ "line-color": "#38507a", "line-opacity": 0.55, "line-width": 1, "line-dasharray": [3, 3] }}
+          />
+        </Source>
+
+        {/* Guessed-country dots: always visible, even for polygon-less microstates.
+            A blurred halo under a solid core, both tinted by the guess heat color. */}
+        <Source id="guess-dots" type="geojson" data={markerGeo}>
+          <Layer
+            id="guess-dots-glow"
+            type="circle"
+            source="guess-dots"
+            paint={{
+              "circle-radius": 10,
+              "circle-color": ["get", "color"],
+              "circle-blur": 1,
+              "circle-opacity": 0.45,
+            }}
+          />
+          <Layer
+            id="guess-dots-core"
+            type="circle"
+            source="guess-dots"
+            paint={{
+              "circle-radius": 4.5,
+              "circle-color": ["get", "color"],
+              "circle-opacity": 0.95,
+              "circle-stroke-width": 1.5,
+              "circle-stroke-color": "#080810",
+            }}
+          />
+        </Source>
       </Map>
     </div>
   );

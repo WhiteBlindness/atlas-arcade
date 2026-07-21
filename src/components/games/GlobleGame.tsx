@@ -63,6 +63,8 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [status, setStatus] = useState<"playing" | "won" | "lost">("playing");
   const [zoomTarget, setZoomTarget] = useState<number | undefined>();
+  // A fresh object per guess-list click; WorldMap flies to it (new identity => refires).
+  const [flyTo, setFlyTo] = useState<{ lng: number; lat: number } | undefined>();
   const scoreSavedRef = useRef(false);
 
   const guessedCodes = useMemo(() => new Set(guesses.map((g) => g.country.numeric)), [guesses]);
@@ -72,6 +74,13 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
     for (const g of guesses) map[g.country.numeric] = g.color;
     return map;
   }, [guesses]);
+
+  // Heat-colored dots for every guessed country; add the target (green) on reveal.
+  const markers = useMemo(() => {
+    const arr = guesses.map((g) => ({ lng: g.country.lng, lat: g.country.lat, color: g.color }));
+    if (status !== "playing") arr.push({ lng: mystery.lng, lat: mystery.lat, color: "#00ff41" });
+    return arr;
+  }, [guesses, status, mystery]);
 
   const handleGuess = useCallback(
     async (country: Country) => {
@@ -129,8 +138,10 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
         <div className="flex-1 min-h-[40vh] md:min-h-0 relative">
           <WorldMap
             colorMap={colorMap}
+            markers={markers}
             mysteryNumeric={status !== "playing" ? mystery.numeric : undefined}
             zoomTarget={zoomTarget}
+            flyTo={flyTo}
           />
 
           {/* In-game stats HUD */}
@@ -232,7 +243,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
           )}
           {/* History zone: scrollable, sits above the input on mobile. */}
           <div className="order-1 md:order-2 overflow-y-auto max-h-32 md:max-h-none md:flex-1 px-4 py-2 md:pb-4">
-            <GuessHistory guesses={guesses} />
+            <GuessHistory guesses={guesses} onSelect={(g) => setFlyTo({ lng: g.country.lng, lat: g.country.lat })} />
           </div>
         </div>
       </div>
