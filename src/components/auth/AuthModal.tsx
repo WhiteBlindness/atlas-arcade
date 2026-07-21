@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/store/toastStore";
-import { firstAuthError, isValidEmail, passwordStrength, signupChecks } from "@/lib/validation";
+import { firstAuthError, isValidEmail, isValidUsername, passwordStrength, signupChecks } from "@/lib/validation";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
 import { X } from "lucide-react";
@@ -19,7 +19,9 @@ export function AuthModal() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Server-side errors are routed to a specific field ("form" = general).
+  type ErrField = "email" | "username" | "password" | "form";
+  const [serverErr, setServerErr] = useState<{ field: ErrField; msg: string } | null>(null);
 
   // Lock background scroll while the modal is open (mobile especially).
   useEffect(() => {
@@ -30,21 +32,29 @@ export function AuthModal() {
 
   if (!modalOpen) return null;
 
-  const clearFields = () => { setEmail(""); setPassword(""); setUsername(""); setError(null); };
+  const clearFields = () => { setEmail(""); setPassword(""); setUsername(""); setServerErr(null); };
   // Clearing fields on tab swap avoids leaking a half-typed password between views.
   const switchView = (v: View) => { sfx.click(); setView(v); clearFields(); };
 
   const strength = passwordStrength(password);
   const strengthLabel = strength.score === 3 ? t("strengthStrong") : strength.score === 2 ? t("strengthMedium") : t("strengthWeak");
 
-  // Per-rule checks drive an explicit "what's missing" list and block CREATE.
+  // Per-rule checks block CREATE until the sign-up form is valid.
   const checks = signupChecks(email, password);
-  const missing: string[] = [];
-  if (!checks.email) missing.push(t("reqEmail"));
-  if (!checks.len) missing.push(t("reqLen"));
-  if (!checks.upper) missing.push(t("reqUpper"));
-  if (!checks.number) missing.push(t("reqNumber"));
-  const signupBlocked = view === "signup" && missing.length > 0;
+  const signupBlocked = view === "signup" && !(checks.email && checks.len && checks.upper && checks.number);
+
+  // Live, per-field validation — shown only once a field has content so the
+  // form doesn't scream at an untouched input. Server errors (below) win when
+  // the live check passes, so a "duplicate email" survives after typing stops.
+  const emailErrLive = email.length > 0 && !isValidEmail(email) ? t("errEmail") : null;
+  const usernameErrLive = view === "signup" && username.length > 0 && !isValidUsername(username) ? t("errUsername") : null;
+  const passwordErrLive = view === "signup" && password.length > 0 && !passwordStrength(password).valid ? t("errPasswordPolicy") : null;
+
+  const srv = (f: ErrField) => (serverErr?.field === f ? serverErr.msg : null);
+  const emailErr = emailErrLive ?? srv("email");
+  const usernameErr = usernameErrLive ?? srv("username");
+  const passwordErr = passwordErrLive ?? srv("password");
+  const formErr = srv("form");
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
@@ -55,16 +65,19 @@ export function AuthModal() {
     return msg;
   };
 
-  const fail = (msg: string) => { setError(msg); toast.error(msg); sfx.wrong(); };
+  const fail = (msg: string, field: ErrField = "form") => { setServerErr({ field, msg }); toast.error(msg); sfx.wrong(); };
+  // Which field a first-pass validation code belongs under.
+  const FIELD_OF = { errEmail: "email", errUsername: "username", errPasswordPolicy: "password", errPasswordEmpty: "password" } as const;
+  const isEmailDup = (m: string) => { const s = m.toLowerCase(); return s.includes("already registered") || s.includes("already in use"); };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return; // anti-spam: ignore double submits
     sfx.click();
-    setError(null);
+    setServerErr(null);
 
     if (view === "reset") {
-      if (!isValidEmail(email)) { fail(t("errEmail")); return; }
+      if (!isValidEmail(email)) { fail(t("errEmail"), "email"); return; }
       setLoading(true);
       const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: typeof window !== "undefined" ? `${window.location.origin}/reset` : undefined,
@@ -76,15 +89,15 @@ export function AuthModal() {
     }
 
     const code = firstAuthError(view, email, password, username);
-    if (code) { fail(t(code)); return; }
+    if (code) { fail(t(code), FIELD_OF[code]); return; }
 
     setLoading(true);
     if (view === "signup") {
       // Reject taken usernames up front (SECURITY DEFINER rpc, anon-callable).
       const { data: taken } = await supabase.rpc("is_username_taken", { name: username.trim() });
-      if (taken) { setLoading(false); fail(t("errUsernameTaken")); return; }
+      if (taken) { setLoading(false); fail(t("errUsernameTaken"), "username"); return; }
 
-      const { error: err } = await supabase.auth.signUp({
+      const { data, error: err } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -93,12 +106,20 @@ export function AuthModal() {
         },
       });
       setLoading(false);
-      if (err) fail(humanizeError(err.message));
-      else { sfx.correct(); toast.success(t("toastSignupSuccess")); clearFields(); closeModal(); }
+      if (err) {
+        fail(humanizeError(err.message), isEmailDup(err.message) ? "email" : "form");
+      } else if (data.user && (data.user.identities?.length ?? 0) === 0) {
+        // Supabase does NOT error when the email is already registered (it hides
+        // this to prevent enumeration) — it returns a user with no identities.
+        // Detect that case explicitly so the form doesn't fail silently.
+        fail(t("errEmailInUse"), "email");
+      } else {
+        sfx.correct(); toast.success(t("toastSignupSuccess")); clearFields(); closeModal();
+      }
     } else {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
-      if (err) fail(humanizeError(err.message));
+      if (err) fail(humanizeError(err.message), isEmailDup(err.message) ? "email" : "form");
       else { sfx.correct(); toast.success(t("toastWelcome")); clearFields(); closeModal(); }
     }
   };
@@ -138,18 +159,19 @@ export function AuthModal() {
 
         <form onSubmit={handleAuth} className="flex flex-col gap-3">
           {view === "signup" && (
-            <ArcadeInput placeholder={t("authPhUsername")} value={username} onChange={(v) => { setUsername(v); setError(null); }} autoComplete="username" disabled={loading} />
+            <ArcadeInput placeholder={t("authPhUsername")} value={username} onChange={(v) => { setUsername(v); setServerErr(null); }} autoComplete="username" disabled={loading} error={usernameErr} />
           )}
-          <ArcadeInput placeholder={t("authPhEmail")} type="email" value={email} onChange={(v) => { setEmail(v); setError(null); }} autoComplete="email" disabled={loading} />
+          <ArcadeInput placeholder={t("authPhEmail")} type="email" value={email} onChange={(v) => { setEmail(v); setServerErr(null); }} autoComplete="email" disabled={loading} error={emailErr} />
 
           {view !== "reset" && (
             <ArcadeInput
               placeholder={t("authPhPassword")}
               type="password"
               value={password}
-              onChange={(v) => { setPassword(v); setError(null); }}
+              onChange={(v) => { setPassword(v); setServerErr(null); }}
               autoComplete={view === "signup" ? "new-password" : "current-password"}
               disabled={loading}
+              error={passwordErr}
             />
           )}
 
@@ -169,16 +191,9 @@ export function AuthModal() {
             </div>
           )}
 
-          {/* Explicit list of what's still missing (signup) */}
-          {view === "signup" && (password.length > 0 || email.length > 0) && missing.length > 0 && (
-            <p className="font-mono text-[13px] text-arcade-neon-red leading-snug">
-              {t("reqMissing")} {missing.join(" · ")}
-            </p>
-          )}
-
-          {/* Inline validation / server error — clear text, not just a border tint */}
-          {error && (
-            <p role="alert" className="font-mono text-[13px] text-arcade-neon-red leading-snug">{error}</p>
+          {/* General (non-field) server errors — invalid credentials, rate limit… */}
+          {formErr && (
+            <p role="alert" className="font-mono text-[13px] text-arcade-neon-red leading-snug">{formErr}</p>
           )}
 
           <button
@@ -218,23 +233,32 @@ export function AuthModal() {
   );
 }
 
-function ArcadeInput({ placeholder, value, onChange, type = "text", autoComplete, disabled }: {
+function ArcadeInput({ placeholder, value, onChange, type = "text", autoComplete, disabled, error }: {
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   autoComplete?: string;
   disabled?: boolean;
+  error?: string | null;
 }) {
   return (
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      autoComplete={autoComplete}
-      disabled={disabled}
-      className="w-full bg-arcade-bg border border-arcade-border focus:border-arcade-neon-cyan focus:shadow-neon-cyan outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600 transition-all disabled:opacity-50"
-    />
+    <div className="flex flex-col gap-1">
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        autoComplete={autoComplete}
+        disabled={disabled}
+        aria-invalid={!!error}
+        className={`w-full bg-arcade-bg border outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600 transition-all disabled:opacity-50 ${
+          error
+            ? "border-arcade-neon-red focus:border-arcade-neon-red focus:shadow-neon-red"
+            : "border-arcade-border focus:border-arcade-neon-cyan focus:shadow-neon-cyan"
+        }`}
+      />
+      {error && <p role="alert" className="font-mono text-[12px] text-arcade-neon-red leading-snug">{error}</p>}
+    </div>
   );
 }
