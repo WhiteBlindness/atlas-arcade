@@ -23,7 +23,7 @@ const WorldMap = dynamic(
   { ssr: false, loading: () => <div className="w-full h-full bg-arcade-bg" /> }
 );
 
-const MAX_GUESSES = 6;
+const MAX_GUESSES = 15;
 
 // Difficulty balancer for the mystery TARGET only (the dropdown still offers
 // every country). Countries under 1M people are chosen 1/10th as often as

@@ -55,4 +55,13 @@ export const COUNTRY_ALIASES: Record<string, string> = {
   "russian federation": "Russia",
   "türkiye": "Turkey",
   "turkiye": "Turkey",
+  // Newly added microstates / smaller states — short forms & alternates.
+  "st kitts": "Saint Kitts and Nevis",
+  "st. kitts": "Saint Kitts and Nevis",
+  "kitts": "Saint Kitts and Nevis",
+  "holy see": "Vatican City",
+  "the gambia": "Gambia",
+  "trinidad": "Trinidad and Tobago",
+  "tobago": "Trinidad and Tobago",
+  "the bahamas": "Bahamas",
 };

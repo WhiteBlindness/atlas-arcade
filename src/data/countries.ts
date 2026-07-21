@@ -173,7 +173,7 @@ const RAW: [string, number, number, number][] = [
   ["Timor-Leste", 626, -8.87, 125.73],
   ["Eswatini", 748, -26.52, 31.47],
   ["Djibouti", 262, 11.83, 42.59],
-  ["Cape Verde", 132, 16.54, -23.04],
+  ["Cabo Verde", 132, 16.54, -23.04],
   ["Guyana", 328, 6.80, -58.16],
   ["Suriname", 740, 3.92, -56.03],
   ["Belize", 84, 17.19, -88.50],
