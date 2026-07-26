@@ -34,6 +34,10 @@ const OCEAN_COLOR = "#0e2440";   // the sphere itself
 // Canvas background — matches the page shell so the globe doesn't sit in a
 // visible dark-blue slab filling the lower half of the screen.
 const CANVAS_BG = "#090d16";
+// Height reserved at the bottom of the globe area for the confirm bar. The globe
+// canvas is shortened by this much for the whole round (never resized mid-round,
+// which would re-mount the renderer), so the sphere always sits fully above it.
+const CONFIRM_BAR_H = 116;
 const LAND_COLOR = "#8fb6dd";
 const BORDER_COLOR = "#0b1a2e";  // country outlines, dark on the light land
 const EQUATOR_COLOR = "#ffe600";
@@ -89,6 +93,10 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
       ? { w: 0, h: 0 }
       : { w: window.innerWidth, h: Math.max(240, Math.round(window.innerHeight * 0.55)) },
   );
+  // The canvas is shortened by the confirm-bar height so the sphere is never
+  // covered. Constant for the whole round — resizing mid-round would re-mount
+  // the renderer.
+  const globeH = Math.max(200, mapSize.h - CONFIRM_BAR_H);
   const mapWrapRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeRef = useRef<any>(undefined);
@@ -158,13 +166,28 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
 
   // A click only MOVES the pin — it never locks the answer, so a misclick is
   // always recoverable. Submitting happens through the confirm button below.
-  const onGlobeClick = useCallback(({ lat, lng }: { lat: number; lng: number }) => {
+  const placePin = useCallback((lat: number, lng: number) => {
     if (doneRef.current) return;
     const guess = { lng, lat };
     pinRef.current = guess;
     setPin(guess);
     sfx.snap();
   }, []);
+
+  const onGlobeClick = useCallback(
+    ({ lat, lng }: { lat: number; lng: number }) => placePin(lat, lng),
+    [placePin],
+  );
+
+  // Country polygons sit above the sphere and swallow the globe click, so a tap
+  // on land would never drop a pin. react-globe.gl passes the hit coordinates as
+  // the third argument — route them through the same placement logic.
+  const onPolygonClick = useCallback(
+    (_poly: unknown, _ev: unknown, coords: { lat: number; lng: number }) => {
+      if (coords) placePin(coords.lat, coords.lng);
+    },
+    [placePin],
+  );
 
   // Equator: one densely-sampled path at lat 0 so it curves with the sphere.
   const equator = useMemo(
@@ -180,15 +203,30 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
     return arr;
   }, [pin, result, answerLat, answerLng]);
 
+  // Graded feedback instead of a binary pass/fail: the closer the pin, the
+  // warmer the verdict. Bands line up with the distance-based score curve.
+  const grade = useMemo(() => {
+    const d = result?.distKm ?? Infinity;
+    if (d <= CORRECT_KM) {
+      return { label: "correct" as const, text: "text-arcade-neon-green neon-text-green", border: "border-arcade-neon-green", glow: "#00ff4155" };
+    }
+    if (d <= 1000) {
+      return { label: "skClose" as const, text: "text-arcade-neon-yellow neon-text-yellow", border: "border-arcade-neon-yellow", glow: "#ffe60055" };
+    }
+    return { label: "igTooFar" as const, text: "text-arcade-neon-red neon-text-red", border: "border-arcade-neon-red", glow: "#ff000055" };
+  }, [result]);
+
   const confirmGuess = useCallback(() => {
     if (doneRef.current || !pinRef.current) return;
     sfx.click();
     finalize(pinRef.current);
   }, [finalize]);
 
-  // Dark, recognizable silhouette (not solid black); transitions to full over 15s.
+  // The round opens on a readable silhouette rather than a black rectangle: ~20%
+  // brightness with mild contrast lift keeps the skyline's outline legible from
+  // the first frame, then it brightens to full over REVEAL_MS.
   const imgStyle = useMemo<React.CSSProperties>(() => ({
-    filter: reveal ? "brightness(1) contrast(1)" : "brightness(0.15) contrast(2)",
+    filter: reveal ? "brightness(1) contrast(1)" : "brightness(0.2) contrast(1.5)",
     transition: `filter ${REVEAL_MS}ms linear`,
     // once the round ends we snap to fully clear instantly
     ...(result ? { transition: "filter 300ms ease-out" } : {}),
@@ -226,13 +264,13 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
 
       {/* Pin-drop globe. min-h-0 (not min-h-[50vh]) — a tall min-height pushes this
           flex column past h-dvh, and under overflow-hidden the canvas ends up
-          measured but never painted. Height comes from flex + the ResizeObserver. */}
+          measured but never painted. */}
       <div ref={mapWrapRef} className="flex-1 min-h-0 w-full relative" style={{ background: CANVAS_BG }}>
-        {mapSize.w > 0 && mapSize.h > 0 && geo && (
+        {mapSize.w > 0 && globeH > 0 && geo && (
           <Globe
             globeRef={globeRef}
             width={mapSize.w}
-            height={mapSize.h}
+            height={globeH}
             backgroundColor={CANVAS_BG}
             showAtmosphere={false}
             globeMaterial={globeMaterial}
@@ -244,6 +282,8 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
             polygonsTransitionDuration={0}
             // Once the guess is locked in, the globe stops accepting input.
             onGlobeClick={result ? undefined : onGlobeClick}
+            // Land polygons sit above the sphere and would otherwise eat the click.
+            onPolygonClick={result ? undefined : onPolygonClick}
             enablePointerInteraction={!result}
             pathsData={equator}
             pathColor={() => EQUATOR_COLOR}
@@ -285,16 +325,20 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
         {result && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-4">
             <div
-              className={`border ${result.correct ? "border-arcade-neon-green" : "border-arcade-neon-red"} bg-black/92 p-6 text-center space-y-3 min-w-[240px]`}
-              style={{ boxShadow: `0 0 40px ${result.correct ? "#00ff4155" : "#ff000055"}` }}
+              className={`border ${grade.border} bg-black/92 p-6 text-center space-y-3 min-w-[240px]`}
+              style={{ boxShadow: `0 0 40px ${grade.glow}` }}
             >
-              <p className={`font-pixel text-[11px] tracking-widest ${result.correct ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
-                {result.correct ? t("correct") : t("igTooFar")}
+              <p className={`font-pixel text-[11px] tracking-widest ${grade.text}`}>
+                {t(grade.label)}
               </p>
               <p className="font-mono text-lg text-white">{city.name} {city.emoji}</p>
-              <p className="font-mono text-[13px] text-gray-400">
+              {/* Distance is the headline feedback — "185 km from Oslo" — rather
+                  than a bare pass/fail. */}
+              <p className="font-mono text-[13px] text-gray-300">
                 {Number.isFinite(result.distKm)
-                  ? t("skDistance").replace("{X}", Math.round(result.distKm).toLocaleString())
+                  ? t("skDistFrom")
+                      .replace("{X}", Math.round(result.distKm).toLocaleString())
+                      .replace("{Y}", city.name)
                   : t("skNoGuess")}
               </p>
               <div className="h-px bg-arcade-border" />
