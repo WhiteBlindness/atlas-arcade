@@ -30,10 +30,13 @@ drop policy if exists profiles_select_own on public.profiles;
 create policy profiles_select_own on public.profiles
   for select using (auth.uid() = id);
 
+-- NOTE: this must NOT sub-select public.profiles — a policy on a table that
+-- queries the same table raises "infinite recursion detected in policy".
+-- is_admin is protected by the protect_admin_flag() trigger instead
+-- (see 20260726_fix_auth_trigger.sql).
 drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own on public.profiles
-  for update using (auth.uid() = id)
-  with check (auth.uid() = id and is_admin = (select p.is_admin from public.profiles p where p.id = auth.uid()));
+  for update using (auth.uid() = id) with check (auth.uid() = id);
 
 -- ── referral code generation ────────────────────────────────────────────────
 -- 8 chars, unambiguous alphabet (no 0/O/1/I), retried on the unique index.

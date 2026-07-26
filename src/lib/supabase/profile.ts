@@ -13,18 +13,27 @@ export interface Profile {
   referralCode: string | null;
 }
 
-/** Own profile row (RLS: own row only). Null when signed out or unavailable. */
+/**
+ * Own profile row (RLS: own row only). Null when signed out or unavailable.
+ *
+ * Never throws: a missing table (migration not applied), an RLS error or a
+ * network failure all degrade to "no profile", i.e. a normal non-admin player.
+ * Anything else would reject the signed-in bootstrap in coinStore.load().
+ */
 export async function fetchProfile(): Promise<Profile | null> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("is_admin, referral_code")
-    .eq("id", user.id)
-    .maybeSingle();
-  // Migration not applied yet → treat as a normal (non-admin) player.
-  if (error || !data) return null;
-  return { isAdmin: !!data.is_admin, referralCode: data.referral_code ?? null };
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("is_admin, referral_code")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (error || !data) return null;
+    return { isAdmin: !!data.is_admin, referralCode: data.referral_code ?? null };
+  } catch {
+    return null; // offline / fetch failed
+  }
 }
 
 /** Remember a ?ref= code until the player finishes signing up. */
@@ -51,11 +60,16 @@ export function clearReferralCode(): void {
 export async function redeemPendingReferral(): Promise<boolean> {
   const code = readReferralCode();
   if (!code) return false;
-  const { data, error } = await supabase.rpc("redeem_referral", { p_code: code });
-  // Clear on success, and also on a definitive "no" — a bad or already-used code
-  // should not keep retrying on every sign-in.
-  if (!error) clearReferralCode();
-  return data === true;
+  try {
+    const { data, error } = await supabase.rpc("redeem_referral", { p_code: code });
+    // Clear on success, and also on a definitive "no" — a bad or already-used
+    // code should not keep retrying on every sign-in. A transport error keeps
+    // the code so the next sign-in can try again.
+    if (!error) clearReferralCode();
+    return data === true;
+  } catch {
+    return false;
+  }
 }
 
 /** Invite URL for this player's code. */
