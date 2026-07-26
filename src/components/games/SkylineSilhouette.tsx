@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import Map, { Marker, type MapRef } from "react-map-gl/maplibre";
+import dynamic from "next/dynamic";
+import { MeshBasicMaterial } from "three";
+import { feature } from "topojson-client";
+
+// Same engine as the GeoRadar globe. The MapLibre globe renders nothing here
+// (blank canvas, no land), which is exactly why GeoRadar was migrated; using
+// react-globe.gl keeps the pin-drop map actually visible.
+const Globe = dynamic(() => import("./globle/GlobeInner"), { ssr: false });
 import { CITIES } from "@/data/cities";
 import { CITY_COORDS } from "@/data/cityCoords";
 import { haversine } from "@/lib/geo";
@@ -21,13 +28,28 @@ const MAX_POINTS = 600;
 const DIST_ZERO_KM = 3000;       // score reaches 0 at this distance
 const CORRECT_KM = 300;          // within this = "correct" feedback
 
-// Minimal dark globe style (no tiles/labels) — matches GeoRadar.
-const DARK_STYLE = {
-  version: 8,
-  name: "Arcade Dark",
-  sources: {},
-  layers: [{ id: "background", type: "background", paint: { "background-color": "#080810" } }],
-} as const;
+// High-contrast palette: the page background is near-black (#080810), so a deep
+// blue ocean and a bright slate land read clearly against it in either theme.
+const OCEAN_COLOR = "#0e2440";   // the sphere itself
+// Canvas background — matches the page shell so the globe doesn't sit in a
+// visible dark-blue slab filling the lower half of the screen.
+const CANVAS_BG = "#090d16";
+const LAND_COLOR = "#8fb6dd";
+const BORDER_COLOR = "#0b1a2e";  // country outlines, dark on the light land
+const EQUATOR_COLOR = "#ffe600";
+
+const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let geoCache: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchCountries(): Promise<any> {
+  if (geoCache) return geoCache;
+  const world = await fetch(GEO_URL).then((r) => r.json());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  geoCache = feature(world, world.objects.countries) as any;
+  return geoCache;
+}
 
 // Only cities we have coordinates for can be scored.
 const POOL = CITIES.filter((c) => CITY_COORDS[c.id]);
@@ -51,11 +73,49 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
   const [pin, setPin] = useState<Guess | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [imgFailed, setImgFailed] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [geo, setGeo] = useState<any>(null);
+  // Globe dimensions are computed ONCE, synchronously, at the first client render
+  // — never from a ResizeObserver callback.
+  //
+  // Why: mounting react-globe.gl from a render scheduled by a ResizeObserver
+  // callback leaves the renderer alive but producing no frames (verified in
+  // /test-globe: identical config renders when the mount is triggered by the
+  // GeoJSON fetch, and stays blank when triggered by the observer — with either
+  // literal or state-derived sizes, and rAF-deferring does not help).
+  // Mounting on `geo` (a promise callback) is the proven-good path.
+  const [mapSize] = useState(() =>
+    typeof window === "undefined"
+      ? { w: 0, h: 0 }
+      : { w: window.innerWidth, h: Math.max(240, Math.round(window.innerHeight * 0.55)) },
+  );
+  const mapWrapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const globeRef = useRef<any>(undefined);
+
+  useEffect(() => { fetchCountries().then(setGeo).catch(() => {}); }, []);
+
+  // Render at the device pixel ratio — react-globe.gl leaves it at 1, which is
+  // what makes the borders/coastlines look pixelated. Capped at 2 for perf.
+  useEffect(() => {
+    if (!geo) return;
+    const id = requestAnimationFrame(() => {
+      const r = globeRef.current?.renderer?.();
+      if (r) r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [geo]);
+
+  // Unshaded materials — flat 2D look, no lighting artifacts on the sphere.
+  const globeMaterial = useState(() => new MeshBasicMaterial({ color: OCEAN_COLOR }))[0];
+  const landMat = useState(() => new MeshBasicMaterial({ color: LAND_COLOR }))[0];
+  // react-globe.gl expects accessors here; passing a bare Material can silently
+  // skip the polygons (which is what left this globe invisible).
+  const landMaterial = useCallback(() => landMat, [landMat]);
 
   const startRef = useRef(0);
   const doneRef = useRef(false);
   const savedRef = useRef(false);
-  const mapRef = useRef<MapRef | null>(null);
   // Mirrors `pin` so the reveal timeout submits whatever is on the map when it
   // fires, instead of the stale value captured when the effect first ran.
   const pinRef = useRef<Guess | null>(null);
@@ -98,13 +158,27 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
 
   // A click only MOVES the pin — it never locks the answer, so a misclick is
   // always recoverable. Submitting happens through the confirm button below.
-  const onMapClick = useCallback((e: { lngLat: { lng: number; lat: number } }) => {
+  const onGlobeClick = useCallback(({ lat, lng }: { lat: number; lng: number }) => {
     if (doneRef.current) return;
-    const guess = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+    const guess = { lng, lat };
     pinRef.current = guess;
     setPin(guess);
     sfx.snap();
   }, []);
+
+  // Equator: one densely-sampled path at lat 0 so it curves with the sphere.
+  const equator = useMemo(
+    () => [Array.from({ length: 181 }, (_, i) => [0, -180 + i * 2] as [number, number])],
+    [],
+  );
+
+  // White dot for the player's pin; the green target dot appears on reveal.
+  const points = useMemo(() => {
+    const arr: { lat: number; lng: number; color: string }[] = [];
+    if (pin) arr.push({ lat: pin.lat, lng: pin.lng, color: "#f8f8f8" });
+    if (result) arr.push({ lat: answerLat, lng: answerLng, color: "#00ff41" });
+    return arr;
+  }, [pin, result, answerLat, answerLng]);
 
   const confirmGuess = useCallback(() => {
     if (doneRef.current || !pinRef.current) return;
@@ -150,44 +224,48 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
         )}
       </div>
 
-      {/* Pin-drop globe — min-h forces a real height so MapLibre never collapses to 0 on mobile */}
-      <div className="flex-1 min-h-[50vh] w-full relative">
-        <Map
-          ref={mapRef}
-          onClick={onMapClick}
-          initialViewState={{ longitude: 10, latitude: 25, zoom: 1.4 }}
-          minZoom={0.6}
-          maxZoom={7}
-          mapStyle={DARK_STYLE as never}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          {...({ projection: "globe" } as any)}
-          attributionControl={false}
-          // Free exploration: drag to pan, wheel/pinch to zoom, right-drag to rotate.
-          dragPan
-          scrollZoom
-          touchZoomRotate
-          dragRotate
-          // Off so a quick second click just moves the pin instead of zooming.
-          doubleClickZoom={false}
-          cursor={result ? "default" : "crosshair"}
-          style={{ width: "100%", height: "100%" }}
-        >
-          {pin && (
-            <Marker longitude={pin.lng} latitude={pin.lat}>
-              <span className="text-xl" style={{ filter: "drop-shadow(0 0 4px #f8f8f8)" }}>📍</span>
-            </Marker>
-          )}
-          {result && (
-            <Marker longitude={answerLng} latitude={answerLat}>
-              <span className="text-xl" style={{ filter: "drop-shadow(0 0 4px #00ff41)" }}>🎯</span>
-            </Marker>
-          )}
-        </Map>
+      {/* Pin-drop globe. min-h-0 (not min-h-[50vh]) — a tall min-height pushes this
+          flex column past h-dvh, and under overflow-hidden the canvas ends up
+          measured but never painted. Height comes from flex + the ResizeObserver. */}
+      <div ref={mapWrapRef} className="flex-1 min-h-0 w-full relative" style={{ background: CANVAS_BG }}>
+        {mapSize.w > 0 && mapSize.h > 0 && geo && (
+          <Globe
+            globeRef={globeRef}
+            width={mapSize.w}
+            height={mapSize.h}
+            backgroundColor={CANVAS_BG}
+            showAtmosphere={false}
+            globeMaterial={globeMaterial}
+            polygonsData={geo.features}
+            polygonAltitude={0.005}
+            polygonCapMaterial={landMaterial}
+            polygonSideMaterial={landMaterial}
+            polygonStrokeColor={() => BORDER_COLOR}
+            polygonsTransitionDuration={0}
+            // Once the guess is locked in, the globe stops accepting input.
+            onGlobeClick={result ? undefined : onGlobeClick}
+            enablePointerInteraction={!result}
+            pathsData={equator}
+            pathColor={() => EQUATOR_COLOR}
+            pathStroke={1.2}
+            pathPointLat={(p: unknown) => (p as [number, number])[0]}
+            pathPointLng={(p: unknown) => (p as [number, number])[1]}
+            pathTransitionDuration={0}
+            pointsData={points}
+            pointLat="lat"
+            pointLng="lng"
+            pointColor="color"
+            pointAltitude={0.03}
+            pointRadius={0.7}
+            pointsTransitionDuration={0}
+            rendererConfig={{ antialias: true, alpha: true }}
+          />
+        )}
 
         {/* Confirm bar — only appears once a pin is on the map (anti-misclick). */}
         {pin && !result && (
           <div
-            className="absolute bottom-0 left-0 right-0 px-4 pt-3 pb-4 bg-black/85 border-t border-arcade-neon-white/40 space-y-2"
+            className="absolute z-30 bottom-0 left-0 right-0 px-4 pt-3 pb-4 bg-black/85 border-t border-arcade-neon-white/40 space-y-2"
             style={{ animation: "fadeUp 0.2s ease-out" }}
           >
             <p className="font-mono text-xs text-slate-400 text-center leading-snug">

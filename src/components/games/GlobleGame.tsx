@@ -132,7 +132,9 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
         </div>
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
         <p className="font-pixel text-[9px] text-gray-500">
-          {isDaily ? `${guesses.length}` : `${guesses.length} / ${MAX_GUESSES}`}
+          {isDaily
+            ? t("igAttempts").replace("{X}", String(guesses.length))
+            : `${guesses.length} / ${MAX_GUESSES}`}
         </p>
       </div>
 
