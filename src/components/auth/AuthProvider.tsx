@@ -14,17 +14,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadCoins = useCoinStore((s) => s.load);
   const resetCoins = useCoinStore((s) => s.reset);
 
-  // Capture ?ref=CODE on landing and park it until the player signs up. Done
-  // before anything else so an immediate OAuth redirect still finds it.
+  // Landing query params: ?ref=CODE (invite) and ?error=auth_failed (bounced
+  // back by /auth/callback). Both are consumed once and stripped from the URL so
+  // they can't be re-shared or replayed on reload.
   useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("ref");
-    if (!code) return;
-    storeReferralCode(code);
-    // Tidy the URL so the code isn't carried around or re-shared by accident.
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("ref");
+    const authError = params.get("error");
+
+    if (code) storeReferralCode(code);
+    if (authError === "auth_failed") toast.error(t("errAuthFailed"));
+
+    if (!code && !authError) return;
     const url = new URL(window.location.href);
     url.searchParams.delete("ref");
+    url.searchParams.delete("error");
     window.history.replaceState({}, "", url.toString());
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
