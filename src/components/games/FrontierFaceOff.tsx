@@ -11,6 +11,7 @@ import { sfx } from "@/lib/sfx";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
 import { useT } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
@@ -203,7 +204,10 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="frontier-faceoff" accent="text-arcade-neon-purple" />
+        </div>
         <h1 className="font-pixel text-[10px] text-arcade-neon-purple neon-text-purple">FRONTIER FACE-OFF</h1>
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[9px] text-arcade-neon-purple">{score}</span>

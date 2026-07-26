@@ -10,6 +10,7 @@ import { gameRng, seededShuffle, createSeededRng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 
@@ -272,7 +273,10 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="peaks-valleys" accent="text-arcade-neon-green" />
+        </div>
         <h1 className="font-pixel text-[9px] text-arcade-neon-green neon-text-green tracking-widest">
           PEAKS &amp; VALLEYS
         </h1>

@@ -12,6 +12,7 @@ import { useT, type TKey } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 
 const flagUrl = (a: string) => `https://flagcdn.com/w160/${a}.webp`;
 
@@ -112,7 +113,10 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="stat-attack" accent="text-arcade-neon-pink" />
+        </div>
         <h1 className="font-pixel text-[10px] text-arcade-neon-pink neon-text-pink tracking-widest">STAT ATTACK</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-pink">{score}</span>
       </div>

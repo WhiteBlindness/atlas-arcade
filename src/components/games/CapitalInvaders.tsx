@@ -11,6 +11,7 @@ import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import { sfx } from "@/lib/sfx";
 import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
@@ -164,7 +165,10 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="capital-invaders" accent="text-arcade-neon-orange" />
+        </div>
         <h1 className="font-pixel text-[10px] text-arcade-neon-orange neon-text-orange">CAPITAL STRIKE</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-orange">{score}</span>
       </div>

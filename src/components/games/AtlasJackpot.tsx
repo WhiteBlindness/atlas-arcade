@@ -11,6 +11,7 @@ import { useT } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import {
   GlobleGame, CapitalInvaders, FlagRush, PeaksValleys,
   TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends,
@@ -122,7 +123,10 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="atlas-jackpot" accent="text-arcade-neon-yellow" />
+        </div>
         <h1 className="font-pixel text-xs text-arcade-neon-yellow neon-text-yellow tracking-widest flex items-center gap-2">
           <Trophy size={12} /> ATLAS JACKPOT
         </h1>

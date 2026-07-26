@@ -11,6 +11,7 @@ import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import { sfx } from "@/lib/sfx";
 import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
@@ -178,7 +179,10 @@ function FlagRushStandalone({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="flag-rush" accent="text-arcade-neon-blue" />
+        </div>
         <h1 className="font-pixel text-[10px] text-arcade-neon-blue neon-text-blue">FLAG FRENZY</h1>
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[9px] text-arcade-neon-blue">{score}</span>

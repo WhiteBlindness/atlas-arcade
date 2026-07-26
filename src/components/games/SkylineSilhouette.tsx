@@ -13,6 +13,7 @@ import { useT } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const REVEAL_MS = 25000;         // silhouette → clear over 25s (slow, dramatic reveal)
@@ -55,6 +56,9 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
   const doneRef = useRef(false);
   const savedRef = useRef(false);
   const mapRef = useRef<MapRef | null>(null);
+  // Mirrors `pin` so the reveal timeout submits whatever is on the map when it
+  // fires, instead of the stale value captured when the effect first ran.
+  const pinRef = useRef<Guess | null>(null);
   const t = useT();
 
   const finalize = useCallback((guess: Guess | null) => {
@@ -83,20 +87,29 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
     }
   }, [answerLat, answerLng, addScore]);
 
-  // Start the reveal on mount; auto-finalize (0 pts) if the timer runs out.
+  // Start the reveal on mount; when the timer runs out the round is scored with
+  // whatever pin is currently placed (no pin = 0 points).
   useEffect(() => {
     startRef.current = Date.now();
     const raf = requestAnimationFrame(() => setReveal(true));
-    const timeout = setTimeout(() => finalize(null), REVEAL_MS);
+    const timeout = setTimeout(() => finalize(pinRef.current), REVEAL_MS);
     return () => { cancelAnimationFrame(raf); clearTimeout(timeout); };
   }, [finalize]);
 
+  // A click only MOVES the pin — it never locks the answer, so a misclick is
+  // always recoverable. Submitting happens through the confirm button below.
   const onMapClick = useCallback((e: { lngLat: { lng: number; lat: number } }) => {
     if (doneRef.current) return;
     const guess = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+    pinRef.current = guess;
     setPin(guess);
     sfx.snap();
-    finalize(guess);
+  }, []);
+
+  const confirmGuess = useCallback(() => {
+    if (doneRef.current || !pinRef.current) return;
+    sfx.click();
+    finalize(pinRef.current);
   }, [finalize]);
 
   // Dark, recognizable silhouette (not solid black); transitions to full over 15s.
@@ -112,7 +125,7 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
         <GameBackButton onExit={onExit} />
         <h1 className="font-pixel text-xs text-arcade-neon-white neon-text-white tracking-widest">SKYLINE SILHOUETTE</h1>
-        <span className="w-14" />
+        <HowToPlayButton slug="skyline-silhouette" accent="text-arcade-neon-white" />
       </div>
 
       {/* Silhouette */}
@@ -149,7 +162,13 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {...({ projection: "globe" } as any)}
           attributionControl={false}
-          dragRotate={false}
+          // Free exploration: drag to pan, wheel/pinch to zoom, right-drag to rotate.
+          dragPan
+          scrollZoom
+          touchZoomRotate
+          dragRotate
+          // Off so a quick second click just moves the pin instead of zooming.
+          doubleClickZoom={false}
           cursor={result ? "default" : "crosshair"}
           style={{ width: "100%", height: "100%" }}
         >
@@ -164,6 +183,25 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
             </Marker>
           )}
         </Map>
+
+        {/* Confirm bar — only appears once a pin is on the map (anti-misclick). */}
+        {pin && !result && (
+          <div
+            className="absolute bottom-0 left-0 right-0 px-4 pt-3 pb-4 bg-black/85 border-t border-arcade-neon-white/40 space-y-2"
+            style={{ animation: "fadeUp 0.2s ease-out" }}
+          >
+            <p className="font-mono text-xs text-slate-400 text-center leading-snug">
+              {t("skPinHelper")}
+            </p>
+            <button
+              type="button"
+              onClick={confirmGuess}
+              className="w-full min-h-[48px] py-3 font-pixel text-[10px] tracking-widest border border-arcade-neon-green text-arcade-neon-green neon-text-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all"
+            >
+              [ {t("skConfirmGuess")} ]
+            </button>
+          </div>
+        )}
 
         {/* Result overlay */}
         {result && (

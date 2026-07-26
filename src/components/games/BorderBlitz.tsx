@@ -11,6 +11,7 @@ import { useT } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const CONQUER_COLOR = "#ccff00";   // retro lime for conquered territory
@@ -186,7 +187,10 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
   return (
     <div className="h-dvh overflow-hidden flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="border-blitz" accent="text-arcade-neon-lime" />
+        </div>
         <h1 className="font-pixel text-xs text-arcade-neon-lime neon-text-lime tracking-widest">BORDER BLITZ</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-lime">{t("bbTerritories").replace("{X}", String(territories))}</span>
       </div>

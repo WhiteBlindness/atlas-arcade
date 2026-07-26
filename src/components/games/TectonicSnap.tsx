@@ -12,6 +12,7 @@ import { gameRng, seededShuffle, createSeededRng, type Rng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 
@@ -262,7 +263,10 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="tectonic-snap" accent="text-arcade-neon-mint" />
+        </div>
         <h1 className="font-pixel text-[10px] text-arcade-neon-mint neon-text-mint">TECTONIC SNAP</h1>
         <span className="font-pixel text-[9px] text-arcade-neon-mint">{score}</span>
       </div>

@@ -15,6 +15,7 @@ import { sfx } from "@/lib/sfx";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import type { MashupProps } from "./mashup";
 import { GuessInput } from "./globle/GuessInput";
 import { GuessHistory } from "./globle/GuessHistory";
@@ -125,7 +126,10 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
     // the sticky input up instead of covering it.
     <div className="h-dvh overflow-hidden flex flex-col bg-arcade-bg">
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
-        <GameBackButton onExit={onExit} />
+        <div className="flex items-center gap-1">
+          <GameBackButton onExit={onExit} />
+          <HowToPlayButton slug="globle" accent="text-arcade-neon-cyan" />
+        </div>
         <h1 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest">GEORADAR</h1>
         <p className="font-pixel text-[9px] text-gray-500">
           {isDaily ? `${guesses.length}` : `${guesses.length} / ${MAX_GUESSES}`}
