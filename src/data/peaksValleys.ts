@@ -9,17 +9,33 @@ export type PeaksCategory =
   | "wonder"
   | "nature";
 
+/** Difficulty band. Optional per entry — when absent the game derives the
+ *  difficulty of a pair from how close the two values are. */
+export type PeaksTier = "easy" | "medium" | "hard";
+
+/** Card text. Plain string = legacy single-language (PT-PT) copy; the object
+ *  form is preferred for new entries so the UI can render the active language. */
+export type LocalizedText = string | { en: string; pt: string; es: string };
+
+/** Resolve card text for the active UI language (falls back to PT, then EN). */
+export function localizedText(v: LocalizedText, lang: string): string {
+  if (typeof v === "string") return v;
+  return (lang === "en" ? v.en : lang === "es" ? v.es : v.pt) ?? v.pt ?? v.en;
+}
+
 export interface PeaksEntry {
   /** Background photo (Wikimedia Commons) rendered behind the stat card */
   imageUrl: string;
   id: string;
-  label: string;       // what is being measured (PT-PT)
-  sublabel: string;    // context / location (PT-PT)
-  value: number;       // raw number used for comparison
-  displayValue: string; // pre-formatted, no unit (PT-PT number format)
-  unit: string;        // shown separately in small text (PT-PT)
+  label: LocalizedText;      // what is being measured
+  sublabel: LocalizedText;   // context / location
+  value: number;             // raw number used for comparison
+  displayValue: string;      // pre-formatted, no unit
+  unit: LocalizedText;       // shown separately in small text
   category: PeaksCategory;
   emoji: string;
+  /** Optional explicit difficulty; derived from the value gap when omitted. */
+  tier?: PeaksTier;
 }
 
 export const PEAKS_ENTRIES: PeaksEntry[] = [

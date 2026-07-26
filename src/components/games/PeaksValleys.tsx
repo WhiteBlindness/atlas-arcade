@@ -2,14 +2,15 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { PEAKS_ENTRIES, type PeaksEntry, type PeaksCategory } from "@/data/peaksValleys";
+import { PEAKS_ENTRIES, localizedText, type PeaksEntry, type PeaksCategory, type PeaksTier } from "@/data/peaksValleys";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededShuffle, createSeededRng } from "@/lib/daily";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
-import { useT } from "@/lib/i18n";
+import { useT, type TKey } from "@/lib/i18n";
 import type { MashupProps } from "./mashup";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -17,6 +18,65 @@ import type { MashupProps } from "./mashup";
 function pointsFor(streak: number) {
   return 100 + streak * 50;
 }
+
+// ── Progressive difficulty ────────────────────────────────────────────────────
+// Rounds 0-3 serve easy pairs, 4-8 medium, 9+ hard.
+function tierForRound(round: number): PeaksTier {
+  if (round < 4) return "easy";
+  if (round < 9) return "medium";
+  return "hard";
+}
+
+/** Difficulty of a pair: the wider the relative gap, the easier the call. */
+function gapTier(a: number, b: number): PeaksTier {
+  const hi = Math.max(Math.abs(a), Math.abs(b)) || 1;
+  const gap = Math.abs(b - a) / hi;
+  if (gap >= 0.5) return "easy";
+  if (gap >= 0.2) return "medium";
+  return "hard";
+}
+
+/** Explicit dataset tier wins; otherwise derive it from the pair's value gap. */
+function entryTier(candidate: PeaksEntry, current: PeaksEntry): PeaksTier {
+  return candidate.tier ?? gapTier(current.value, candidate.value);
+}
+
+/**
+ * Draw without replacement: take the first remaining entry matching the wanted
+ * tier (the pool is pre-shuffled, so "first match" is still random but stays
+ * deterministic for the daily seed). Falls back to any remaining entry, and
+ * returns null only when the deck is truly exhausted.
+ */
+function drawNext(
+  remaining: PeaksEntry[],
+  current: PeaksEntry,
+  want: PeaksTier,
+): { drawn: PeaksEntry | null; rest: PeaksEntry[] } {
+  if (remaining.length === 0) return { drawn: null, rest: remaining };
+  let idx = remaining.findIndex((e) => entryTier(e, current) === want);
+  if (idx === -1) idx = 0; // no card in that band left — keep the run going
+  const drawn = remaining[idx];
+  return { drawn, rest: [...remaining.slice(0, idx), ...remaining.slice(idx + 1)] };
+}
+
+interface DeckState {
+  current: PeaksEntry;
+  next: PeaksEntry | null; // null => deck exhausted
+  remaining: PeaksEntry[];
+  round: number;
+}
+
+const CAT_KEY: Record<PeaksCategory, TKey> = {
+  mountain: "pvCatMountain",
+  river:    "pvCatRiver",
+  country:  "pvCatCountry",
+  city:     "pvCatCity",
+  ocean:    "pvCatOcean",
+  lake:     "pvCatLake",
+  desert:   "pvCatDesert",
+  wonder:   "pvCatWonder",
+  nature:   "pvCatNature",
+};
 
 const CAT_COLOR: Record<PeaksCategory, string> = {
   mountain: "#00d4ff",
@@ -45,6 +105,7 @@ interface CardProps {
 
 function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardProps) {
   const t = useT();
+  const lang = useSettingsStore((s) => s.lang);
   const accent = CAT_COLOR[entry.category];
   const resultColor = phase === "correct" ? "#00ff41" : "#ff3333";
   const valueBorderColor = isRight && revealed ? resultColor : isRight ? "#1a1a2e" : accent;
@@ -79,13 +140,16 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
       </span>
 
       <div className="relative text-center space-y-1 max-w-xs">
+        <p className="font-pixel text-[7px] text-gray-600 tracking-[0.25em]">
+          {t(CAT_KEY[entry.category])}
+        </p>
         <p
           className="font-pixel text-[8px] lg:text-[9px] leading-relaxed"
           style={{ color: accent }}
         >
-          {entry.label.toUpperCase()}
+          {localizedText(entry.label, lang).toUpperCase()}
         </p>
-        <p className="font-mono text-sm text-gray-500">{entry.sublabel}</p>
+        <p className="font-mono text-sm text-gray-500">{localizedText(entry.sublabel, lang)}</p>
       </div>
 
       {/* Value box */}
@@ -98,7 +162,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
             <p className="font-pixel text-base lg:text-lg" style={{ color: accent }}>
               {entry.displayValue}
             </p>
-            <p className="font-mono text-xs text-gray-500 mt-1">{entry.unit}</p>
+            <p className="font-mono text-xs text-gray-500 mt-1">{localizedText(entry.unit, lang)}</p>
           </div>
         ) : (
           <p className="font-pixel text-4xl text-gray-700 animate-blink select-none">?</p>
@@ -151,23 +215,25 @@ export default function PeaksValleys({ onExit, isMashupMode, onMashupComplete, m
 function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
   const t = useT();
   const { addScore } = useGameStore();
-  const [deck] = useState<PeaksEntry[]>(() =>
-    seededShuffle(PEAKS_ENTRIES, gameRng("peaks-valleys", useGameStore.getState().mode))
-  );
-  const [ptr, setPtr] = useState(0);
+  // Draw-without-replacement queue: every entry is consumed at most once per run.
+  const [deckState, setDeckState] = useState<DeckState>(() => {
+    const shuffled = seededShuffle(PEAKS_ENTRIES, gameRng("peaks-valleys", useGameStore.getState().mode));
+    const [first, ...rest] = shuffled;
+    const { drawn, rest: remaining } = drawNext(rest, first, tierForRound(0));
+    return { current: first, next: drawn, remaining, round: 0 };
+  });
   const [phase, setPhase] = useState<Phase>("input");
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const savedRef = useRef(false);
 
-  const isExhausted = ptr + 1 >= deck.length;
-  const cardA = deck[ptr];
-  const cardB = deck[isExhausted ? 0 : ptr + 1];
+  const { current: cardA, next: cardB, round } = deckState;
+  const isExhausted = cardB === null;
 
   const handleGuess = useCallback(
     (guessHigher: boolean) => {
-      if (phase !== "input" || isExhausted) return;
+      if (phase !== "input" || !cardB) return;
       const a = cardA.value;
       const b = cardB.value;
       const isCorrect = a === b ? true : guessHigher ? b > a : b < a;
@@ -180,7 +246,14 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
         setPhase("correct");
         timerRef.current = setTimeout(() => {
           setPhase("input");
-          setPtr((p) => p + 1);
+          // Promote the revealed card and draw a fresh one for the next round's
+          // difficulty band. Drawn cards never return to the pool this run.
+          setDeckState((s) => {
+            if (!s.next) return s;
+            const nextRound = s.round + 1;
+            const { drawn, rest } = drawNext(s.remaining, s.next, tierForRound(nextRound));
+            return { current: s.next, next: drawn, remaining: rest, round: nextRound };
+          });
         }, 1200);
       } else {
         setPhase("wrong");
@@ -190,7 +263,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
         }
       }
     },
-    [phase, isExhausted, cardA, cardB, streak, score, addScore],
+    [phase, cardA, cardB, streak, score, addScore],
   );
 
   useEffect(() => () => clearTimeout(timerRef.current), []);
@@ -246,8 +319,8 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
 
         {/* Right card — hidden until guess; key triggers slide animation on advance */}
         <EntryCard
-          key={ptr}
-          entry={cardB}
+          key={round}
+          entry={cardB ?? cardA}
           revealed={phase !== "input"}
           phase={phase}
           isRight
@@ -272,7 +345,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
                   {score} PTS
                 </span>
                 <span className="font-pixel text-[8px] text-gray-500">{t("igCorrectCount")}</span>
-                <span className="font-mono text-sm text-white text-right">{ptr}</span>
+                <span className="font-mono text-sm text-white text-right">{round}</span>
               </div>
               <DailyPercentile performance={Math.min(1, score / 1500)} />
               <EndScreenActions
@@ -280,7 +353,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
                 gameTitle="PEAKS & VALLEYS"
                 score={score}
                 performance={Math.min(1, score / 1500)}
-                squares={"🟩".repeat(Math.min(ptr, 10)) + "🟥"}
+                squares={"🟩".repeat(Math.min(round, 10)) + "🟥"}
                 onExit={onExit}
               />
             </div>
@@ -297,7 +370,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               <p className="font-pixel text-sm text-arcade-neon-green neon-text-green tracking-widest">
                 {t("igPerfect")}
               </p>
-              <p className="font-mono text-sm text-gray-500">{t("igAllCleared").replace("{X}", String(deck.length - 1))}</p>
+              <p className="font-mono text-sm text-gray-500">{t("igAllCleared").replace("{X}", String(round))}</p>
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
                 <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
@@ -322,7 +395,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-2 border-t border-arcade-border">
         <span className="font-pixel text-[7px] text-gray-700">
-          {t("igRound")} {ptr + 1} / {deck.length - 1}
+          {t("igRound")} {round + 1} / {PEAKS_ENTRIES.length - 1}
         </span>
         <span className="font-pixel text-[7px] text-gray-700">
           {streak > 1 ? `×${streak} ${t("igStreak")}` : ""}
