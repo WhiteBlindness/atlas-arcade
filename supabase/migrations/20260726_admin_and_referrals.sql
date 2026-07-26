@@ -33,7 +33,7 @@ create policy profiles_select_own on public.profiles
 -- NOTE: this must NOT sub-select public.profiles — a policy on a table that
 -- queries the same table raises "infinite recursion detected in policy".
 -- is_admin is protected by the protect_admin_flag() trigger instead
--- (see 20260726_fix_auth_trigger.sql).
+-- (see 20260727_repair_signup_trigger.sql).
 drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own on public.profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
@@ -60,35 +60,12 @@ begin
 end;
 $$;
 
--- ── auto-create a profile (with a code) for every new auth user ─────────────
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  insert into public.profiles (id, referral_code)
-  values (new.id, public.gen_referral_code())
-  on conflict (id) do nothing;
-  return new;
-end;
-$$;
-
-drop trigger if exists on_auth_user_created_profile on auth.users;
-create trigger on_auth_user_created_profile
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-
--- Backfill: existing users get a profile + code.
-insert into public.profiles (id, referral_code)
-select u.id, public.gen_referral_code()
-from auth.users u
-where not exists (select 1 from public.profiles p where p.id = u.id);
-
-update public.profiles
-set referral_code = public.gen_referral_code()
-where referral_code is null;
+-- ── signup trigger ─────────────────────────────────────────────────────────
+-- Deliberately NOT defined here. This project already had a public.handle_new_user()
+-- (it creates the public.user_coins row), and defining it here with CREATE OR
+-- REPLACE silently overwrote it — which is what broke signup. The trigger is
+-- owned by 20260727_repair_signup_trigger.sql, which replaces the body while
+-- keeping BOTH the user_coins and profiles inserts.
 
 -- ── redeem a referral code ──────────────────────────────────────────────────
 -- SECURITY DEFINER: needs to look up the referrer's row, which RLS hides.
