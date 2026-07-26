@@ -93,12 +93,10 @@ export function ProfileModal() {
     closeProfile();
   };
 
+  // No backdrop-click-to-close — matches AuthModal. Only the X button closes it.
   return (
-    <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" onClick={closeProfile}>
-      <div
-        className="relative w-full max-w-sm max-h-[85dvh] overflow-y-auto bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-sm max-h-[85dvh] overflow-y-auto bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
         <div className="flex justify-between items-center mb-5">
           <h2 className="flex items-center gap-2 font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-wider">
             <UserIcon size={14} /> {t("profileTitle")}

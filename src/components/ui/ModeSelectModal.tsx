@@ -26,12 +26,12 @@ export function ModeSelectModal() {
     // spend() opens the OUT OF COINS modal itself when broke
   };
 
+  // No backdrop-click-to-close — matches AuthModal. Only the X button closes it.
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4" onClick={closeModeSelect}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4">
       <div
         className="relative w-full max-w-sm border border-arcade-neon-cyan bg-arcade-bg p-6 space-y-4 modal-enter"
         style={{ boxShadow: "0 0 40px #00d4ff44" }}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={closeModeSelect}

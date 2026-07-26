@@ -62,12 +62,12 @@ export function OutOfCoinsModal() {
     setPremiumNote(true);
   };
 
+  // No backdrop-click-to-close — matches AuthModal. Only the X button closes it.
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4" onClick={closeOutOfCoins}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
       <div
         className="relative w-full max-w-sm border border-arcade-neon-red bg-arcade-bg p-6 space-y-4 text-center modal-enter"
         style={{ boxShadow: "0 0 40px #ff333344" }}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={closeOutOfCoins}

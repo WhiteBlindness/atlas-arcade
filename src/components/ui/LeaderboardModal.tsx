@@ -57,12 +57,10 @@ export function LeaderboardModal() {
 
   if (!leaderboardOpen) return null;
 
+  // No backdrop-click-to-close — matches AuthModal. Only the X button closes it.
   return (
-    <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" onClick={closeLeaderboard}>
-      <div
-        className="relative w-full max-w-md max-h-[85dvh] flex flex-col bg-arcade-surface border border-arcade-neon-yellow shadow-neon-yellow p-6 modal-enter"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-md max-h-[85dvh] flex flex-col bg-arcade-surface border border-arcade-neon-yellow shadow-neon-yellow p-6 modal-enter">
         <div className="flex justify-between items-center mb-4">
           <h2 className="flex items-center gap-2 font-pixel text-xs text-arcade-neon-yellow neon-text-yellow tracking-wider">
             <Trophy size={14} /> {t("lbTitle")}

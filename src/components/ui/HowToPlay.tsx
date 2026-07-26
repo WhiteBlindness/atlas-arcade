@@ -51,15 +51,10 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan" }: { sl
         <HelpCircle size={16} />
       </button>
 
+      {/* No backdrop-click-to-close — matches AuthModal. Only [ CLOSE ] closes it. */}
       {open && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 backdrop-blur-sm px-4"
-          onClick={close}
-        >
-          <div
-            className="relative w-full max-w-sm bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 backdrop-blur-sm px-4">
+          <div className="relative w-full max-w-sm bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
             <h2 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest text-center mb-1">
               {t("htpTitle")}
             </h2>
