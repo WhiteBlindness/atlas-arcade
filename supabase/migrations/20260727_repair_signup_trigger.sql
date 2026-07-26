@@ -100,10 +100,17 @@ begin
     end;
   end;
 
-  -- profile row; referral code needs no table reads (no retry loop)
+  -- profile row; referral code needs no table reads (no retry loop).
+  -- NOTE: superseded by 20260728_fix_username_constraint.sql, which adds the
+  -- username column this project's pre-existing NOT NULL constraint requires.
+  -- Kept here only so a fresh run of just this file doesn't error on a DB where
+  -- profiles.username has no default; 20260728 is authoritative.
   begin
-    insert into public.profiles (id, is_admin, referral_code)
-    values (new.id, false, encode(gen_random_bytes(4), 'hex'))
+    insert into public.profiles (id, is_admin, referral_code, username)
+    values (
+      new.id, false, encode(gen_random_bytes(4), 'hex'),
+      coalesce(nullif(trim(new.raw_user_meta_data ->> 'username'), ''), 'player_' || substr(replace(new.id::text, '-', ''), 1, 8))
+    )
     on conflict (id) do nothing;
   exception when others then
     raise warning 'handle_new_user: profiles insert failed for %: %', new.id, sqlerrm;
@@ -136,8 +143,13 @@ select u.id from auth.users u
 where not exists (select 1 from public.user_coins c where c.user_id = u.id)
 on conflict (user_id) do nothing;
 
-insert into public.profiles (id, is_admin, referral_code)
-select u.id, false, encode(extensions.gen_random_bytes(4), 'hex')
+-- NOTE: superseded by the retrying backfill in 20260728_fix_username_constraint.sql
+-- (this one predates the username column and will error if run standalone on
+-- this project's DB, where that column is NOT NULL). Left for a fresh DB where
+-- profiles.username doesn't exist; run 20260728 either way.
+insert into public.profiles (id, is_admin, referral_code, username)
+select u.id, false, encode(extensions.gen_random_bytes(4), 'hex'),
+  coalesce(nullif(trim(u.raw_user_meta_data ->> 'username'), ''), 'player_' || substr(replace(u.id::text, '-', ''), 1, 8))
 from auth.users u
 where not exists (select 1 from public.profiles p where p.id = u.id)
 on conflict (id) do nothing;
