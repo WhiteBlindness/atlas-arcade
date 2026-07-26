@@ -24,9 +24,23 @@ import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const REVEAL_MS = 25000;         // silhouette → clear over 25s (slow, dramatic reveal)
-const MAX_POINTS = 600;
-const DIST_ZERO_KM = 3000;       // score reaches 0 at this distance
-const CORRECT_KM = 300;          // within this = "correct" feedback
+const MAX_POINTS = 5000;
+const PERFECT_KM = 25;           // guess within this distance scores full marks
+const CORRECT_KM = 300;          // within this = "correct" feedback (UI grading, not the score curve)
+
+// GeoGuessr-style exponential falloff: full marks inside PERFECT_KM, decaying to
+// ~0 by 2000km. epsilon is how small distScore(2000km) should be relative to a
+// perfect guess — 1/10000 leaves comfortable rounding headroom so even a big
+// early-reveal time bonus can't push a 2000km+ guess above 0 points.
+const ZERO_KM = 2000;
+const DECAY_EPSILON = 1 / 10000;
+const DECAY_RATE = -Math.log(DECAY_EPSILON) / (ZERO_KM - PERFECT_KM);
+
+/** 1.0 within PERFECT_KM, exponential decay to ~0 by ZERO_KM. */
+function distanceScore(distKm: number): number {
+  if (distKm <= PERFECT_KM) return 1;
+  return Math.exp(-DECAY_RATE * (distKm - PERFECT_KM));
+}
 
 // High-contrast palette: the page background is near-black (#080810), so a deep
 // blue ocean and a bright slate land read clearly against it in either theme.
@@ -140,9 +154,8 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
       res = { distKm: Infinity, points: 0, correct: false };
     } else {
       const distKm = haversine(answerLat, answerLng, guess.lat, guess.lng);
-      const distScore = Math.max(0, 1 - distKm / DIST_ZERO_KM);
       const timeMult = 1 - elapsed * 0.8; // 1.0 while dark → 0.2 once clear
-      const points = Math.round(MAX_POINTS * distScore * timeMult);
+      const points = Math.round(MAX_POINTS * distanceScore(distKm) * timeMult);
       res = { distKm, points, correct: distKm <= CORRECT_KM };
     }
 
