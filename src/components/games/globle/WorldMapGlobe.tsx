@@ -18,9 +18,18 @@ const FLY_ALTITUDE = 1.5;
 const FLY_MS = 1200;
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-const LAND_COLOR = "#0a111d";   // flat land (solid, matches the arcade dark bg)
-const OCEAN_COLOR = "#080810";  // base sphere / background
+// High-contrast palette: the page background is near-black (#080810), so a deep
+// blue ocean with clearly lighter land reads strongly in dark or light mode.
+const LAND_COLOR = "#8fb6dd";
+const OCEAN_COLOR = "#0e2440";
+const BORDER_COLOR = "#0b1a2e";   // country outlines — dark against the light land
+const EQUATOR_COLOR = "#ffe600";
 const MYSTERY_COLOR = "#00ff41";
+
+// Equator as one densely-sampled path so it curves smoothly around the sphere.
+const EQUATOR: [number, number][][] = [
+  Array.from({ length: 181 }, (_, i) => [0, -180 + i * 2] as [number, number]),
+];
 
 interface Props {
   colorMap: Record<number, string>;
@@ -126,7 +135,14 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, flyTo }: P
           polygonAltitude={0.005}
           polygonCapMaterial={polygonCapMaterial}
           polygonSideMaterial={polygonSideMaterial}
+          polygonStrokeColor={() => BORDER_COLOR}
           polygonsTransitionDuration={0}
+          pathsData={EQUATOR}
+          pathColor={() => EQUATOR_COLOR}
+          pathStroke={1.2}
+          pathPointLat={(p: unknown) => (p as [number, number])[0]}
+          pathPointLng={(p: unknown) => (p as [number, number])[1]}
+          pathTransitionDuration={0}
           rendererConfig={{ antialias: true }}
         />
       )}
