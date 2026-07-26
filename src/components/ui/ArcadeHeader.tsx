@@ -13,6 +13,7 @@ export function ArcadeHeader() {
   const { lang, sound, theme, setLang, toggleSound, toggleTheme } = useSettingsStore();
   const coins = useCoinStore((s) => s.coins);
   const premiumTokens = useCoinStore((s) => s.premiumTokens);
+  const isAdmin = useCoinStore((s) => s.isAdmin);
   const streak = useDailyStore((s) => s.streak);
   const t = useT();
 
@@ -64,14 +65,26 @@ export function ArcadeHeader() {
           </div>
         )}
 
-        {/* Coin counter */}
-        {coins !== null && (
-          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-yellow/60" title="Arcade coins — 1 per Arcade Mode run, refills daily">
+        {/* Coin counter — admins play free, so they get ∞ + a DEV badge. */}
+        {(coins !== null || isAdmin) && (
+          <div
+            className={`flex shrink-0 items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 border ${
+              isAdmin ? "border-arcade-neon-green/70" : "border-arcade-neon-yellow/60"
+            }`}
+            title={isAdmin ? "DEV mode — unlimited plays" : "Arcade coins — 1 per Arcade Mode run, refills daily"}
+          >
             <span
               className="inline-block w-3 h-3 rounded-full border border-yellow-700"
               style={{ background: "radial-gradient(circle at 35% 35%, #ffe600, #b8860b)" }}
             />
-            <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-yellow neon-text-yellow">{coins}</span>
+            {isAdmin ? (
+              <span className="flex items-center gap-1">
+                <span className="font-pixel text-[11px] text-arcade-neon-green neon-text-green leading-none">∞</span>
+                <span className="font-pixel text-[7px] text-arcade-neon-green tracking-widest">DEV</span>
+              </span>
+            ) : (
+              <span className="font-pixel text-[9px] sm:text-[10px] text-arcade-neon-yellow neon-text-yellow">{coins}</span>
+            )}
           </div>
         )}
 

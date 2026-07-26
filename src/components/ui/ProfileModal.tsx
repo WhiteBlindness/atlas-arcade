@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Gem, Trash2, User as UserIcon } from "lucide-react";
+import { X, Gem, Trash2, User as UserIcon, Copy, Check } from "lucide-react";
+import { fetchProfile, referralLink } from "@/lib/supabase/profile";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
@@ -33,6 +34,16 @@ export function ProfileModal() {
   const t = useT();
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [refCode, setRefCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Load the invite code when the modal opens (own row, RLS-protected).
+  useEffect(() => {
+    if (!profileOpen) return;
+    let alive = true;
+    fetchProfile().then((p) => { if (alive) setRefCode(p?.referralCode ?? null); });
+    return () => { alive = false; };
+  }, [profileOpen]);
 
   // Lock background scroll while open; clear the delete confirm on close (cleanup).
   useEffect(() => {
@@ -41,8 +52,29 @@ export function ProfileModal() {
     return () => {
       document.body.classList.remove("overflow-hidden");
       setConfirming(false);
+      setCopied(false);
     };
   }, [profileOpen]);
+
+  const copyInvite = async () => {
+    if (!refCode) return;
+    sfx.click();
+    const link = referralLink(refCode);
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      // Clipboard blocked (insecure context / permissions) — fall back to a
+      // temporary selection so the player can still copy manually.
+      const el = document.createElement("textarea");
+      el.value = link;
+      document.body.appendChild(el);
+      el.select();
+      try { document.execCommand("copy"); } catch { /* nothing else to try */ }
+      el.remove();
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
 
   if (!profileOpen || !user) return null;
 
@@ -116,6 +148,26 @@ export function ProfileModal() {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Invite friends — one-click copy of a personal referral link. */}
+        {refCode && (
+          <>
+            <p className="font-pixel text-[8px] text-gray-500 tracking-widest mb-2">{t("profileInvite")}</p>
+            <div className="border border-arcade-neon-green/50 p-3 mb-6 space-y-2">
+              <p className="font-mono text-[13px] text-gray-400 leading-snug">{t("profileInviteDesc")}</p>
+              <p className="font-mono text-[12px] text-arcade-neon-green break-all select-all">
+                {referralLink(refCode)}
+              </p>
+              <button
+                onClick={copyInvite}
+                className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all"
+              >
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+                {copied ? t("profileCopied") : t("profileCopyLink")}
+              </button>
+            </div>
+          </>
         )}
 
         {/* Delete account */}

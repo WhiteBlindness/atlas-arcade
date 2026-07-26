@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
 import { fetchUserState, persistTokenRow, addPremium, spendPremium } from "@/lib/supabase/coins";
+import { fetchProfile } from "@/lib/supabase/profile";
 import { useGameStore } from "@/store/gameStore";
 import {
   accrue, spend as spendTokensState, msToNextToken, freshDay,
@@ -42,6 +43,8 @@ interface CoinStore {
   premiumTokens: number | null;
   /** true = balance lives in localStorage, not Supabase */
   guest: boolean;
+  /** Admin/dev account: plays are free and the counter shows ∞. */
+  isAdmin: boolean;
   loading: boolean;
   outOfCoinsOpen: boolean;
   load: () => Promise<void>;
@@ -80,6 +83,7 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
   tokens: null,
   premiumTokens: null,
   guest: true,
+  isAdmin: false,
   loading: false,
   outOfCoinsOpen: false,
 
@@ -89,8 +93,10 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
     const now = Date.now();
 
     if (user) {
-      // Single RPC: token row + premium + high scores (was 3 separate reads).
-      const state = await fetchUserState();
+      // Single RPC: token row + premium + high scores (was 3 separate reads),
+      // plus the profile row for the admin flag.
+      const [state, profile] = await Promise.all([fetchUserState(), fetchProfile()]);
+      set({ isAdmin: !!profile?.isAdmin });
       if (!state) {
         // RPC unavailable — do NOT fabricate a balance, or a later spend would
         // overwrite the real DB row. Leave it unknown (null) so spends no-op.
@@ -103,7 +109,7 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
       }
     } else {
       const tokens = readGuestState();
-      set({ tokens, coins: tokens.coins, premiumTokens: null, guest: true, loading: false });
+      set({ tokens, coins: tokens.coins, premiumTokens: null, guest: true, isAdmin: false, loading: false });
     }
 
     // refill automatically when UTC midnight passes mid-session
@@ -129,7 +135,9 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
   },
 
   spend: async () => {
-    const { tokens, guest } = get();
+    const { tokens, guest, isAdmin } = get();
+    // Admin/dev accounts play for free — nothing is deducted or persisted.
+    if (isAdmin) return true;
     if (!tokens) return false;
     const next = spendTokensState(tokens, 1, Date.now());
     if (!next) { set({ outOfCoinsOpen: true }); return false; }
@@ -139,7 +147,8 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
 
   // Atlas Jackpot entry: spend `cost` tokens, daily first then premium. Accounts only.
   spendTokens: async (cost) => {
-    const { tokens, premiumTokens, guest } = get();
+    const { tokens, premiumTokens, guest, isAdmin } = get();
+    if (isAdmin) return true; // free entry for admin/dev accounts
     if (guest || !tokens) return false; // sign-in required for the boss stage
     const prem = premiumTokens ?? 0;
     if (tokens.coins + prem < cost) {
@@ -189,6 +198,6 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
     if (regenTimer) clearInterval(regenTimer);
     midnightTimer = null;
     regenTimer = null;
-    set({ coins: null, tokens: null, premiumTokens: null, guest: true, outOfCoinsOpen: false });
+    set({ coins: null, tokens: null, premiumTokens: null, guest: true, isAdmin: false, outOfCoinsOpen: false });
   },
 }));
