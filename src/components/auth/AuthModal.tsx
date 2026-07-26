@@ -144,12 +144,12 @@ export function AuthModal() {
   const title = view === "reset" ? t("authTitleReset") : view === "signin" ? t("authTitleSignin") : t("authTitleSignup");
   const submitLabel = view === "reset" ? t("authBtnReset") : view === "signin" ? t("authBtnSignin") : t("authBtnCreate");
 
+  // No backdrop-click-to-close: a click that starts inside the form (e.g.
+  // selecting text in a field) and releases outside was closing the modal and
+  // dropping whatever the player had typed. Only the X button closes it.
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" onClick={closeModal}>
-      <div
-        className="relative w-full max-w-sm bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-sm bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-wider">{title}</h2>
           <button onClick={closeModal} aria-label={t("cancel")} className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-500 hover:text-white active:scale-90 transition-all">
