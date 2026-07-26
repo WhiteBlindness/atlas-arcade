@@ -1,32 +1,41 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
- * OAuth redirect target (Google sign-in).
+ * OAuth / PKCE callback.
  *
- * Supabase sends the browser here with a `code` query param; exchanging it sets
- * the auth cookies via the SSR client, so the session is available on the server
- * as well as the client. On any failure we still land the player back on the
- * arcade rather than a dead end.
+ * Every failure path redirects instead of throwing, so a bad or replayed code —
+ * or a missing PKCE verifier cookie, which surfaces as AuthSessionMissingError —
+ * lands the player back on the arcade rather than a 500 page.
  */
-export async function GET(req: NextRequest) {
-  const { searchParams, origin } = req.nextUrl;
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  // `next` lets us come back to a specific screen later; defaults to the arcade.
+  // if "next" is in param, use it as the redirect URL
   const next = searchParams.get("next") ?? "/";
 
   if (code) {
-    const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
-    return NextResponse.redirect(`${origin}/?auth_error=${encodeURIComponent(error.message)}`);
+    try {
+      const supabase = await createSupabaseServerClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+      console.error("Auth callback error:", error.message);
+    } catch (err) {
+      // Covers AuthSessionMissingError, cookie-store failures and network drops.
+      console.error("Unexpected error in auth callback:", err);
+    }
   }
 
-  // Provider returned an error (e.g. the user cancelled the consent screen).
-  const providerError = searchParams.get("error_description") ?? searchParams.get("error");
-  if (providerError) {
-    return NextResponse.redirect(`${origin}/?auth_error=${encodeURIComponent(providerError)}`);
-  }
+  // If we get here, either no code was provided or the exchange failed.
+  // Graceful degradation: redirect home with an error parameter instead of
+  // throwing a 500.
+  return NextResponse.redirect(`${origin}/?error=auth_failed`);
+}
 
-  return NextResponse.redirect(origin);
+// Supabase can be configured to POST to the callback (and some providers do);
+// without this the route would 405/500 instead of degrading gracefully.
+export async function POST(request: Request) {
+  return GET(request);
 }
