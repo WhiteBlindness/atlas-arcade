@@ -3,11 +3,19 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { MeshBasicMaterial } from "three";
+import type { GlobeMethods } from "react-globe.gl";
 import { feature } from "topojson-client";
+import { COUNTRY_BY_NUMERIC } from "@/data/countries";
 
 // react-globe.gl touches window at import time — load it client-only so SSR
 // (BorderBlitz imports this component directly) never evaluates it on the server.
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
+// GlobeInner re-exposes the instance ref as a `globeRef` prop, because a
+// next/dynamic boundary does not reliably forward `ref`.
+const Globe = dynamic(() => import("./GlobeInner"), { ssr: false });
+
+/** Camera distance used when flying to a country. */
+const FLY_ALTITUDE = 1.5;
+const FLY_MS = 1200;
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const LAND_COLOR = "#0a111d";   // flat land (solid, matches the arcade dark bg)
@@ -19,8 +27,9 @@ interface Props {
   /** Phase 2: heat dots for polygon-less microstates. Accepted but not yet drawn. */
   markers?: { lng: number; lat: number; color: string }[];
   mysteryNumeric?: number;
-  /** Phase 2: pointOfView fly-to. Accepted but not yet wired. */
+  /** ISO numeric of the latest guess — camera flies to it (auto-zoom). */
   zoomTarget?: number;
+  /** Fresh object per guess-list click — camera flies back to that country. */
   flyTo?: { lng: number; lat: number };
 }
 
@@ -47,13 +56,28 @@ async function fetchCountries(): Promise<any> {
   return fc;
 }
 
-export function WorldMapGlobe({ colorMap, mysteryNumeric }: Props) {
+export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, flyTo }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const [size, setSize] = useState({ w: 0, h: 0 });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [geo, setGeo] = useState<any>(null);
 
   useEffect(() => { fetchCountries().then(setGeo); }, []);
+
+  // Action A — auto-zoom: a new guess sets zoomTarget (ISO numeric); fly there.
+  useEffect(() => {
+    if (zoomTarget === undefined) return;
+    const c = COUNTRY_BY_NUMERIC[zoomTarget];
+    if (c) globeRef.current?.pointOfView({ lat: c.lat, lng: c.lng, altitude: FLY_ALTITUDE }, FLY_MS);
+  }, [zoomTarget]);
+
+  // Action B — click-to-fly: a fresh flyTo object (new identity per guess-list
+  // click) re-triggers this, so clicking the same row twice still flies.
+  useEffect(() => {
+    if (!flyTo) return;
+    globeRef.current?.pointOfView({ lat: flyTo.lat, lng: flyTo.lng, altitude: FLY_ALTITUDE }, FLY_MS);
+  }, [flyTo]);
 
   // react-globe.gl needs explicit pixel dimensions — track the container size so
   // the canvas fills it (a 0×0 canvas would look like another blank globe).
@@ -92,6 +116,7 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric }: Props) {
     <div ref={containerRef} className="relative w-full h-full" style={{ minHeight: 260, background: OCEAN_COLOR }}>
       {size.w > 0 && geo && (
         <Globe
+          globeRef={globeRef}
           width={size.w}
           height={size.h}
           backgroundColor={OCEAN_COLOR}
