@@ -52,7 +52,7 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
           <ShareButton gameTitle={gameTitle} score={score} performance={performance} squares={squares} />
           <button
             onClick={onExit}
-            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 transition-all"
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 active:bg-white/10 transition-all duration-200"
           >
             {t("backToGames")}
           </button>
@@ -61,13 +61,13 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
         <>
           <button
             onClick={playAgain}
-            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 transition-all"
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200"
           >
             {isJackpot ? t("playAgainTokens").replace("{X}", String(ATLAS_JACKPOT_COST)) : t("playAgainCoin")}
           </button>
           <button
             onClick={onExit}
-            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 transition-all"
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 active:bg-white/10 transition-all duration-200"
           >
             {t("backToArcade")}
           </button>

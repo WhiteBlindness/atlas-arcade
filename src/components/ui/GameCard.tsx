@@ -41,7 +41,7 @@ export function GameCard({ slug, title, description, Icon, highScore, comingSoon
           ? "border-arcade-neon-yellow cursor-default"
           : comingSoon
           ? "border-arcade-border opacity-60 cursor-default"
-          : `${a.border} ${a.hover} cursor-pointer active:scale-[0.98] active:brightness-125`
+          : `${a.border} ${a.hover} ${a.activeBg} cursor-pointer active:scale-95 active:brightness-125`
       }`}
       style={locked ? { boxShadow: "0 0 10px #ffe60066, 0 0 28px #ffe60022, inset 0 0 18px #ffe60011" } : undefined}
       onClick={handleClick}

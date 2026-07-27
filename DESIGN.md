@@ -139,6 +139,8 @@ Atlas Arcade has no drop-shadow, lift, or z-axis elevation model at all. Depth i
 ### Named Rules
 **The Glow-Not-Lift Rule.** Emphasis is expressed by brightening (glow) and by border color, never by scale-up shadow or a simulated z-axis lift. A "raised" element in this system is brighter, not closer.
 
+**The Tap-Flash Rule.** `:hover` does not exist for the majority of players — they're on touch screens. Every interactive card and CTA button pairs its hover treatment with an equally deliberate `:active` treatment: a visible press-down (`active:scale-95`, not the near-imperceptible `scale-[0.98]`) plus a high-opacity accent fill (`active:bg-<accent>/20`–`/30`, or `active:bg-current/15` on buttons whose own text color already carries the accent; neutral ghost controls get `active:bg-white/10`). The flash must read as *distinctly stronger* than any hover-state tint on the same element, since on mobile it's the player's only confirmation the tap registered.
+
 ## 5. Components
 
 Buttons, cards, and modals share one grammar: a labeled rectangle, sharp corners, a 1px border in the surface's accent color, and a glow that only appears on hover/active/selected — never at rest.
@@ -146,8 +148,9 @@ Buttons, cards, and modals share one grammar: a labeled rectangle, sharp corners
 ### Buttons
 - **Shape:** square corners, 0px radius, always.
 - **Primary:** `border: 1px solid <accent>`, transparent/`void-bg` background, accent-colored text, wrapped in literal brackets in copy (`[ PLAY ]`, `[ INSERT COIN ]`, `[ CLOSE ]`). On hover: background fills solid with the accent color and text flips to near-black/void, plus the matching neon glow.
-- **Hover / Focus:** `hover:bg-<accent> hover:text-black hover:shadow-neon-<accent>`, `active:scale-95` press feedback. All interactive controls carry `touch-action: manipulation` to kill the 300ms mobile tap delay.
-- **Ghost / Cancel:** no border, muted gray text (`text-gray-600`), brightens to white on hover — used only for "back out" actions (Cancel, dismiss), never for a primary action.
+- **Hover / Focus:** `hover:bg-<accent> hover:text-black hover:shadow-neon-<accent>`, `transition-* duration-200` on every interactive element for consistent timing.
+- **Active / Press (see The Tap-Flash Rule):** `active:scale-95` plus an accent-tinted `active:bg-*` fill — this is the primary feedback channel on mobile, not a hover afterthought. All interactive controls carry `touch-action: manipulation` to kill the 300ms mobile tap delay.
+- **Ghost / Cancel:** no border, muted gray text (`text-gray-600`), brightens to white on hover, `active:bg-white/10` on press — used only for "back out" actions (Cancel, dismiss), never for a primary action.
 
 ### Cards (Game Select Grid)
 - **Corner Style:** 0px radius, plus four small literal corner-bracket glyphs (absolutely positioned L-shaped border fragments) at each corner — a deliberate "targeting reticle" detail unique to game cards.

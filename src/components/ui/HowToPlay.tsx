@@ -52,7 +52,7 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
         <button
           type="button"
           onClick={() => { sfx.click(); setOpen(true); }}
-          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 transition-all duration-200`}
+          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 active:bg-current/15 transition-all duration-200`}
         >
           <HelpCircle size={13} /> {t("htpTitle")}
         </button>

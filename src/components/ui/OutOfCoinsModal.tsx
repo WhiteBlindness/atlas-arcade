@@ -72,7 +72,7 @@ export function OutOfCoinsModal() {
         <button
           onClick={closeOutOfCoins}
           aria-label={t("cancel")}
-          className="absolute top-1 right-1 w-11 h-11 flex items-center justify-center text-gray-600 hover:text-white active:scale-90 transition-all"
+          className="absolute top-1 right-1 w-11 h-11 flex items-center justify-center text-gray-600 hover:text-white active:scale-90 active:bg-white/10 transition-all duration-200"
         >
           <X size={16} />
         </button>
@@ -91,7 +91,7 @@ export function OutOfCoinsModal() {
         <button
           onClick={watchAd}
           disabled={adPlaying}
-          className="w-full min-h-[44px] flex items-center justify-center gap-2 py-3 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all disabled:opacity-60"
+          className="w-full min-h-[44px] flex items-center justify-center gap-2 py-3 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200 disabled:opacity-60"
         >
           <Clapperboard size={12} />
           {adPlaying ? "AD PLAYING..." : t("watchAd")}
@@ -99,7 +99,7 @@ export function OutOfCoinsModal() {
 
         <button
           onClick={premium}
-          className="w-full min-h-[44px] flex items-center justify-center gap-2 py-3 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 transition-all"
+          className="w-full min-h-[44px] flex items-center justify-center gap-2 py-3 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200"
         >
           <Gem size={12} />
           {t("premium")}

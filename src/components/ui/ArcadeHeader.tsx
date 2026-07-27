@@ -149,14 +149,14 @@ export function ArcadeHeader() {
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
               aria-label={t("insertCoin")}
-              className="sm:hidden shrink-0 flex items-center justify-center w-10 h-10 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 transition-all duration-200"
+              className="sm:hidden shrink-0 flex items-center justify-center w-10 h-10 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 active:bg-current/30 transition-all duration-200"
             >
               <LogIn size={16} />
             </button>
             {/* Desktop: full label */}
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
-              className="hidden sm:block font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black active:scale-95 transition-all duration-200 whitespace-nowrap"
+              className="hidden sm:block font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200 whitespace-nowrap"
             >
               {t("insertCoin")}
             </button>

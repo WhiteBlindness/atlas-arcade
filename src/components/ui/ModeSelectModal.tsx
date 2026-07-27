@@ -42,7 +42,7 @@ export function ModeSelectModal({ title }: Props) {
         <button
           onClick={closeModeSelect}
           aria-label={t("cancel")}
-          className="absolute top-1 right-1 w-11 h-11 flex items-center justify-center text-gray-600 hover:text-white active:scale-90 transition-all duration-200"
+          className="absolute top-1 right-1 w-11 h-11 flex items-center justify-center text-gray-600 hover:text-white active:scale-90 active:bg-white/10 transition-all duration-200"
         >
           <X size={16} />
         </button>
@@ -58,7 +58,7 @@ export function ModeSelectModal({ title }: Props) {
         {/* Daily */}
         <button
           onClick={playDaily}
-          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-green text-left hover:bg-arcade-neon-green/10 hover:shadow-neon-green active:scale-95 transition-all duration-200 group"
+          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-green text-left hover:bg-arcade-neon-green/10 hover:shadow-neon-green active:scale-95 active:bg-arcade-neon-green/30 transition-all duration-200 group"
         >
           <span className="flex items-center justify-between">
             <span className="flex items-center gap-2 font-pixel text-[10px] text-arcade-neon-green neon-text-green">
@@ -75,7 +75,7 @@ export function ModeSelectModal({ title }: Props) {
         {/* Arcade */}
         <button
           onClick={playArcade}
-          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-yellow text-left hover:bg-arcade-neon-yellow/10 hover:shadow-neon-yellow active:scale-95 transition-all duration-200"
+          className="w-full flex flex-col gap-2 p-4 border border-arcade-neon-yellow text-left hover:bg-arcade-neon-yellow/10 hover:shadow-neon-yellow active:scale-95 active:bg-arcade-neon-yellow/30 transition-all duration-200"
         >
           <span className="flex items-center justify-between">
             <span className="flex items-center gap-2 font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow">
@@ -95,7 +95,7 @@ export function ModeSelectModal({ title }: Props) {
 
         <button
           onClick={closeModeSelect}
-          className="w-full min-h-[44px] py-2 font-pixel text-[8px] text-gray-600 hover:text-white active:scale-95 transition-all duration-200"
+          className="w-full min-h-[44px] py-2 font-pixel text-[8px] text-gray-600 hover:text-white active:scale-95 active:bg-white/10 transition-all duration-200"
         >
           {t("cancel")}
         </button>
