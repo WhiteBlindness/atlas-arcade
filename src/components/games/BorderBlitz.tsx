@@ -12,6 +12,7 @@ import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
+import type { MashupProps } from "./mashup";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 const CONQUER_COLOR = "#ccff00";   // retro lime for conquered territory
@@ -87,7 +88,14 @@ async function fetchQuestions(token: string | null): Promise<{ questions: Questi
   } catch { return { questions: [], exhausted: false }; }
 }
 
-export default function BorderBlitz({ onExit }: { onExit: () => void }) {
+export default function BorderBlitz({ onExit, isMashupMode, onMashupComplete }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <BorderBlitzMashup onMashupComplete={onMashupComplete} />;
+  }
+  return <BorderBlitzStandalone onExit={onExit} />;
+}
+
+function BorderBlitzStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const t = useT();
 
@@ -266,6 +274,98 @@ export default function BorderBlitz({ onExit }: { onExit: () => void }) {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+// One question, no token/batching — a single boss-rush round never needs
+// OpenTDB's session-token dedup machinery, which exists for long play sessions.
+async function fetchOneQuestion(): Promise<Question | null> {
+  try {
+    const d = await fetch("https://opentdb.com/api.php?amount=1&category=22&type=multiple").then((r) => r.json());
+    if (d.response_code !== 0 || !Array.isArray(d.results) || d.results.length === 0) return null;
+    const r = d.results[0];
+    return {
+      q: decodeEntities(r.question),
+      correct: decodeEntities(r.correct_answer),
+      options: shuffle([r.correct_answer, ...r.incorrect_answers].map(decodeEntities)),
+    };
+  } catch { return null; }
+}
+
+// ── Atlas Jackpot round: one live trivia question, correct = success ───────────
+// Unseeded, same as the standalone game — Border Blitz has never used
+// gameRng/seededPick even in its own Daily mode, since its content comes from
+// a live external API with no deterministic-seed support.
+function BorderBlitzMashup({ onMashupComplete }: MashupProps) {
+  const t = useT();
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [chosen, setChosen] = useState<string | null>(null);
+  const doneRef = useRef(false);
+
+  useEffect(() => {
+    let alive = true;
+    fetchOneQuestion().then((q) => {
+      if (!alive) return;
+      if (q) setQuestion(q); else setFailed(true);
+    });
+    return () => { alive = false; };
+  }, []);
+
+  const finish = useCallback((success: boolean) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    setTimeout(() => onMashupComplete!(success), 700);
+  }, [onMashupComplete]);
+
+  // A network hiccup mid-ladder shouldn't unfairly end a run the player can't
+  // do anything about — auto-advance instead of auto-failing.
+  useEffect(() => {
+    if (failed) finish(true);
+  }, [failed, finish]);
+
+  const answer = useCallback((opt: string) => {
+    if (chosen || !question) return;
+    setChosen(opt);
+    const success = opt === question.correct;
+    if (success) sfx.correct(); else sfx.wrong();
+    finish(success);
+  }, [chosen, question, finish]);
+
+  if (!question) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="font-pixel text-sm text-arcade-neon-lime animate-blink">{t("igLoadingData")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 max-w-lg mx-auto w-full">
+      <p className="font-pixel text-[8px] text-arcade-neon-lime neon-text-lime tracking-[0.2em]">{t("bbConquer")}</p>
+      <p className="font-mono text-base text-white leading-snug text-center">{question.q}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+        {question.options.map((opt) => {
+          const isCorrect = opt === question.correct;
+          const isChosen = chosen === opt;
+          let cls = "border-arcade-border text-gray-300 enabled:hover:border-arcade-neon-lime enabled:hover:text-arcade-neon-lime";
+          if (chosen) {
+            if (isCorrect) cls = "border-arcade-neon-green text-arcade-neon-green bg-arcade-neon-green/10";
+            else if (isChosen) cls = "border-red-500 text-red-400 bg-red-500/10";
+          }
+          return (
+            <button
+              key={opt}
+              onClick={() => { sfx.snap(); answer(opt); }}
+              disabled={!!chosen}
+              className={`py-3 px-3 border font-mono text-sm active:scale-95 transition-all disabled:cursor-default ${cls}`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

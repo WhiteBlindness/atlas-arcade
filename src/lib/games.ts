@@ -39,9 +39,9 @@ export const GAME_REGISTRY: Record<GameSlug, GameRegistryEntry> = {
   "frontier-faceoff":   { slug: "frontier-faceoff",   title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords,     Component: FrontierFaceOff,   supportsMashup: true },
   "one-strike":         { slug: "one-strike",         title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull,      Component: OneStrike,         supportsMashup: true },
   "urban-legends":      { slug: "urban-legends",      title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2,  Component: UrbanLegends,      supportsMashup: true },
-  "skyline-silhouette": { slug: "skyline-silhouette", title: "SKYLINE SILHOUETTE", descKey: "descSkyline",  Icon: Landmark,   Component: SkylineSilhouette, supportsMashup: false },
-  "border-blitz":       { slug: "border-blitz",       title: "BORDER BLITZ",      descKey: "descBorder",    Icon: Sword,      Component: BorderBlitz,       supportsMashup: false },
-  "stat-attack":        { slug: "stat-attack",        title: "STAT ATTACK",       descKey: "descStat",      Icon: Layers,     Component: StatAttack,        supportsMashup: false },
+  "skyline-silhouette": { slug: "skyline-silhouette", title: "SKYLINE SILHOUETTE", descKey: "descSkyline",  Icon: Landmark,   Component: SkylineSilhouette, supportsMashup: true },
+  "border-blitz":       { slug: "border-blitz",       title: "BORDER BLITZ",      descKey: "descBorder",    Icon: Sword,      Component: BorderBlitz,       supportsMashup: true },
+  "stat-attack":        { slug: "stat-attack",        title: "STAT ATTACK",       descKey: "descStat",      Icon: Layers,     Component: StatAttack,        supportsMashup: true },
   "atlas-jackpot":      { slug: "atlas-jackpot",      title: "ATLAS JACKPOT",     Icon: Trophy,             Component: AtlasJackpot,                        supportsMashup: false },
 };
 

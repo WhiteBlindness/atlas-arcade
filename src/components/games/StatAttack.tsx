@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { COUNTRY_STATS, type CountryStat, type StatKey } from "@/data/countryStats";
 import { formatPopulation } from "@/data/countryClues";
 import { formatNumber } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { seededShuffle, gameRng } from "@/lib/daily";
+import { seededShuffle, gameRng, createSeededRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { useT, type TKey } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
+import type { MashupProps } from "./mashup";
 
 const flagUrl = (a: string) => `https://flagcdn.com/w160/${a}.webp`;
 
@@ -46,7 +47,14 @@ function deal(): Round {
   return { hand: picked.slice(0, 3), opponent: picked[3], stat };
 }
 
-export default function StatAttack({ onExit }: { onExit: () => void }) {
+export default function StatAttack({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <StatAttackMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <StatAttackStandalone onExit={onExit} />;
+}
+
+function StatAttackStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const t = useT();
   // seed only used to vary the opening deal; rounds re-deal with Math.random
@@ -173,6 +181,90 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
         </div>
 
         <p className="font-pixel text-[7px] text-gray-700 tracking-widest">{t("saPickBest")}</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Atlas Jackpot round: one deal, one pick — win or the ladder ends ────────────
+function StatAttackMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
+  const [round] = useState<Round>(() => {
+    const rng = createSeededRng(mashupSeed ?? "stat-attack");
+    const picked = seededShuffle(COUNTRY_STATS, rng).slice(0, 4);
+    return { hand: picked.slice(0, 3), opponent: picked[3], stat: STATS[Math.floor(rng() * STATS.length)] };
+  });
+  const [picked, setPicked] = useState<CountryStat | null>(null);
+  const doneRef = useRef(false);
+
+  const pick = useCallback((card: CountryStat) => {
+    if (picked || doneRef.current) return;
+    sfx.snap();
+    setPicked(card);
+    const won = card[round.stat] >= round.opponent[round.stat];
+    if (won) sfx.correct(); else sfx.wrong();
+    setTimeout(() => {
+      doneRef.current = true;
+      onMashupComplete!(won);
+    }, 1200);
+  }, [picked, round, onMashupComplete]);
+
+  const revealed = picked !== null;
+  const won = revealed && picked![round.stat] >= round.opponent[round.stat];
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-lg mx-auto w-full">
+      {/* Scenario */}
+      <div className="w-full border border-arcade-neon-pink shadow-neon-pink p-4 text-center">
+        <p className="font-pixel text-[7px] text-gray-500 tracking-[0.3em] mb-2">{t("saBrief")}</p>
+        <p className="font-mono text-base text-white leading-snug">{t(SCENARIO_KEY[round.stat])}</p>
+        <p className="font-pixel text-[8px] text-arcade-neon-pink neon-text-pink mt-2">▸ {t(STAT_LABEL_KEY[round.stat])}</p>
+      </div>
+
+      {/* Opponent */}
+      <div className="w-full flex items-center justify-center gap-3">
+        <span className="font-pixel text-[8px] text-arcade-neon-red">{t("saOpponent")}</span>
+        <div className={`w-28 h-16 border flex flex-col items-center justify-center ${revealed ? "border-arcade-neon-red" : "border-arcade-border"}`}>
+          {revealed ? (
+            <>
+              <span className="font-mono text-[11px] text-gray-300 truncate max-w-[100px] px-1">{round.opponent.name}</span>
+              <span className="font-pixel text-[9px] text-arcade-neon-red">{fmtStat(round.stat, round.opponent[round.stat], t)}</span>
+            </>
+          ) : (
+            <span className="font-pixel text-lg text-gray-700">?</span>
+          )}
+        </div>
+      </div>
+
+      {revealed && (
+        <p className={`font-pixel text-[11px] tracking-widest ${won ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
+          {won ? t("saWin") : t("saLose")}
+        </p>
+      )}
+
+      {/* Player hand */}
+      <div className="grid grid-cols-3 gap-3 w-full">
+        {round.hand.map((c) => {
+          const isPicked = picked?.name === c.name;
+          const beats = revealed && c[round.stat] >= round.opponent[round.stat];
+          let border = "border-arcade-border hover:border-arcade-neon-pink";
+          if (revealed) border = isPicked ? (won ? "border-arcade-neon-green" : "border-arcade-neon-red") : beats ? "border-arcade-neon-green/40" : "border-arcade-border opacity-60";
+          return (
+            <button
+              key={c.name}
+              onClick={() => pick(c)}
+              disabled={revealed}
+              className={`flex flex-col items-center gap-2 p-3 border bg-arcade-surface active:scale-95 transition-all disabled:cursor-default ${border}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={flagUrl(c.alpha2)} alt={c.name} width={64} height={42} className="w-full max-w-[64px] border border-black/40" loading="eager" />
+              <span className="font-mono text-[13px] text-gray-200 text-center leading-tight">{c.name}</span>
+              {revealed && (
+                <span className="font-pixel text-[8px] text-arcade-neon-pink">{fmtStat(round.stat, c[round.stat], t)}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

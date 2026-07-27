@@ -15,13 +15,14 @@ import { haversine } from "@/lib/geo";
 import { formatNumber } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
-import { gameRng, seededPick } from "@/lib/daily";
+import { gameRng, seededPick, createSeededRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { useT } from "@/lib/i18n";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
+import type { MashupProps } from "./mashup";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const REVEAL_MS = 25000;         // silhouette → clear over 25s (slow, dramatic reveal)
@@ -83,7 +84,14 @@ interface Result {
   correct: boolean;
 }
 
-export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
+export default function SkylineSilhouette({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
+  if (isMashupMode && onMashupComplete) {
+    return <SkylineSilhouetteMashup mashupSeed={mashupSeed} onMashupComplete={onMashupComplete} />;
+  }
+  return <SkylineSilhouetteStandalone onExit={onExit} />;
+}
+
+function SkylineSilhouetteStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const [city] = useState(() => seededPick(POOL, gameRng("skyline-silhouette", useGameStore.getState().mode)));
   const [answerLat, answerLng] = CITY_COORDS[city.id];
@@ -366,6 +374,160 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
                 squares={result.correct ? "🟩" : "🟥"}
                 onExit={onExit}
               />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Atlas Jackpot round: one pin-drop, no reveal countdown, distance decides ────
+// Skips the 25s progressive-reveal (a standalone-game pacing device, not
+// essential to "guess the city") and the confirm-bar step — the pin submits
+// immediately on first placement, matching how every other mashup variant
+// resolves in one action. Reuses the exact globe-mount pattern proven safe in
+// the standalone game above: size computed once via a useState initializer,
+// never from a ResizeObserver callback (that leaves react-globe.gl's renderer
+// alive but producing no frames — see the standalone component's own note).
+function SkylineSilhouetteMashup({ mashupSeed, onMashupComplete }: MashupProps) {
+  const t = useT();
+  const [city] = useState(() => seededPick(POOL, createSeededRng(mashupSeed ?? "skyline-silhouette")));
+  const [answerLat, answerLng] = CITY_COORDS[city.id];
+
+  const [imgFailed, setImgFailed] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [geo, setGeo] = useState<any>(null);
+  const [mapSize] = useState(() =>
+    typeof window === "undefined"
+      ? { w: 0, h: 0 }
+      : { w: window.innerWidth, h: Math.max(220, Math.round(window.innerHeight * 0.4)) },
+  );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const globeRef = useRef<any>(undefined);
+  const doneRef = useRef(false);
+
+  useEffect(() => { fetchCountries().then(setGeo).catch(() => {}); }, []);
+
+  useEffect(() => {
+    if (!geo) return;
+    const id = requestAnimationFrame(() => {
+      const r = globeRef.current?.renderer?.();
+      if (r) r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [geo]);
+
+  const globeMaterial = useState(() => new MeshBasicMaterial({ color: OCEAN_COLOR }))[0];
+  const landMat = useState(() => new MeshBasicMaterial({ color: LAND_COLOR }))[0];
+  const landMaterial = useCallback(() => landMat, [landMat]);
+
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [result, setResult] = useState<{ distKm: number; correct: boolean } | null>(null);
+
+  const finish = useCallback((guess: { lat: number; lng: number } | null) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    const distKm = guess ? haversine(answerLat, answerLng, guess.lat, guess.lng) : Infinity;
+    const correct = distKm <= CORRECT_KM;
+    setResult({ distKm, correct });
+    if (correct) sfx.correct(); else sfx.wrong();
+    setTimeout(() => onMashupComplete!(correct), 1400);
+  }, [answerLat, answerLng, onMashupComplete]);
+
+  const placePin = useCallback((lat: number, lng: number) => {
+    if (doneRef.current) return;
+    setPin({ lat, lng });
+    sfx.snap();
+    finish({ lat, lng });
+  }, [finish]);
+
+  const onGlobeClick = useCallback(({ lat, lng }: { lat: number; lng: number }) => placePin(lat, lng), [placePin]);
+  const onPolygonClick = useCallback(
+    (_poly: unknown, _ev: unknown, coords: { lat: number; lng: number }) => { if (coords) placePin(coords.lat, coords.lng); },
+    [placePin],
+  );
+
+  const equator = useMemo(
+    () => [Array.from({ length: 181 }, (_, i) => [0, -180 + i * 2] as [number, number])],
+    [],
+  );
+  const points = useMemo(() => {
+    const arr: { lat: number; lng: number; color: string }[] = [];
+    if (pin) arr.push({ lat: pin.lat, lng: pin.lng, color: "#f8f8f8" });
+    if (result) arr.push({ lat: answerLat, lng: answerLng, color: "#00ff41" });
+    return arr;
+  }, [pin, result, answerLat, answerLng]);
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      <div className="relative h-[30vh] min-h-[160px] border-b border-arcade-border shrink-0 bg-black overflow-hidden">
+        {imgFailed ? (
+          <div className="w-full h-full flex items-center justify-center font-pixel text-[9px] text-gray-600">—</div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={city.imageUrl}
+            alt="Skyline"
+            className="w-full h-full object-cover"
+            draggable={false}
+            onError={() => setImgFailed(true)}
+          />
+        )}
+        {!result && (
+          <p className="absolute top-2 left-0 right-0 text-center font-pixel text-[8px] text-arcade-neon-white neon-text-white tracking-[0.3em] pointer-events-none">
+            {t("skDropPin")}
+          </p>
+        )}
+      </div>
+
+      <div className="flex-1 min-h-0 w-full relative" style={{ background: CANVAS_BG }}>
+        {mapSize.w > 0 && mapSize.h > 0 && geo && (
+          <Globe
+            globeRef={globeRef}
+            width={mapSize.w}
+            height={mapSize.h}
+            backgroundColor={CANVAS_BG}
+            showAtmosphere={false}
+            globeMaterial={globeMaterial}
+            polygonsData={geo.features}
+            polygonAltitude={0.005}
+            polygonCapMaterial={landMaterial}
+            polygonSideMaterial={landMaterial}
+            polygonStrokeColor={() => BORDER_COLOR}
+            polygonsTransitionDuration={0}
+            onGlobeClick={result ? undefined : onGlobeClick}
+            onPolygonClick={result ? undefined : onPolygonClick}
+            enablePointerInteraction={!result}
+            pathsData={equator}
+            pathColor={() => EQUATOR_COLOR}
+            pathStroke={1.2}
+            pathPointLat={(p: unknown) => (p as [number, number])[0]}
+            pathPointLng={(p: unknown) => (p as [number, number])[1]}
+            pathTransitionDuration={0}
+            pointsData={points}
+            pointLat="lat"
+            pointLng="lng"
+            pointColor="color"
+            pointAltitude={0.03}
+            pointRadius={0.7}
+            pointsTransitionDuration={0}
+            rendererConfig={{ antialias: true, alpha: true }}
+          />
+        )}
+
+        {result && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/55 px-4">
+            <div className={`border ${result.correct ? "border-arcade-neon-green" : "border-arcade-neon-red"} bg-black/92 p-6 text-center space-y-2 min-w-[220px]`}>
+              <p className={`font-pixel text-[11px] tracking-widest ${result.correct ? "text-arcade-neon-green neon-text-green" : "text-arcade-neon-red neon-text-red"}`}>
+                {result.correct ? t("correct") : t("igWrong")}
+              </p>
+              <p className="font-mono text-sm text-white">{city.name} {city.emoji}</p>
+              {Number.isFinite(result.distKm) && (
+                <p className="font-mono text-xs text-gray-400">
+                  {t("skDistFrom").replace("{X}", formatNumber(Math.round(result.distKm))).replace("{Y}", city.name)}
+                </p>
+              )}
             </div>
           </div>
         )}
