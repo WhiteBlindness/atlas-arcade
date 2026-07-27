@@ -142,14 +142,26 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, flyTo }: P
     globeRef.current?.pointOfView({ lat: flyTo.lat, lng: flyTo.lng, altitude: FLY_ALTITUDE }, FLY_MS);
   }, [flyTo]);
 
-  // Measure the container ONCE in a layout effect (before paint) and then only on
-  // real window resizes.
+  // Measure the container in a layout effect (before paint) so the FIRST
+  // measurement — the one that gates the Globe's initial mount below — always
+  // happens synchronously, never from inside a ResizeObserver callback.
   //
   // Do NOT mount the Globe from a ResizeObserver callback: react-globe.gl ends up
   // with a live renderer that never produces frames (isolated in a Case D/E/F
   // bisect). This component used to survive by accident — its GeoJSON fetch
   // resolved after the observer, so the mount was triggered by the fetch. Once
   // that JSON is HTTP-cached the order flips and the globe goes blank.
+  //
+  // A plain "resize" listener isn't enough, though: this container's height is
+  // set by its flex-1 slot next to the guess-history sidebar, and that sidebar
+  // grows/shrinks as guesses are added — a pure React re-render, not a window
+  // resize. Without re-measuring then, the canvas keeps its stale (taller,
+  // pre-guesses) size and visually bleeds into the history list below it,
+  // eating the touch/scroll events meant for it. A ResizeObserver on the
+  // already-mounted container is safe here because it only ever updates
+  // `size` (width/height props on an existing Globe instance) — it never
+  // decides whether to mount Globe in the first place, which stays gated by
+  // the synchronous measure() below.
   useLayoutEffect(() => {
     const measure = () => {
       const el = containerRef.current;
@@ -159,7 +171,12 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, flyTo }: P
     };
     measure();
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    const ro = new ResizeObserver(measure);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro.disconnect();
+    };
   }, []);
 
   // Base sphere: flat dark ocean, no texture, no atmosphere.

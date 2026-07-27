@@ -7,7 +7,8 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { COUNTRY_META } from "@/data/countryMeta";
 import { COUNTRY_CLUES, formatPopulation } from "@/data/countryClues";
 import { useT, type TKey } from "@/lib/i18n";
-import { haversine, bearing, distanceToHex, distanceHeat, calculateScore } from "@/lib/geo";
+import { haversine, bearing, distanceToHex, distanceHeat, formatDistance, formatKm, calculateScore, type HeatTier } from "@/lib/geo";
+import { BearingArrow } from "./globle/BearingArrow";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededWeightedPick, createSeededRng } from "@/lib/daily";
@@ -39,10 +40,12 @@ export interface Guess {
   color: string;
 }
 
-const ARROWS = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
-function bearingArrow(deg: number) {
-  return ARROWS[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
-}
+const HEAT_KEYS: Record<HeatTier, TKey> = {
+  hot: "igHeatHot",
+  warm: "igHeatWarm",
+  tepid: "igHeatTepid",
+  cold: "igHeatCold",
+};
 
 export default function GlobleGame({ onExit, isMashupMode, onMashupComplete, mashupSeed }: { onExit: () => void } & MashupProps) {
   if (isMashupMode && onMashupComplete) {
@@ -87,7 +90,10 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
     async (country: Country) => {
       if (status !== "playing") return;
       const km = haversine(mystery.lat, mystery.lng, country.lat, country.lng);
-      const bear = bearing(mystery.lat, mystery.lng, country.lat, country.lng);
+      // Bearing FROM the guess TO the mystery country — the arrow tells the
+      // player which direction to guess next, not where their guess sits
+      // relative to the target.
+      const bear = bearing(country.lat, country.lng, mystery.lat, mystery.lng);
       const color = distanceToHex(km);
       const next = [...guesses, { country, distance: km, bearing: bear, color }];
       setGuesses(next);
@@ -154,16 +160,13 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
           {lastGuess && status === "playing" && (
             <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between gap-4 px-4 py-2 bg-black/75 border-t border-arcade-border">
               <span className="font-mono text-[11px] truncate" style={{ color: lastGuess.color }}>
-                {lastGuess.country.name}
+                {countryName(lastGuess.country, lang)}
               </span>
               <span className="font-mono text-[11px] text-white whitespace-nowrap">
-                {bearingArrow(lastGuess.bearing)}{" "}
-                {lastGuess.distance < 1000
-                  ? `${Math.round(lastGuess.distance)} km`
-                  : `${(lastGuess.distance / 1000).toFixed(1)}k km`}
+                <BearingArrow deg={lastGuess.bearing} /> {formatDistance(lastGuess.distance)}
               </span>
               <span className="font-pixel text-[8px] tracking-widest whitespace-nowrap" style={{ color: distanceHeat(lastGuess.distance).hex }}>
-                {distanceHeat(lastGuess.distance).label}
+                {t(HEAT_KEYS[distanceHeat(lastGuess.distance).tier])}
               </span>
             </div>
           )}
@@ -341,7 +344,7 @@ function GlobleMashup({ mashupSeed, onMashupComplete, mashupLevel }: MashupProps
               {result.success ? t("igCloseEnough") : t("igTooFar")}
             </p>
             <p className="font-mono text-sm text-white">
-              {t("igKmAway").replace("{C}", result.country.name).replace("{K}", Math.round(result.km).toLocaleString())}
+              {t("igKmAway").replace("{C}", countryName(result.country, lang)).replace("{K}", formatKm(result.km))}
             </p>
             <p className="font-mono text-[13px] text-gray-500">{t("igItWasCity").replace("{X}", countryName(mystery, lang))}</p>
           </div>
