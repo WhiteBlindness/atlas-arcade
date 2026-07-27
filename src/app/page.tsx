@@ -1,9 +1,9 @@
 "use client";
 
-import { Globe2, Zap, Flag, TrendingUp, Puzzle, Swords, Skull, Building2, Landmark, Sword, Layers } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { useGameStore, type GameSlug } from "@/store/gameStore";
-import { useT, type TKey } from "@/lib/i18n";
+import { useGameStore } from "@/store/gameStore";
+import { useT } from "@/lib/i18n";
+import { GAME_REGISTRY, GAMES_GRID } from "@/lib/games";
 import { ArcadeHeader } from "@/components/ui/ArcadeHeader";
 import { GameCard } from "@/components/ui/GameCard";
 import { ModeSelectModal } from "@/components/ui/ModeSelectModal";
@@ -13,46 +13,6 @@ import { AtlasJackpotBanner } from "@/components/ui/AtlasJackpotBanner";
 import { DailyResultScreen } from "@/components/ui/DailyResultScreen";
 import { useDailyStore } from "@/store/dailyStore";
 import { useCoinStore } from "@/store/coinStore";
-import { GlobleGame, CapitalInvaders, FlagRush, PeaksValleys, TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends, SkylineSilhouette, BorderBlitz, StatAttack, AtlasJackpot } from "@/components/games";
-
-interface GameEntry {
-  slug: GameSlug;
-  title: string;
-  descKey: TKey;
-  Icon: typeof Globe2;
-  comingSoon?: boolean;
-  locked?: boolean;
-}
-
-const GAMES: GameEntry[] = [
-  { slug: "globle",           title: "GEORADAR",          descKey: "descGloble",    Icon: Globe2 },
-  { slug: "capital-invaders", title: "CAPITAL STRIKE",    descKey: "descCapital",   Icon: Zap },
-  { slug: "flag-rush",        title: "FLAG FRENZY",       descKey: "descFlag",      Icon: Flag },
-  { slug: "peaks-valleys",    title: "PEAKS & VALLEYS",   descKey: "descPeaks",     Icon: TrendingUp },
-  { slug: "tectonic-snap",    title: "TECTONIC SNAP",     descKey: "descTectonic",  Icon: Puzzle },
-  { slug: "frontier-faceoff", title: "FRONTIER FACE-OFF", descKey: "descFrontier",  Icon: Swords },
-  { slug: "one-strike",       title: "ONE STRIKE",        descKey: "descOneStrike", Icon: Skull },
-  { slug: "urban-legends",    title: "URBAN LEGENDS",     descKey: "descUrban",     Icon: Building2 },
-  { slug: "skyline-silhouette", title: "SKYLINE SILHOUETTE", descKey: "descSkyline", Icon: Landmark },
-  { slug: "border-blitz",     title: "BORDER BLITZ",      descKey: "descBorder",    Icon: Sword },
-  { slug: "stat-attack",      title: "STAT ATTACK",       descKey: "descStat",      Icon: Layers },
-  // atlas-jackpot is the Boss Stage — rendered as a hero banner, not a grid card.
-];
-
-const GAME_COMPONENTS: Partial<Record<GameSlug, React.ComponentType<{ onExit: () => void }>>> = {
-  "globle": GlobleGame,
-  "capital-invaders": CapitalInvaders,
-  "flag-rush": FlagRush,
-  "peaks-valleys": PeaksValleys,
-  "tectonic-snap": TectonicSnap,
-  "frontier-faceoff": FrontierFaceOff,
-  "one-strike": OneStrike,
-  "urban-legends": UrbanLegends,
-  "skyline-silhouette": SkylineSilhouette,
-  "border-blitz": BorderBlitz,
-  "stat-attack": StatAttack,
-  "atlas-jackpot": AtlasJackpot,
-};
 
 export default function HomePage() {
   const { user } = useAuthStore();
@@ -62,8 +22,8 @@ export default function HomePage() {
   const t = useT();
 
   if (activeGame) {
-    const Game = GAME_COMPONENTS[activeGame];
-    const title = GAMES.find((g) => g.slug === activeGame)?.title ?? activeGame.toUpperCase();
+    const Game = GAME_REGISTRY[activeGame]?.Component;
+    const title = GAME_REGISTRY[activeGame]?.title ?? activeGame.toUpperCase();
     if (Game) {
       // daily lockout: already finished today → straight to the result screen
       const done = mode === "daily" ? getDailyResult(activeGame) : null;
@@ -102,7 +62,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
-          {GAMES.map(({ slug, title, descKey, Icon, comingSoon, locked }) => (
+          {GAMES_GRID.map(({ slug, title, descKey, Icon, comingSoon, locked }) => (
             <GameCard
               key={slug}
               slug={slug}
@@ -122,7 +82,7 @@ export default function HomePage() {
         </p>
       </main>
 
-      <ModeSelectModal title={GAMES.find((g) => g.slug === pendingGame)?.title ?? ""} />
+      <ModeSelectModal title={pendingGame ? GAME_REGISTRY[pendingGame]?.title ?? "" : ""} />
       <OutOfCoinsModal />
     </div>
   );

@@ -8,15 +8,11 @@ import { saveHighScore } from "@/lib/supabase/scores";
 import { seededShuffle } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { useT } from "@/lib/i18n";
+import { GAME_REGISTRY, MASHUP_POOL } from "@/lib/games";
 import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
-import {
-  GlobleGame, CapitalInvaders, FlagRush, PeaksValleys,
-  TectonicSnap, FrontierFaceOff, OneStrike, UrbanLegends,
-} from "@/components/games";
-import type { MashupProps } from "./mashup";
 
 const LADDER = 15;
 
@@ -35,35 +31,11 @@ function payoutFor(reachedLevel: number, won: boolean): number {
   return 0;
 }
 
-// The 8 mini-games the boss rush draws from.
-const POOL: GameSlug[] = [
-  "globle", "capital-invaders", "flag-rush", "peaks-valleys",
-  "tectonic-snap", "frontier-faceoff", "one-strike", "urban-legends",
-];
-
-type GameComponent = React.ComponentType<{ onExit: () => void } & MashupProps>;
-
-const COMPONENTS: Record<string, GameComponent> = {
-  "globle": GlobleGame,
-  "capital-invaders": CapitalInvaders,
-  "flag-rush": FlagRush,
-  "peaks-valleys": PeaksValleys,
-  "tectonic-snap": TectonicSnap,
-  "frontier-faceoff": FrontierFaceOff,
-  "one-strike": OneStrike,
-  "urban-legends": UrbanLegends,
-};
-
-const TITLES: Record<string, string> = {
-  "globle": "GEORADAR",
-  "capital-invaders": "CAPITAL STRIKE",
-  "flag-rush": "FLAG FRENZY",
-  "peaks-valleys": "PEAKS & VALLEYS",
-  "tectonic-snap": "TECTONIC SNAP",
-  "frontier-faceoff": "FRONTIER FACE-OFF",
-  "one-strike": "ONE STRIKE",
-  "urban-legends": "URBAN LEGENDS",
-};
+// The mini-games the boss rush draws from — every game in GAME_REGISTRY that
+// implements the MashupProps contract (src/lib/games.ts is the single source
+// of truth; add a game there and it's automatically eligible here, no second
+// hardcoded list to forget).
+const POOL: GameSlug[] = MASHUP_POOL;
 
 export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
   const t = useT();
@@ -116,7 +88,7 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
   }, [status, level, finish]);
 
   const slug = sequence[level - 1];
-  const GameComp = COMPONENTS[slug];
+  const GameComp = GAME_REGISTRY[slug].Component;
   const cleared = status === "won" ? LADDER : level - 1;
 
   return (
@@ -139,7 +111,7 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
       {/* Current game title */}
       {status === "playing" && (
         <p className="text-center font-pixel text-[8px] text-gray-500 py-2 tracking-widest">
-          {t("igStage")} {level} · <span className="text-arcade-neon-cyan">{TITLES[slug]}</span>
+          {t("igStage")} {level} · <span className="text-arcade-neon-cyan">{GAME_REGISTRY[slug].title}</span>
         </p>
       )}
 

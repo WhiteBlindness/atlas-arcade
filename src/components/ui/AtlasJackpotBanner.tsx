@@ -7,6 +7,7 @@ import { useCoinStore } from "@/store/coinStore";
 import { ATLAS_JACKPOT_COST } from "@/lib/supabase/coins";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
+import { GAME_THEME } from "@/lib/gameTheme";
 
 // Full-width "Boss Stage" hero. Sits above the game grid. No daily mode —
 // costs ATLAS_JACKPOT_COST tokens (daily first, then premium) and is gated
@@ -16,6 +17,7 @@ export function AtlasJackpotBanner() {
   const startGame = useGameStore((s) => s.startGame);
   const { spendTokens } = useCoinStore();
   const t = useT();
+  const a = GAME_THEME["atlas-jackpot"];
 
   const play = async () => {
     sfx.click();
@@ -49,18 +51,18 @@ export function AtlasJackpotBanner() {
           <h2 className="font-pixel text-sm sm:text-lg text-arcade-neon-yellow neon-text-yellow tracking-widest">
             ATLAS JACKPOT
           </h2>
-          <p className="font-mono text-sm text-gray-400 leading-relaxed">{t("descJackpot")}</p>
+          <p className="font-mono text-sm text-gray-400 light:text-arcade-border leading-relaxed">{t("descJackpot")}</p>
           <p className="font-pixel text-[7px] text-arcade-neon-green tracking-wider flex items-center gap-1 justify-center sm:justify-start">
             <Gem size={9} /> {t("jackpotReward")}
           </p>
         </div>
 
         <div className="flex flex-col items-center gap-2 shrink-0">
-          <span className="font-pixel text-[9px] px-3 py-1.5 border border-arcade-neon-yellow text-arcade-neon-yellow flex items-center gap-1.5">
+          <span className={`font-pixel text-[9px] px-3 py-1.5 border border-arcade-neon-yellow text-arcade-neon-yellow light:text-white ${a.solidLight} flex items-center gap-1.5`}>
             {!user && <Lock size={10} />}
             {t("jackpotCost").replace("{X}", String(ATLAS_JACKPOT_COST))}
           </span>
-          <span className="font-pixel text-[10px] px-4 py-2 border border-arcade-neon-yellow text-arcade-neon-yellow group-hover:bg-arcade-neon-yellow group-hover:text-black transition-all">
+          <span className={`font-pixel text-[10px] px-4 py-2 border border-arcade-neon-yellow text-arcade-neon-yellow light:text-white ${a.solidLight} group-hover:bg-arcade-neon-yellow group-hover:text-black transition-all`}>
             {user ? t("jackpotEnter") : t("jackpotSignIn")}
           </span>
         </div>
