@@ -52,7 +52,7 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
         <button
           type="button"
           onClick={() => { sfx.click(); setOpen(true); }}
-          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 transition-all`}
+          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 transition-all duration-200`}
         >
           <HelpCircle size={13} /> {t("htpTitle")}
         </button>
@@ -62,7 +62,7 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
           onClick={() => { sfx.click(); setOpen(true); }}
           aria-label={t("htpTitle")}
           title={t("htpTitle")}
-          className={`shrink-0 flex items-center justify-center w-10 h-10 font-pixel text-[9px] ${accent} hover:brightness-150 active:scale-90 transition-all`}
+          className={`shrink-0 flex items-center justify-center w-10 h-10 font-pixel text-[9px] ${accent} hover:brightness-150 active:scale-90 transition-all duration-200`}
         >
           <HelpCircle size={16} />
         </button>
@@ -103,14 +103,14 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
                 type="button"
                 onClick={() => go(-1)}
                 disabled={step === 0}
-                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 [ &lt;- ]
               </button>
               <button
                 type="button"
                 onClick={close}
-                className="flex-1 min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan neon-text-cyan hover:bg-arcade-neon-cyan hover:text-black active:scale-95 transition-all"
+                className="flex-1 min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan neon-text-cyan hover:bg-arcade-neon-cyan hover:text-black active:scale-95 transition-all duration-200"
               >
                 [ {t("htpClose")} ]
               </button>
@@ -118,7 +118,7 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
                 type="button"
                 onClick={() => go(1)}
                 disabled={step === steps.length - 1}
-                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 [ -&gt; ]
               </button>

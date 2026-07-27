@@ -35,7 +35,7 @@ export function ArcadeHeader() {
         <button
           onClick={cycleLang}
           aria-label="Change language"
-          className="sm:hidden shrink-0 flex items-center gap-1 min-h-[40px] px-1 text-gray-400 hover:text-arcade-neon-green active:scale-90 transition-all"
+          className="sm:hidden shrink-0 flex items-center gap-1 min-h-[40px] px-1 text-gray-400 hover:text-arcade-neon-green active:scale-90 transition-all duration-200"
         >
           <Globe size={15} />
           <span className="font-pixel text-[9px]">{lang.toUpperCase()}</span>
@@ -101,7 +101,7 @@ export function ArcadeHeader() {
           onClick={() => { openLeaderboard(); sfx.click(); }}
           title="Leaderboard"
           aria-label="Leaderboard"
-          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all"
+          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all duration-200"
         >
           <Trophy size={17} />
         </button>
@@ -111,7 +111,7 @@ export function ArcadeHeader() {
           onClick={() => { toggleTheme(); sfx.click(); }}
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all"
+          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all duration-200"
         >
           {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
         </button>
@@ -121,7 +121,7 @@ export function ArcadeHeader() {
           onClick={() => { toggleSound(); if (!sound) sfx.click(); }}
           title={sound ? "Sound on" : "Sound off"}
           aria-label={sound ? "Mute sound" : "Unmute sound"}
-          className={`shrink-0 w-10 h-10 flex items-center justify-center active:scale-90 transition-all ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
+          className={`shrink-0 w-10 h-10 flex items-center justify-center active:scale-90 transition-all duration-200 ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
         >
           {sound ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>
@@ -132,7 +132,7 @@ export function ArcadeHeader() {
             <button
               onClick={() => { openProfile(); sfx.click(); }}
               aria-label="Open profile"
-              className="flex items-center gap-2 text-gray-400 min-w-0 hover:text-arcade-neon-green active:scale-95 transition-all"
+              className="flex items-center gap-2 text-gray-400 min-w-0 hover:text-arcade-neon-green active:scale-95 transition-all duration-200"
             >
               <User size={13} className="shrink-0" />
               <span className="hidden sm:inline font-mono text-xs text-arcade-neon-green neon-text-green truncate max-w-[120px]">
@@ -149,14 +149,14 @@ export function ArcadeHeader() {
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
               aria-label={t("insertCoin")}
-              className="sm:hidden shrink-0 flex items-center justify-center w-10 h-10 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 transition-all"
+              className="sm:hidden shrink-0 flex items-center justify-center w-10 h-10 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 transition-all duration-200"
             >
               <LogIn size={16} />
             </button>
             {/* Desktop: full label */}
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
-              className="hidden sm:block font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black transition-all whitespace-nowrap"
+              className="hidden sm:block font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black active:scale-95 transition-all duration-200 whitespace-nowrap"
             >
               {t("insertCoin")}
             </button>
