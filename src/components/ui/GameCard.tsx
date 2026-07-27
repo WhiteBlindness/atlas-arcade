@@ -6,6 +6,7 @@ import type { GameSlug } from "@/store/gameStore";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
 import { GAME_THEME } from "@/lib/gameTheme";
+import { formatNumber } from "@/lib/utils";
 
 interface Props {
   slug: GameSlug;
@@ -61,7 +62,7 @@ export function GameCard({ slug, title, description, Icon, highScore, comingSoon
         {highScore !== undefined && !comingSoon && (
           <div className="text-right">
             <p className="font-pixel text-[7px] text-gray-600">{t("best")}</p>
-            <p className={`font-pixel text-[10px] ${a.text}`}>{highScore}</p>
+            <p className={`font-pixel text-[10px] ${a.text}`}>{formatNumber(highScore)}</p>
           </div>
         )}
       </div>

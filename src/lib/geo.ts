@@ -1,3 +1,5 @@
+import { formatNumber } from "./utils";
+
 const R = 6371;
 const toRad = (d: number) => (d * Math.PI) / 180;
 
@@ -35,11 +37,9 @@ export function distanceToHex(km: number): string {
   return distanceHeat(km).hex;
 }
 
-// European convention: full integer, space as the thousands separator (pt-PT
-// locale groups with U+00A0 NBSP — normalized to a plain space here so it
-// matches the pixel font stack and copy/paste cleanly). No "16.6k km" shorthand.
+// Full integer via the shared formatNumber standard — no "16.6k km" shorthand.
 export function formatKm(km: number): string {
-  return Math.round(km).toLocaleString("pt-PT").replace(/ /g, " ");
+  return formatNumber(Math.round(km));
 }
 
 export function formatDistance(km: number): string {

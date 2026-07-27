@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react";
 import { COUNTRY_STATS, type CountryStat, type StatKey } from "@/data/countryStats";
 import { formatPopulation } from "@/data/countryClues";
+import { formatNumber } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
-import { useSettingsStore } from "@/store/settingsStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { seededShuffle, gameRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
@@ -28,12 +28,10 @@ const STAT_LABEL_KEY: Record<StatKey, TKey> = {
   borders: "saBorders",
 };
 
-function fmtStat(stat: StatKey, v: number, t: (key: TKey) => string, lang: string): string {
+function fmtStat(stat: StatKey, v: number, t: (key: TKey) => string): string {
   if (stat === "population") return formatPopulation(v);
-  // Unit label comes from i18n and the number is grouped for the active locale,
-  // so nothing is hardcoded inline.
-  if (stat === "area") return `${v.toLocaleString(lang)} ${t("saAreaUnit")}`;
-  return String(v);
+  if (stat === "area") return `${formatNumber(v)} ${t("saAreaUnit")}`;
+  return formatNumber(v);
 }
 
 interface Round {
@@ -51,7 +49,6 @@ function deal(): Round {
 export default function StatAttack({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const t = useT();
-  const lang = useSettingsStore((s) => s.lang);
   // seed only used to vary the opening deal; rounds re-deal with Math.random
   const [round, setRound] = useState<Round>(() => {
     const rng = gameRng("stat-attack", useGameStore.getState().mode);
@@ -94,8 +91,8 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
         <h1 className="font-pixel text-xs text-arcade-neon-pink neon-text-pink">STAT ATTACK</h1>
         <div className="border border-arcade-neon-pink p-10 text-center space-y-3">
           <p className="font-pixel text-[9px] text-arcade-neon-red neon-text-red">{t("gameOver")}</p>
-          <p className="font-pixel text-4xl text-arcade-neon-pink neon-text-pink">{score}</p>
-          <p className="font-pixel text-[8px] text-gray-500">{t("saRounds").replace("{X}", String(score))}</p>
+          <p className="font-pixel text-4xl text-arcade-neon-pink neon-text-pink">{formatNumber(score)}</p>
+          <p className="font-pixel text-[8px] text-gray-500">{t("saRounds").replace("{X}", formatNumber(score))}</p>
           <DailyPercentile performance={Math.min(1, score / 15)} />
         </div>
         <EndScreenActions
@@ -118,7 +115,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
           <HowToPlayButton slug="stat-attack" accent="text-arcade-neon-pink" />
         </div>
         <h1 className="font-pixel text-[10px] text-arcade-neon-pink neon-text-pink tracking-widest">STAT ATTACK</h1>
-        <span className="font-pixel text-[9px] text-arcade-neon-pink">{score}</span>
+        <span className="font-pixel text-[9px] text-arcade-neon-pink">{formatNumber(score)}</span>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-5 px-4 py-6 max-w-lg mx-auto w-full">
@@ -136,7 +133,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
             {revealed ? (
               <>
                 <span className="font-mono text-[11px] text-gray-300 truncate max-w-[100px] px-1">{round.opponent.name}</span>
-                <span className="font-pixel text-[9px] text-arcade-neon-red">{fmtStat(round.stat, round.opponent[round.stat], t, lang)}</span>
+                <span className="font-pixel text-[9px] text-arcade-neon-red">{fmtStat(round.stat, round.opponent[round.stat], t)}</span>
               </>
             ) : (
               <span className="font-pixel text-lg text-gray-700">?</span>
@@ -168,7 +165,7 @@ export default function StatAttack({ onExit }: { onExit: () => void }) {
                 <img src={flagUrl(c.alpha2)} alt={c.name} width={64} height={42} className="w-full max-w-[64px] border border-black/40" loading="eager" />
                 <span className="font-mono text-[13px] text-gray-200 text-center leading-tight">{c.name}</span>
                 {revealed && (
-                  <span className="font-pixel text-[8px] text-arcade-neon-pink">{fmtStat(round.stat, c[round.stat], t, lang)}</span>
+                  <span className="font-pixel text-[8px] text-arcade-neon-pink">{fmtStat(round.stat, c[round.stat], t)}</span>
                 )}
               </button>
             );

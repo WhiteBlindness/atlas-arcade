@@ -8,6 +8,7 @@ import { COUNTRY_META } from "@/data/countryMeta";
 import { COUNTRY_CLUES, formatPopulation } from "@/data/countryClues";
 import { useT, type TKey } from "@/lib/i18n";
 import { haversine, bearing, distanceToHex, distanceHeat, formatDistance, formatKm, calculateScore, type HeatTier } from "@/lib/geo";
+import { formatNumber } from "@/lib/utils";
 import { BearingArrow } from "./globle/BearingArrow";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
@@ -189,7 +190,7 @@ function GlobleStandalone({ onExit }: { onExit: () => void }) {
                     {guesses.length}{isDaily ? "" : ` / ${MAX_GUESSES}`}
                   </span>
                   <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
-                  <span className="font-pixel text-[9px] text-arcade-neon-cyan neon-text-cyan text-right">{t("igPtsSplash").replace("{X}", String(finalScore))}</span>
+                  <span className="font-pixel text-[9px] text-arcade-neon-cyan neon-text-cyan text-right">{t("igPtsSplash").replace("{X}", formatNumber(finalScore))}</span>
                 </div>
                 <DailyPercentile performance={1 / (1 + (guesses.length - 1) / 3)} />
                 <EndScreenActions

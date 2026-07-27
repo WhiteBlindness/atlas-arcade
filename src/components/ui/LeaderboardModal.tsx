@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Trophy } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useT } from "@/lib/i18n";
+import { formatNumber } from "@/lib/utils";
 
 interface Row {
   username: string;
@@ -110,7 +111,7 @@ export function LeaderboardModal() {
                 <span className="font-pixel text-[9px] text-gray-500 w-6 shrink-0">{MEDAL[i] ?? `${i + 1}.`}</span>
                 <span className="font-mono text-sm text-gray-200 truncate">{r.username}</span>
               </span>
-              <span className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow shrink-0">{r.score}</span>
+              <span className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow shrink-0">{formatNumber(r.score)}</span>
             </div>
           ))}
         </div>

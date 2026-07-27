@@ -12,6 +12,7 @@ const Globe = dynamic(() => import("./globle/GlobeInner"), { ssr: false });
 import { CITIES } from "@/data/cities";
 import { CITY_COORDS } from "@/data/cityCoords";
 import { haversine } from "@/lib/geo";
+import { formatNumber } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededPick } from "@/lib/daily";
@@ -350,12 +351,12 @@ export default function SkylineSilhouette({ onExit }: { onExit: () => void }) {
               <p className="font-mono text-[13px] text-gray-300">
                 {Number.isFinite(result.distKm)
                   ? t("skDistFrom")
-                      .replace("{X}", Math.round(result.distKm).toLocaleString())
+                      .replace("{X}", formatNumber(Math.round(result.distKm)))
                       .replace("{Y}", city.name)
                   : t("skNoGuess")}
               </p>
               <div className="h-px bg-arcade-border" />
-              <p className="font-pixel text-[10px] text-arcade-neon-white neon-text-white">{t("igPtsSplash").replace("{X}", String(result.points))}</p>
+              <p className="font-pixel text-[10px] text-arcade-neon-white neon-text-white">{t("igPtsSplash").replace("{X}", formatNumber(result.points))}</p>
               <DailyPercentile performance={Math.min(1, result.points / MAX_POINTS)} />
               <EndScreenActions
                 slug="skyline-silhouette"

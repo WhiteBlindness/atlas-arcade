@@ -10,6 +10,7 @@ import { useCoinStore } from "@/store/coinStore";
 import { toast } from "@/store/toastStore";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
+import { formatNumber } from "@/lib/utils";
 
 const GAME_TITLES: Record<GameSlug, string> = {
   "globle": "GEORADAR",
@@ -125,11 +126,11 @@ export function ProfileModal() {
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="border border-arcade-neon-yellow/60 p-3 text-center">
             <p className="font-pixel text-[7px] text-gray-500 mb-1">{t("profileDaily")}</p>
-            <p className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow">{coins ?? "—"}</p>
+            <p className="font-pixel text-lg text-arcade-neon-yellow neon-text-yellow">{coins === null ? "—" : formatNumber(coins)}</p>
           </div>
           <div className="border border-arcade-neon-green/60 p-3 text-center">
             <p className="flex items-center justify-center gap-1 font-pixel text-[7px] text-gray-500 mb-1"><Gem size={8} /> {t("profilePremium")}</p>
-            <p className="font-pixel text-lg text-arcade-neon-green neon-text-green">{premiumTokens ?? "—"}</p>
+            <p className="font-pixel text-lg text-arcade-neon-green neon-text-green">{premiumTokens === null ? "—" : formatNumber(premiumTokens)}</p>
           </div>
         </div>
 
@@ -142,7 +143,7 @@ export function ProfileModal() {
             {scoreRows.map(([slug, score]) => (
               <div key={slug} className="flex items-center justify-between px-3 py-2">
                 <span className="font-pixel text-[8px] text-gray-400">{GAME_TITLES[slug] ?? slug}</span>
-                <span className="font-pixel text-[10px] text-arcade-neon-cyan">{score}</span>
+                <span className="font-pixel text-[10px] text-arcade-neon-cyan">{formatNumber(score)}</span>
               </div>
             ))}
           </div>

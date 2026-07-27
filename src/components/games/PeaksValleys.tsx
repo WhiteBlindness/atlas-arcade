@@ -12,6 +12,7 @@ import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import { useT, type TKey } from "@/lib/i18n";
+import { formatNumber } from "@/lib/utils";
 import type { MashupProps } from "./mashup";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -119,7 +120,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
 
   return (
     <div
-      className={`relative flex-1 flex flex-col items-center justify-center gap-5 px-6 py-8 lg:px-10 overflow-hidden${
+      className={`relative flex-1 min-h-0 flex flex-col items-center justify-center gap-1.5 sm:gap-3 lg:gap-5 px-4 sm:px-6 py-2 sm:py-5 lg:py-8 lg:px-10 overflow-hidden${
         isRight ? " animate-[slideFromRight_0.38s_ease-out]" : ""
       }`}
     >
@@ -136,52 +137,52 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
       />
       <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, #080810cc 0%, #08081088 45%, #080810e6 100%)" }} />
 
-      <span className="relative text-5xl select-none" role="img" aria-label={entry.category}>
+      <span className="relative text-2xl sm:text-4xl lg:text-5xl select-none shrink-0" role="img" aria-label={entry.category}>
         {entry.emoji}
       </span>
 
-      <div className="relative text-center space-y-1 max-w-xs">
-        <p className="font-pixel text-[7px] text-gray-600 tracking-[0.25em]">
+      <div className="relative text-center space-y-0.5 sm:space-y-1 max-w-xs shrink-0">
+        <p className="hidden sm:block font-pixel text-[7px] text-gray-600 tracking-[0.25em]">
           {t(CAT_KEY[entry.category])}
         </p>
         <p
-          className="font-pixel text-[8px] lg:text-[9px] leading-relaxed"
+          className="font-pixel text-[7px] sm:text-[8px] lg:text-[9px] leading-relaxed"
           style={{ color: accent }}
         >
           {localizedText(entry.label, lang).toUpperCase()}
         </p>
-        <p className="font-mono text-sm text-gray-500">{localizedText(entry.sublabel, lang)}</p>
+        <p className="font-mono text-xs sm:text-sm text-gray-500">{localizedText(entry.sublabel, lang)}</p>
       </div>
 
       {/* Value box */}
       <div
-        className="relative w-full max-w-[260px] border p-5 text-center transition-colors duration-300 bg-black/40"
+        className="relative w-full max-w-[260px] border p-2 sm:p-4 lg:p-5 text-center transition-colors duration-300 bg-black/40 shrink-0"
         style={{ borderColor: valueBorderColor, boxShadow: valueGlow }}
       >
         {revealed ? (
           <div className="animate-[fadeUp_0.22s_ease-out] space-y-1">
-            <p className="font-pixel text-base lg:text-lg" style={{ color: accent }}>
-              {entry.displayValue}
+            <p className="font-pixel text-sm sm:text-base lg:text-lg" style={{ color: accent }}>
+              {formatNumber(entry.value)}
             </p>
             <p className="font-mono text-xs text-gray-500 mt-1">{localizedText(entry.unit, lang)}</p>
           </div>
         ) : (
-          <p className="font-pixel text-4xl text-gray-700 animate-blink select-none">?</p>
+          <p className="font-pixel text-2xl sm:text-3xl lg:text-4xl text-gray-700 animate-blink select-none">?</p>
         )}
       </div>
 
       {/* Buttons — right card, pre-reveal */}
       {isRight && !revealed && (
-        <div className="relative flex flex-col gap-3 w-full max-w-[260px]">
+        <div className="relative flex flex-col gap-1.5 sm:gap-3 w-full max-w-[260px] shrink-0">
           <button
             onClick={onHigher}
-            className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-green text-arcade-neon-green neon-text-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all tracking-widest"
+            className="flex items-center justify-center gap-2 py-2 sm:py-3 font-pixel text-[8px] border border-arcade-neon-green text-arcade-neon-green neon-text-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all tracking-widest"
           >
             <TrendingUp size={12} /> {t("igHigher")}
           </button>
           <button
             onClick={onLower}
-            className="flex items-center justify-center gap-2 py-3 font-pixel text-[8px] border border-arcade-neon-red text-arcade-neon-red neon-text-red hover:bg-arcade-neon-red hover:text-black active:scale-95 transition-all tracking-widest"
+            className="flex items-center justify-center gap-2 py-2 sm:py-3 font-pixel text-[8px] border border-arcade-neon-red text-arcade-neon-red neon-text-red hover:bg-arcade-neon-red hover:text-black active:scale-95 transition-all tracking-widest"
           >
             <TrendingDown size={12} /> {t("igLower")}
           </button>
@@ -283,7 +284,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
   useEffect(() => () => clearTimeout(timerRef.current), []);
 
   return (
-    <div className="min-h-dvh flex flex-col bg-arcade-bg">
+    <div className="h-dvh overflow-hidden flex flex-col bg-arcade-bg">
       {/* React 19 hoists <link> anywhere in the tree into <head>, deduping by
           href — this is the "preload before it's mounted" fix: the browser
           starts fetching next round's photo now, so it's already cached by the
@@ -291,7 +292,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
       {preloadEntry && <link rel="preload" as="image" href={preloadEntry.imageUrl} />}
 
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
         <div className="flex items-center gap-1">
           <GameBackButton onExit={onExit} />
           <HowToPlayButton slug="peaks-valleys" accent="text-arcade-neon-green" />
@@ -301,13 +302,13 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
         </h1>
         <div className="text-right">
           <p className="font-pixel text-[7px] text-gray-600">{t("igScore")}</p>
-          <p className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">{score}</p>
+          <p className="font-pixel text-[10px] text-arcade-neon-green neon-text-green">{formatNumber(score)}</p>
         </div>
       </div>
 
       {/* Streak bar */}
       {streak > 0 && (
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-arcade-border bg-arcade-surface">
+        <div className="flex items-center gap-2 px-4 py-1.5 sm:py-2 border-b border-arcade-border bg-arcade-surface shrink-0">
           <span className="font-pixel text-[7px] text-gray-600 shrink-0">{t("igStreak")}</span>
           <div className="flex gap-1 flex-wrap flex-1">
             {Array.from({ length: Math.min(streak, 10) }).map((_, i) => (
@@ -318,18 +319,18 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
             )}
           </div>
           <span className="font-pixel text-[7px] text-arcade-neon-green shrink-0">
-            {t("igNextPts").replace("{X}", String(pointsFor(streak)))}
+            {t("igNextPts").replace("{X}", formatNumber(pointsFor(streak)))}
           </span>
         </div>
       )}
 
       {/* Cards */}
-      <div className="flex-1 flex flex-col lg:flex-row relative">
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row relative overflow-hidden">
         {/* Left card — revealed */}
         <EntryCard entry={cardA} revealed phase={phase} />
 
         {/* Divider: horizontal on mobile */}
-        <div className="relative flex items-center justify-center py-2 lg:hidden">
+        <div className="relative flex items-center justify-center py-1 sm:py-2 lg:hidden shrink-0">
           <div className="absolute inset-x-0 top-1/2 border-t border-arcade-border" />
           <span className="relative font-pixel text-[8px] text-gray-700 bg-arcade-bg px-3">VS</span>
         </div>
@@ -365,10 +366,10 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
                 <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
                 <span className="font-pixel text-[9px] text-arcade-neon-green neon-text-green text-right">
-                  {score} PTS
+                  {formatNumber(score)} PTS
                 </span>
                 <span className="font-pixel text-[8px] text-gray-500">{t("igCorrectCount")}</span>
-                <span className="font-mono text-sm text-white text-right">{round}</span>
+                <span className="font-mono text-sm text-white text-right">{formatNumber(round)}</span>
               </div>
               <DailyPercentile performance={Math.min(1, score / 1500)} />
               <EndScreenActions
@@ -393,12 +394,12 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
               <p className="font-pixel text-sm text-arcade-neon-green neon-text-green tracking-widest">
                 {t("igPerfect")}
               </p>
-              <p className="font-mono text-sm text-gray-500">{t("igAllCleared").replace("{X}", String(round))}</p>
+              <p className="font-mono text-sm text-gray-500">{t("igAllCleared").replace("{X}", formatNumber(round))}</p>
               <div className="h-px bg-arcade-border" />
               <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-left">
                 <span className="font-pixel text-[8px] text-gray-500">{t("igScore")}</span>
                 <span className="font-pixel text-[9px] text-arcade-neon-green neon-text-green text-right">
-                  {score} PTS
+                  {formatNumber(score)} PTS
                 </span>
               </div>
               <DailyPercentile performance={1} />
@@ -416,9 +417,9 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-arcade-border">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-arcade-border shrink-0">
         <span className="font-pixel text-[7px] text-gray-700">
-          {t("igRound")} {round + 1} / {PEAKS_ENTRIES.length - 1}
+          {t("igRound")} {formatNumber(round + 1)} / {formatNumber(PEAKS_ENTRIES.length - 1)}
         </span>
         <span className="font-pixel text-[7px] text-gray-700">
           {streak > 1 ? `×${streak} ${t("igStreak")}` : ""}
