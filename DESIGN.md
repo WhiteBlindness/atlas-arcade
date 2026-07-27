@@ -78,7 +78,7 @@ The system explicitly rejects generic mobile hyper-casual: no bright rounded gra
 - Zero border-radius anywhere in the real component system — sharp corners only.
 - Elevation is glow, never lift: no drop-shadows, ever.
 - Pixel display font for chrome/labels, monospace VT323 for readable body copy and as the accented-character fallback.
-- A light "on paper" theme exists as a first-class alternate, not an afterthought: same structure, ink-toned neons, glow suppressed for legibility.
+- A light "LCD/vintage-Casio-watch" theme exists as a first-class alternate, not "dark mode with the lights on": same structure, but every accent is re-darkened to a WCAG-AA-verified ink-adjacent value, glow is eliminated entirely (not dimmed), and the 12 game accents lean on solid color blocks rather than small colored text wherever that reads better.
 
 ## 2. Colors
 
@@ -108,10 +108,32 @@ Each mini-game owns exactly one of these, used consistently across its card, its
 - **White** (`#ffffff`): primary body text on the dark theme.
 - **Ghost Ink** (`#16161f`): primary body text and the light-theme's own "white" neon slot — on `.light`, this replaces both plain body text and every neon-white surface (since a literal near-white glow is illegible on a light background).
 
+### Light Mode
+Not a dimmed copy of the dark palette — every one of the 12 accents is independently darkened from its dark-mode hue until it clears **4.5:1 against both `--color-arcade-bg` (#f4f3ec) and `--color-arcade-surface` (#e7e6db)**, the stricter of the two backgrounds driving each color's minimum darkness. Verified by direct relative-luminance computation (WCAG's own contrast formula), not eyeballed — the previous light theme had 7 of 12 accents failing 4.5:1 against the surface color (as low as 3.15:1), which is what this redesign fixes.
+
+| Dark-mode name | Dark hex | Light-mode hex | vs bg | vs surface |
+|---|---|---|---|---|
+| Signal Cyan | `#00d4ff` | `#006e85` | 5.29 | 4.69 |
+| Pulse Green | `#00ff41` | `#00751e` | 5.30 | 4.70 |
+| Solar Yellow | `#ffe600` | `#706500` | 5.32 | 4.71 |
+| Ember Orange | `#ff8c00` | `#995400` | 5.21 | 4.62 |
+| Electric Blue | `#0088ff` | `#0065bd` | 5.25 | 4.65 |
+| Reactor Mint | `#00ffa6` | `#00754c` | 5.17 | 4.59 |
+| Ultraviolet Purple | `#b800ff` | `#a200e0` | 5.23 | 4.63 |
+| Alert Red | `#ff3333` | `#cc0000` | 5.29 | 4.69 |
+| Hot Magenta | `#ff00ff` | `#b300b2` | 5.30 | 4.70 |
+| Ghost White | `#f8f8f8` | `#16161f` (= Ghost Ink) | 16.15 | 14.32 |
+| Volt Lime | `#ccff00` | `#566b00` | 5.40 | 4.78 |
+| Arcade Pink | `#ff00aa` | `#c20081` | 5.23 | 4.64 |
+
+Every light-mode value also clears 5.7:1+ against white, which is what makes the Ink-on-Block Rule below possible without a second, separate token set.
+
 ### Named Rules
 **The One Signal Rule.** Signal Cyan is the only color allowed to mean "this is Atlas Arcade" as opposed to "this is [game]." It appears in the wordmark, the header brand mark, and GeoRadar (which is treated as the flagship/first game) — never as a generic default accent elsewhere.
 
 **The No-Borrowing Rule.** A game's accent color appears on its card, its mode-select modal, and its own HUD — and nowhere else. Solar Yellow is hard-reserved for Atlas Jackpot; no other surface may use it as a primary accent.
+
+**The Ink-on-Block Rule (light mode only).** Small colored text is where light mode's old contrast failures lived. Wherever an accent needs to carry real visual weight — a game card's icon, a primary CTA — light mode renders it as a **solid accent-color block with white text/icon on top**, never as colored text on the bare background. This works uniformly across all 12 colors with zero per-color exceptions because every light-mode value above was chosen to also clear white-text contrast, not just background-text contrast.
 
 ## 3. Typography
 
@@ -139,6 +161,8 @@ Atlas Arcade has no drop-shadow, lift, or z-axis elevation model at all. Depth i
 ### Named Rules
 **The Glow-Not-Lift Rule.** Emphasis is expressed by brightening (glow) and by border color, never by scale-up shadow or a simulated z-axis lift. A "raised" element in this system is brighter, not closer.
 
+**The No-Glow-In-Light Rule.** Neon glow only works on a dark surface — on `#f4f3ec` it reads as a muddy colored blur, not emphasis. Light mode has **zero glow, full stop**: not dimmed, not smaller-radius, eliminated. Depth in light mode comes from the flat ink border alone. Implementation note, since this bit us once: Tailwind v4 bakes each `@theme` shadow value as a static fallback directly into the compiled utility (`--tw-shadow: 0 0 8px var(--tw-shadow-color, #00ff41), ...`) — overriding the `--shadow-neon-*` custom property under `.light` does **nothing**, since `.shadow-neon-green` never actually reads that variable. The real kill switch has to target the utility classes themselves (`html.light [class*="shadow-neon-"] { box-shadow: none; }`, unlayered so it beats Tailwind's `@layer utilities` regardless of specificity or `:hover` state) — and separately, any *inline* `style={{ boxShadow: "..." }}` glow (there are ~20 of these across win/lose overlays and badges, all hardcoded to dark-mode-bright hex) needs its own `!important` kill switch, since inline styles aren't reachable by a plain class selector at all.
+
 **The Tap-Flash Rule.** `:hover` does not exist for the majority of players — they're on touch screens. Every interactive card and CTA button pairs its hover treatment with an equally deliberate `:active` treatment: a visible press-down (`active:scale-95`, not the near-imperceptible `scale-[0.98]`) plus a high-opacity accent fill (`active:bg-<accent>/20`–`/30`, or `active:bg-current/15` on buttons whose own text color already carries the accent; neutral ghost controls get `active:bg-white/10`). The flash must read as *distinctly stronger* than any hover-state tint on the same element, since on mobile it's the player's only confirmation the tap registered.
 
 ## 5. Components
@@ -154,10 +178,12 @@ Buttons, cards, and modals share one grammar: a labeled rectangle, sharp corners
 
 ### Cards (Game Select Grid)
 - **Corner Style:** 0px radius, plus four small literal corner-bracket glyphs (absolutely positioned L-shaped border fragments) at each corner — a deliberate "targeting reticle" detail unique to game cards.
-- **Background:** Panel Surface (`#0f0f1a`).
-- **Shadow Strategy:** flat at rest; on hover, border and glow both switch to the card's own accent (see Elevation).
-- **Border:** 1px, the game's own accent color at rest already (not neutral-then-accent-on-hover — the identity color is always visible).
+- **Background:** Panel Surface (`#0f0f1a`) in dark mode; Panel Surface's light equivalent (`#e7e6db`) in light mode — no other change to the card shell.
+- **Shadow Strategy:** flat at rest; on hover, border and glow both switch to the card's own accent (dark mode only — see Elevation's No-Glow-In-Light Rule).
+- **Border:** 1px, the game's own accent color at rest already (not neutral-then-accent-on-hover — the identity color is always visible), in both themes.
 - **Internal Padding:** ~20px (`p-5`), consistent gap-4 rhythm between icon/title/description/CTA.
+- **Icon chip (light mode only, see the Ink-on-Block Rule):** the icon sits inside a small solid accent-color square with a white icon, instead of a bare colored glyph — `light:bg-arcade-neon-<color> light:p-1.5` on the wrapper, `light:text-white` on the icon. Dark mode is untouched (transparent wrapper, colored glyph, unchanged from before this rule existed).
+- **CTA (light mode only):** the `[ PLAY ]` bar is a *permanent* solid accent block with white text in light mode, not just on hover — `light:bg-arcade-neon-<color> light:text-white` alongside the existing `group-hover:bg-current` dark-mode hover-fill behavior.
 
 ### Modals
 - **Corner Style:** 0px radius, 1px border and glow in the relevant accent (Signal Cyan for generic modals like Profile/Leaderboard; the selected game's own accent for the mode-select modal; Alert Red for the out-of-coins modal).
@@ -185,6 +211,8 @@ A bordered pill (not fully rounded — `border` rectangle) holding a small radia
 - **Do** require an explicit close control (`X` / `[ CLOSE ]`) on every modal; never wire a backdrop click or drag to dismiss.
 - **Do** keep Press Start 2P at label/chrome scale only; move to VT323 the moment copy is meant to be actually read.
 - **Do** keep looping ambient effects (flicker, blink, glitch) subtle and slow enough to never risk photosensitivity — this is a hard constraint from PRODUCT.md, not a style preference.
+- **Do** verify any new light-mode accent value at 4.5:1 against both `--color-arcade-bg` and `--color-arcade-surface` before adding it — compute it, don't eyeball it (see the Light Mode table under Colors).
+- **Do** use the Ink-on-Block pattern (solid accent square/bar + white text) wherever an accent needs real visual weight in light mode, rather than reaching for colored text at a small size.
 
 ### Don't:
 - **Don't** build generic mobile hyper-casual UI — no bright rounded gradients, no cartoon mascots, no ad-shaped interstitials. That is this system's explicit anti-reference.
@@ -193,3 +221,5 @@ A bordered pill (not fully rounded — `border` rectangle) holding a small radia
 - **Don't** add a neutral/dark drop-shadow anywhere. If something needs to look "elevated," give it a matching neon glow instead.
 - **Don't** wire any backdrop-click-to-close behavior on a modal, even as a "convenience."
 - **Don't** design a flashing/strobing effect, even subtle-seeming ones stacked together — audit new motion against the existing `flicker` (8s loop, ~1-3% opacity dip) and `blink` (1s step-end) rates as the ceiling, not the floor.
+- **Don't** add any glow (`box-shadow` or `text-shadow`) that renders in light mode, token-based or inline — see the No-Glow-In-Light Rule for why overriding `--shadow-neon-*` alone doesn't actually work.
+- **Don't** hardcode a celebratory/decorative glow as an inline `style={{ boxShadow: "...#00ff41..." }}` with a literal dark-mode hex — it bypasses the theme system entirely and previously shipped full-brightness dark-mode glows straight onto the light background. Use the `shadow-neon-*` utility class (which the light-mode kill switch already reaches) instead.

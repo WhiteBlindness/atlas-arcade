@@ -4,6 +4,9 @@
 
 /* Class-based dark strategy: `dark:` utilities apply under html.dark (default). */
 @custom-variant dark (&:where(.dark, .dark *));
+/* `light:` counterpart — lets components opt into light-mode-only treatments
+   (e.g. GameCard's solid accent block) without any JS theme branching. */
+@custom-variant light (&:where(.light, .light *));
 
 @theme {
   /* Arcade color palette */
@@ -148,39 +151,48 @@ html, body {
 }
 
 /* ── Light mode ──────────────────────────────────────────────────────────────
-   Retro arcade "on paper": crisp light background, dark grid/borders, neon
-   accents darkened for readability. Toggled via a `.light` class on <html>. */
+   Not "dark mode with the lights on" — a distinct LCD/vintage-Casio-watch
+   read: flat off-white "glass", near-black ink for every border and most
+   text, and the 12 game accents as deliberate, high-contrast blocks rather
+   than glowing hairline text. Toggled via a `.light` class on <html>.
+
+   Every accent value below is WCAG-AA-verified (>=4.5:1) against BOTH
+   --color-arcade-bg and --color-arcade-surface — the darker of the two
+   drove each color's minimum darkness, since the same token is used as
+   text/border on either background interchangeably. Verified by direct
+   relative-luminance computation, not eyeballed. */
 html.light {
   --color-arcade-bg:           #f4f3ec;
   --color-arcade-surface:      #e7e6db;
-  --color-arcade-border:       #3a3a4d;
-  --color-arcade-neon-green:   #0a8f34;
-  --color-arcade-neon-cyan:    #0782a6;
-  --color-arcade-neon-magenta: #b30ab3;
-  --color-arcade-neon-yellow:  #9a7d00;
-  --color-arcade-neon-red:     #cc1f1f;
-  --color-arcade-neon-orange:  #b35f00;
-  --color-arcade-neon-purple:  #8400b8;
-  --color-arcade-neon-blue:    #0062b8;
-  --color-arcade-neon-mint:    #067a52;
-  --color-arcade-neon-pink:    #b3007a;
-  --color-arcade-neon-lime:    #5f7a00;
+  --color-arcade-border:       #16161f;
+  --color-arcade-neon-green:   #00751e;
+  --color-arcade-neon-cyan:    #006e85;
+  --color-arcade-neon-magenta: #b300b2;
+  --color-arcade-neon-yellow:  #706500;
+  --color-arcade-neon-red:     #cc0000;
+  --color-arcade-neon-orange:  #995400;
+  --color-arcade-neon-purple:  #a200e0;
+  --color-arcade-neon-blue:    #0065bd;
+  --color-arcade-neon-mint:    #00754c;
+  --color-arcade-neon-pink:    #c20081;
+  --color-arcade-neon-lime:    #566b00;
   --color-arcade-neon-white:   #16161f;
-  --shadow-neon-green:   0 0 6px #0a8f3455;
-  --shadow-neon-cyan:    0 0 6px #0782a655;
-  --shadow-neon-magenta: 0 0 6px #b30ab355;
-  --shadow-neon-yellow:  0 0 6px #9a7d0055;
-  --shadow-neon-red:     0 0 6px #cc1f1f55;
-  --shadow-neon-orange:  0 0 6px #b35f0055;
-  --shadow-neon-purple:  0 0 6px #8400b855;
-  --shadow-neon-blue:    0 0 6px #0062b855;
-  --shadow-neon-mint:    0 0 6px #067a5255;
-  --shadow-neon-pink:    0 0 6px #b3007a55;
-  --shadow-neon-lime:    0 0 6px #5f7a0055;
-  --shadow-neon-white:   0 0 6px #3a3a4d55;
   background-color: #f4f3ec;
   color: #16161f;
 }
+
+/* No neon glow in light mode, anywhere.
+   NOTE: overriding the --shadow-neon-* custom properties above does NOT
+   work for this — Tailwind v4 bakes each @theme shadow value as a static
+   fallback directly into the compiled utility (e.g. `--tw-shadow: 0 0 8px
+   var(--tw-shadow-color, #00ff41), ...`), so .shadow-neon-green never
+   actually reads --shadow-neon-green at all. The real kill switch has to
+   target the utility classes themselves. This rule is unlayered (plain
+   top-level CSS, not inside @layer utilities), so per the CSS cascade-layer
+   spec it wins over Tailwind's layered utilities regardless of selector
+   specificity or :hover state — no !important needed, same mechanism
+   already proven by the .neon-text-* overrides above. */
+html.light [class*="shadow-neon-"] { box-shadow: none; }
 
 /* Neon glow text is illegible on a light background — flatten it. */
 html.light .neon-text-green,
@@ -195,6 +207,16 @@ html.light .neon-text-mint,
 html.light .neon-text-pink,
 html.light .neon-text-lime,
 html.light .neon-text-white { text-shadow: none; }
+
+/* A handful of celebratory/decorative glows (win screens, badges, drag
+   ghosts) are authored as literal inline styles with dark-mode-bright hex,
+   e.g. style={{ boxShadow: "0 0 40px #00ff4155" }}. Those never read the
+   --shadow-neon-* tokens above, so they need their own kill switch: inline
+   styles beat any class-based rule on specificity alone, so this needs
+   !important to win. Every current inline glow in the codebase is exactly
+   this pattern (verified via full-repo grep) — nothing legitimate to spare. */
+html.light [style*="box-shadow"] { box-shadow: none !important; }
+html.light [style*="text-shadow"] { text-shadow: none !important; }
 
 /* Primary white text becomes ink on light surfaces … */
 html.light .text-white { color: #16161f; }

@@ -58,7 +58,13 @@ export function GameCard({ slug, title, description, Icon, highScore, comingSoon
       <span className={`absolute bottom-0 right-0 w-2 h-2 border-b border-r ${comingSoon ? "border-arcade-border" : a.border}`} />
 
       <div className="flex justify-between items-start">
-        <Icon size={28} className={`${comingSoon ? "text-gray-600" : a.text} ${comingSoon ? "" : "group-hover:scale-110"} transition-transform duration-200`} />
+        {/* Icon chip: transparent in dark mode (icon just sits in accent color,
+            unchanged from before); in light mode becomes a solid accent block
+            with a white icon — "the accent is a block of color, never small
+            colored text" (see DESIGN.md's Ink-on-Block Rule). */}
+        <div className={`inline-flex items-center justify-center light:p-1.5 ${comingSoon ? "" : a.solidLight}`}>
+          <Icon size={28} className={`${comingSoon ? "text-gray-600" : `${a.text} light:text-white`} ${comingSoon ? "" : "group-hover:scale-110"} transition-transform duration-200`} />
+        </div>
         {highScore !== undefined && !comingSoon && (
           <div className="text-right">
             <p className="font-pixel text-[7px] text-gray-600">{t("best")}</p>
@@ -81,7 +87,7 @@ export function GameCard({ slug, title, description, Icon, highScore, comingSoon
           {t("comingSoon")}
         </div>
       ) : (
-        <div className={`mt-auto py-2 text-center font-pixel text-[9px] border ${a.border} ${a.text} group-hover:bg-current transition-all duration-200`}>
+        <div className={`mt-auto py-2 text-center font-pixel text-[9px] border ${a.border} ${a.text} light:text-white ${a.solidLight} group-hover:bg-current transition-all duration-200`}>
           {t("play")}
         </div>
       )}
