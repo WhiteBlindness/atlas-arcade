@@ -22,8 +22,15 @@ const STEPS: Record<GameSlug, [TKey, TKey, TKey]> = {
   "atlas-jackpot":      ["htpJackpot1", "htpJackpot2", "htpJackpot3"],
 };
 
+interface HowToPlayButtonProps {
+  slug: GameSlug;
+  accent?: string;
+  /** "icon": compact [?] glyph for game headers (default). "block": full-width labeled button for the pre-game modal. */
+  variant?: "icon" | "block";
+}
+
 /** Retro "[ ? ]" button + the tutorial modal it opens. Drop into a game header. */
-export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan" }: { slug: GameSlug; accent?: string }) {
+export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", variant = "icon" }: HowToPlayButtonProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -41,15 +48,25 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan" }: { sl
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => { sfx.click(); setOpen(true); }}
-        aria-label={t("htpTitle")}
-        title={t("htpTitle")}
-        className={`shrink-0 flex items-center justify-center w-10 h-10 font-pixel text-[9px] ${accent} hover:brightness-150 active:scale-90 transition-all`}
-      >
-        <HelpCircle size={16} />
-      </button>
+      {variant === "block" ? (
+        <button
+          type="button"
+          onClick={() => { sfx.click(); setOpen(true); }}
+          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 transition-all`}
+        >
+          <HelpCircle size={13} /> {t("htpTitle")}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => { sfx.click(); setOpen(true); }}
+          aria-label={t("htpTitle")}
+          title={t("htpTitle")}
+          className={`shrink-0 flex items-center justify-center w-10 h-10 font-pixel text-[9px] ${accent} hover:brightness-150 active:scale-90 transition-all`}
+        >
+          <HelpCircle size={16} />
+        </button>
+      )}
 
       {/* No backdrop-click-to-close — matches AuthModal. Only [ CLOSE ] closes it. */}
       {open && (

@@ -56,7 +56,7 @@ const GAME_COMPONENTS: Partial<Record<GameSlug, React.ComponentType<{ onExit: ()
 
 export default function HomePage() {
   const { user } = useAuthStore();
-  const { activeGame, mode, runId, highScores, openModeSelect, exitGame, retryGame } = useGameStore();
+  const { activeGame, mode, runId, highScores, pendingGame, openModeSelect, exitGame, retryGame } = useGameStore();
   const getDailyResult = useDailyStore((s) => s.getResult);
   const refundCoin = useCoinStore((s) => s.refund);
   const t = useT();
@@ -122,7 +122,7 @@ export default function HomePage() {
         </p>
       </main>
 
-      <ModeSelectModal />
+      <ModeSelectModal title={GAMES.find((g) => g.slug === pendingGame)?.title ?? ""} />
       <OutOfCoinsModal />
     </div>
   );

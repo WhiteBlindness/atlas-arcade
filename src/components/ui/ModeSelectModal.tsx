@@ -6,13 +6,22 @@ import { useCoinStore } from "@/store/coinStore";
 import { useT } from "@/lib/i18n";
 import { todayUTC } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
+import { GAME_THEME } from "@/lib/gameTheme";
+import { HowToPlayButton } from "@/components/ui/HowToPlay";
 
-export function ModeSelectModal() {
+interface Props {
+  /** Selected game's display title, e.g. "SKYLINE SILHOUETTE". */
+  title: string;
+}
+
+export function ModeSelectModal({ title }: Props) {
   const { pendingGame, closeModeSelect, startGame } = useGameStore();
   const { coins, spend } = useCoinStore();
   const t = useT();
 
   if (!pendingGame) return null;
+
+  const theme = GAME_THEME[pendingGame];
 
   const playDaily = () => {
     sfx.click();
@@ -29,10 +38,7 @@ export function ModeSelectModal() {
   // No backdrop-click-to-close — matches AuthModal. Only the X button closes it.
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4">
-      <div
-        className="relative w-full max-w-sm border border-arcade-neon-cyan bg-arcade-bg p-6 space-y-4 modal-enter"
-        style={{ boxShadow: "0 0 40px #00d4ff44" }}
-      >
+      <div className={`relative w-full max-w-sm border ${theme.border} ${theme.shadow} bg-arcade-bg p-6 space-y-4 modal-enter`}>
         <button
           onClick={closeModeSelect}
           aria-label={t("cancel")}
@@ -41,9 +47,13 @@ export function ModeSelectModal() {
           <X size={16} />
         </button>
 
-        <p className="font-pixel text-[11px] text-arcade-neon-cyan neon-text-cyan tracking-widest text-center">
-          {t("modeTitle")}
-        </p>
+        <div className="text-center space-y-1">
+          <p className={`font-pixel text-xs tracking-widest ${theme.text}`}>{title}</p>
+          <p className="font-pixel text-[9px] text-gray-500 tracking-widest">{t("modeTitle")}</p>
+        </div>
+
+        {/* Pre-game instructions — read the rules before spending a token */}
+        <HowToPlayButton slug={pendingGame} accent={theme.text} variant="block" />
 
         {/* Daily */}
         <button
