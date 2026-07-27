@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { PEAKS_ENTRIES, localizedText, type PeaksEntry, type PeaksCategory, type PeaksTier } from "@/data/peaksValleys";
 import { useSettingsStore } from "@/store/settingsStore";
@@ -232,6 +232,19 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
   const { current: cardA, next: cardB, round } = deckState;
   const isExhausted = cardB === null;
 
+  // Both current cards render unconditionally (see EntryCard), so their photos
+  // are already fetching from the moment they enter state — that part was never
+  // slow. The 1-2s stall is the NEXT round's card: its identity is only decided
+  // inside the setTimeout at transition time, so its <img src> doesn't exist
+  // until the instant it needs to already be on screen. drawNext() is pure, so
+  // predicting what it will draw lets the browser start fetching that photo the
+  // moment this round begins — giving it the whole round's dwell time instead
+  // of a 1.2s window.
+  const preloadEntry = useMemo(() => {
+    if (!cardB) return null;
+    return drawNext(deckState.remaining, cardB, tierForRound(round + 1)).drawn;
+  }, [deckState.remaining, cardB, round]);
+
   const handleGuess = useCallback(
     (guessHigher: boolean) => {
       if (phase !== "input" || !cardB) return;
@@ -271,6 +284,12 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="min-h-dvh flex flex-col bg-arcade-bg">
+      {/* React 19 hoists <link> anywhere in the tree into <head>, deduping by
+          href — this is the "preload before it's mounted" fix: the browser
+          starts fetching next round's photo now, so it's already cached by the
+          time the real <img> for it mounts. */}
+      {preloadEntry && <link rel="preload" as="image" href={preloadEntry.imageUrl} />}
+
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border">
         <div className="flex items-center gap-1">
