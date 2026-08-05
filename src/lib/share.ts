@@ -7,9 +7,9 @@ import { todayUTC, mockPercentile } from "./daily";
 // Score: 850
 // I beat 78% of players today!
 // 🟧🟨🟩
-// 2026-07-14 · atlasarcade.vercel.app
+// 2026-07-14 · atlasarcade.app
 
-const SITE = "atlasarcade.vercel.app";
+const SITE = "atlasarcade.app";
 
 export function buildShareText(opts: {
   gameTitle: string;
