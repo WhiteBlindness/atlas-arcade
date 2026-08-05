@@ -44,3 +44,6 @@ dev.log
 *.tsbuildinfo
 next-env.d.ts
 start.log
+
+# graphify generated output (knowledge-graph artifacts, not project source)
+/graphify-out/
