@@ -4,6 +4,8 @@ Twelve geography mini-games and a boss stage, in a retro arcade cabinet.
 
 **Live:** https://atlasarcade.app
 
+**Estado:** *Live*. Verificado em 27/09/2026.
+
 GeoRadar · Capital Strike · Flag Frenzy · Peaks & Valleys · Tectonic Snap · Frontier Face-Off · One Strike · Urban Legends · Skyline Silhouette · Border Blitz · Stat Attack — plus **Atlas Jackpot**, a mashup boss stage that unlocks at levels 5, 10 and 15.
 
 ## Motivation
