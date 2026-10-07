@@ -6,13 +6,13 @@ Data: 07/10/2026. Navegador: Chromium através de Playwright 1.63. Não foi usad
 
 Em produção, a ação de Urban Legends apresenta contraste de 1,000:1 ao passar o rato nos dois temas: magenta sobre magenta no escuro e branco sobre branco no claro. A causa é `group-hover:bg-current` em `GameCard.tsx`, combinada com a cor de texto herdada. A correção define o fundo pela variável do jogo e o texto por um valor contrastante.
 
-A execução local recolheu 259 amostras por tema nos onze cartões e na faixa Atlas Jackpot, nos estados normal, passagem do rato, foco, foco com passagem do rato e pressionado. Mínimos: 4,645:1 no escuro e 4,588:1 no claro; zero falhas. Os estados bloqueado e em breve são verificados por renderização de componentes, incluindo etiqueta e pontuação pessoal. Não são estados publicados dos onze jogos atuais.
+A execução local recolheu 259 amostras por tema nos onze cartões e na faixa Atlas Jackpot, nos estados normal, passagem do rato, foco, foco com passagem do rato e pressionado. Mínimos: 4,645:1 no escuro e 4,588:1 no claro; zero falhas. Os estados bloqueado e em breve são renderizados a partir do componente real e inseridos no navegador com os estilos da aplicação. Foram medidas mais 192 amostras de texto por tema, nos doze conjuntos de cores, em repouso e com passagem do rato. Mínimos de 4,645:1 e 4,588:1, sem falhas; os ícones atingem pelo menos 3:1. As asserções verificam também o estado desativado e a presença ou ausência da pontuação pessoal. Não são estados publicados dos onze jogos atuais.
 
 O contorno de foco do cabeçalho apresentou rácios entre 7,667:1 e 15,744:1. O texto de autenticação pendente mantém 15,380:1 no escuro e 5,893:1 no claro ao passar o rato. O botão Google carrega Google Sans 500 local, com tamanho 14 px, linha 20 px, intervalo 10 px e altura mínima 44 px.
 
 ## Percursos locais
 
-Passaram 37/37 testes: 23 de percursos e 14 visuais/de acessibilidade. Incluem uma ronda diária Urban Legends com seis respostas, resultado e regresso à grelha; início como convidado e consumo de uma ficha; respostas de consumo atrasadas, duplicação de cliques, erros e regresso ao seletor; idioma do documento; classificação; tutorial e diálogo de fichas aninhados; foco e Escape; colocação de peças Tectonic Snap com teclado; coordenadas Skyline e resultado; políticas e créditos.
+Passaram 39/39 testes: 23 de percursos e 16 visuais/de acessibilidade. Incluem uma ronda diária Urban Legends com seis respostas, resultado e regresso à grelha; início como convidado e consumo de uma ficha; respostas de consumo atrasadas, duplicação de cliques, erros e regresso ao seletor; idioma do documento; classificação; tutorial e diálogo de fichas aninhados; foco e Escape; colocação de peças Tectonic Snap com teclado; coordenadas Skyline e resultado; políticas e créditos.
 
 Os dados de autenticação e saldo são controlados nos testes locais. Isto não verifica as funções remotas Supabase nem a sessão real de uma conta. A migração é verificada separadamente numa base PostgreSQL isolada.
 

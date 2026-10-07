@@ -106,7 +106,7 @@ Os componentes dos jogos carregam de forma diferida; o renderizador do globo est
 
 ## Validação e revisão
 
-A instalação limpa (`npm ci`), a análise de tipos, a verificação de estilo e a compilação passaram. Os testes unitários passaram 22/22; os testes locais de navegador passaram 37/37; a sessão pública passou 1/1. O axe não encontrou violações nos percursos abrangidos. Foram revistas as quatro capturas de ecrã dos temas, da passagem do rato e do telemóvel. Três fotografias reais carregaram sem cookies do fornecedor.
+A instalação limpa (`npm ci`), a análise de tipos, a verificação de estilo e a compilação passaram. Os testes unitários passaram 22/22; os testes locais de navegador passaram 39/39; a sessão pública passou 1/1. O axe não encontrou violações nos percursos abrangidos. Foram revistas as quatro capturas de ecrã dos temas, da passagem do rato e do telemóvel. Três fotografias reais carregaram sem cookies do fornecedor.
 
 A auditoria de execução apresenta zero avisos; a auditoria completa mantém cinco pacotes de desenvolvimento afetados por um único aviso alto em `braces`. A cobertura medida das funções puras selecionadas não representa cobertura global da aplicação.
 

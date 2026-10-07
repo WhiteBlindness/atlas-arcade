@@ -32,7 +32,9 @@ O globo 3D ativo define a duração do movimento de câmara como zero quando o s
 
 ## Resultados e limites
 
-A execução final terminou com 37 testes locais aprovados em 37, incluindo 14 testes visuais e de acessibilidade. Incluiu medições de contraste nos dois temas, verificações axe-core da página inicial escura e clara, autenticação, tutorial aninhado, classificação e páginas de serviço, foco de teclado, ecrã curto, tipografia Google e capturas de ecrã. O ensaio de movimento reduzido, repetido após incluir as animações utilitárias de Peaks and Valleys, passou 1 em 1. O ensaio adicional do estado de autenticação pendente passou 1 em 1 e cobriu os dois temas.
+Os estados bloqueado e em breve tiveram mais 192 amostras de texto calculadas por tema, nos doze conjuntos de cores, sem falhas e com os mesmos mínimos.
+
+A execução final terminou com 39 testes locais aprovados em 39, incluindo 16 testes visuais e de acessibilidade. Incluiu medições de contraste nos dois temas, verificações axe-core da página inicial escura e clara, autenticação, tutorial aninhado, classificação e páginas de serviço, foco de teclado, ecrã curto, tipografia Google e capturas de ecrã. O ensaio de movimento reduzido, repetido após incluir as animações utilitárias de Peaks and Valleys, passou 1 em 1. O ensaio adicional do estado de autenticação pendente passou 1 em 1 e cobriu os dois temas.
 
 A execução axe-core usa os critérios WCAG 2.2 A/AA selecionados no teste. Estes resultados não demonstram conformidade WCAG de toda a aplicação. Não cobrem todos os estados de jogo, todas as combinações de contraste, nem substituem testes manuais com leitores de ecrã. O movimento funcional da barra temporal e o comportamento 3D no navegador mantêm as limitações descritas acima.
 
