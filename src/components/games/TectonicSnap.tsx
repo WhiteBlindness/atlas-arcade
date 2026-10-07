@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import { COUNTRIES } from "@/data/countries";
@@ -9,7 +9,6 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { gameRng, seededShuffle, createSeededRng, type Rng } from "@/lib/daily";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -150,6 +149,8 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
   const [misses, setMisses] = useState(0);
   const [dragId, setDragId] = useState<number | null>(null);
   const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
+  const [keyboardPieceId, setKeyboardPieceId] = useState<number | null>(null);
+  const [keyboardCursor, setKeyboardCursor] = useState({ x: W / 2, y: H / 2 });
   const [flash, setFlash] = useState<"ok" | "bad" | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -161,7 +162,6 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
 
   useEffect(() => {
     let alive = true;
-    setPhase("loading");
     fetchWorld().then((world) => {
       if (!alive) return;
       setRound(
@@ -184,16 +184,11 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
 
   const dragPiece = round?.pieces.find((p) => p.id === dragId);
 
-  const handleDrop = useCallback(
-    (clientX: number, clientY: number) => {
-      if (dragId === null || !round || !svgRef.current) { setDragId(null); return; }
-      const piece = round.pieces.find((p) => p.id === dragId);
-      setDragId(null);
+  const handlePlacement = useCallback(
+    (pieceId: number, x: number, y: number) => {
+      if (!round) return;
+      const piece = round.pieces.find((p) => p.id === pieceId);
       if (!piece) return;
-
-      const rect = svgRef.current.getBoundingClientRect();
-      const x = ((clientX - rect.left) / rect.width) * W;
-      const y = ((clientY - rect.top) / rect.height) * H;
 
       const tolerance = Math.max(24, Math.max(piece.bw, piece.bh) / 2 + 12);
       const dist = Math.hypot(x - piece.cx, y - piece.cy);
@@ -221,8 +216,54 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
       }
       setTimeout(() => setFlash(null), 350);
     },
-    [dragId, round, placed, roundIdx, totalRounds, addScore]
+    [round, placed, roundIdx, totalRounds, addScore]
   );
+
+  const handleDrop = useCallback(
+    (clientX: number, clientY: number) => {
+      if (dragId === null || !round || !svgRef.current) { setDragId(null); return; }
+      const rect = svgRef.current.getBoundingClientRect();
+      const x = ((clientX - rect.left) / rect.width) * W;
+      const y = ((clientY - rect.top) / rect.height) * H;
+      setDragId(null);
+      handlePlacement(dragId, x, y);
+    },
+    [dragId, round, handlePlacement]
+  );
+
+  const handleKeyboardControl = useCallback((event: ReactKeyboardEvent<HTMLButtonElement>, pieceId: number) => {
+    if (event.key === "Escape" && keyboardPieceId === pieceId) {
+      event.preventDefault();
+      setKeyboardPieceId(null);
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (keyboardPieceId === pieceId) {
+        handlePlacement(pieceId, keyboardCursor.x, keyboardCursor.y);
+        setKeyboardPieceId(null);
+      } else {
+        setKeyboardPieceId(pieceId);
+        setKeyboardCursor({ x: W / 2, y: H / 2 });
+      }
+      return;
+    }
+    if (keyboardPieceId !== pieceId) return;
+    const step = event.shiftKey ? 80 : 20;
+    const offsets: Record<string, { x: number; y: number }> = {
+      ArrowLeft: { x: -step, y: 0 },
+      ArrowRight: { x: step, y: 0 },
+      ArrowUp: { x: 0, y: -step },
+      ArrowDown: { x: 0, y: step },
+    };
+    const offset = offsets[event.key];
+    if (!offset) return;
+    event.preventDefault();
+    setKeyboardCursor((cursor) => ({
+      x: Math.max(0, Math.min(W, cursor.x + offset.x)),
+      y: Math.max(0, Math.min(H, cursor.y + offset.y)),
+    }));
+  }, [keyboardPieceId, keyboardCursor, handlePlacement]);
 
   useEffect(() => {
     if (dragId === null) return;
@@ -246,8 +287,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-mint neon-text-mint">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("igMissedDrops").replace("{X}", String(misses))}</p>
-          <DailyPercentile performance={(isDaily ? DAILY_PIECES : 18) / ((isDaily ? DAILY_PIECES : 18) + misses)} />
-        </div>
+</div>
         <EndScreenActions
           slug="tectonic-snap"
           gameTitle="TECTONIC SNAP"
@@ -286,6 +326,13 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
             </p>
           </div>
 
+          <p id="tectonic-keyboard-help" className="font-mono text-xs text-gray-400">
+            {t("igKeyboardInstructions")}
+          </p>
+          <p className="sr-only" aria-live="polite">
+            {keyboardPieceId !== null && t("igKeyboardPosition").replace("{X}", String(Math.round(keyboardCursor.x))).replace("{Y}", String(Math.round(keyboardCursor.y)))}
+          </p>
+
           {/* Map */}
           <div
             className={`relative border transition-colors ${
@@ -304,6 +351,12 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
                   <path key={p.id} d={p.d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
                 )
               )}
+              {keyboardPieceId !== null && (
+                <g aria-hidden="true" pointerEvents="none">
+                  <circle cx={keyboardCursor.x} cy={keyboardCursor.y} r="12" fill="#00ffa6" fillOpacity="0.18" stroke="#00ffa6" strokeWidth="3" />
+                  <circle cx={keyboardCursor.x} cy={keyboardCursor.y} r="2" fill="#00ffa6" />
+                </g>
+              )}
             </svg>
 
             {phase === "round-done" && (
@@ -312,7 +365,7 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
                   <p className="font-pixel text-[11px] text-arcade-neon-green neon-text-green">{t("igContinentRestored")}</p>
                   <p className="font-pixel text-[9px] text-arcade-neon-mint">{t("igBonus").replace("{X}", String(ROUND_BONUS))}</p>
                   <button
-                    onClick={() => { sfx.click(); setRoundIdx((r) => r + 1); }}
+                    onClick={() => { sfx.click(); setPhase("loading"); setRoundIdx((r) => r + 1); }}
                     className="w-full py-2 font-pixel text-[8px] border border-arcade-neon-mint text-arcade-neon-mint hover:bg-arcade-neon-mint hover:text-black transition-all"
                   >
                     {t("igNextContinent")}
@@ -332,13 +385,18 @@ function TectonicSnapStandalone({ onExit }: { onExit: () => void }) {
               {trayPieces.map((p) => (
                 <button
                   key={p.id}
+                  type="button"
+                  aria-pressed={keyboardPieceId === p.id}
+                  aria-describedby="tectonic-keyboard-help"
+                  onKeyDown={(event) => handleKeyboardControl(event, p.id)}
                   onPointerDown={(e) => {
                     e.preventDefault();
+                    setKeyboardPieceId(null);
                     setDragId(p.id);
                     setDragPos({ x: e.clientX, y: e.clientY });
                   }}
                   className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${
-                    dragId === p.id ? "border-arcade-neon-mint text-arcade-neon-mint opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-mint hover:text-arcade-neon-mint"
+                    dragId === p.id || keyboardPieceId === p.id ? "border-arcade-neon-mint text-arcade-neon-mint" : "border-arcade-border text-gray-200 hover:border-arcade-neon-mint hover:text-arcade-neon-mint"
                   }`}
                 >
                   {p.name}
@@ -369,6 +427,8 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
   const [placed, setPlaced] = useState<Set<number>>(new Set());
   const [dragId, setDragId] = useState<number | null>(null);
   const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
+  const [keyboardPieceId, setKeyboardPieceId] = useState<number | null>(null);
+  const [keyboardCursor, setKeyboardCursor] = useState({ x: W / 2, y: H / 2 });
   const [flash, setFlash] = useState<"ok" | "bad" | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const doneRef = useRef(false);
@@ -388,14 +448,10 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
     setTimeout(() => onMashupComplete!(success), 500);
   }, [onMashupComplete]);
 
-  const handleDrop = useCallback((clientX: number, clientY: number) => {
-    if (dragId === null || !round || !svgRef.current) { setDragId(null); return; }
-    const piece = round.pieces.find((p) => p.id === dragId);
-    setDragId(null);
+  const handlePlacement = useCallback((pieceId: number, x: number, y: number) => {
+    if (!round) return;
+    const piece = round.pieces.find((p) => p.id === pieceId);
     if (!piece) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const x = ((clientX - rect.left) / rect.width) * W;
-    const y = ((clientY - rect.top) / rect.height) * H;
     const tolerance = Math.max(24, Math.max(piece.bw, piece.bh) / 2 + 12);
     const dist = Math.hypot(x - piece.cx, y - piece.cy);
     if (dist <= tolerance) {
@@ -410,7 +466,50 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
       finish(false); // a single mistake ends the boss-rush round
     }
     setTimeout(() => setFlash(null), 350);
-  }, [dragId, round, placed, finish]);
+  }, [round, placed, finish]);
+
+  const handleDrop = useCallback((clientX: number, clientY: number) => {
+    if (dragId === null || !round || !svgRef.current) { setDragId(null); return; }
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * W;
+    const y = ((clientY - rect.top) / rect.height) * H;
+    setDragId(null);
+    handlePlacement(dragId, x, y);
+  }, [dragId, round, handlePlacement]);
+
+  const handleKeyboardControl = useCallback((event: ReactKeyboardEvent<HTMLButtonElement>, pieceId: number) => {
+    if (event.key === "Escape" && keyboardPieceId === pieceId) {
+      event.preventDefault();
+      setKeyboardPieceId(null);
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (keyboardPieceId === pieceId) {
+        handlePlacement(pieceId, keyboardCursor.x, keyboardCursor.y);
+        setKeyboardPieceId(null);
+      } else {
+        setKeyboardPieceId(pieceId);
+        setKeyboardCursor({ x: W / 2, y: H / 2 });
+      }
+      return;
+    }
+    if (keyboardPieceId !== pieceId) return;
+    const step = event.shiftKey ? 80 : 20;
+    const offsets: Record<string, { x: number; y: number }> = {
+      ArrowLeft: { x: -step, y: 0 },
+      ArrowRight: { x: step, y: 0 },
+      ArrowUp: { x: 0, y: -step },
+      ArrowDown: { x: 0, y: step },
+    };
+    const offset = offsets[event.key];
+    if (!offset) return;
+    event.preventDefault();
+    setKeyboardCursor((cursor) => ({
+      x: Math.max(0, Math.min(W, cursor.x + offset.x)),
+      y: Math.max(0, Math.min(H, cursor.y + offset.y)),
+    }));
+  }, [keyboardPieceId, keyboardCursor, handlePlacement]);
 
   useEffect(() => {
     if (dragId === null) return;
@@ -442,6 +541,13 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
         <p className="font-pixel text-[8px] text-gray-500">{placed.size}/{round.pieces.length} {t("igPlaced")} · {t("igNoMisses")}</p>
       </div>
 
+      <p id="tectonic-mashup-keyboard-help" className="font-mono text-xs text-gray-400">
+        {t("igKeyboardInstructions")}
+      </p>
+      <p className="sr-only" aria-live="polite">
+        {keyboardPieceId !== null && t("igKeyboardPosition").replace("{X}", String(Math.round(keyboardCursor.x))).replace("{Y}", String(Math.round(keyboardCursor.y)))}
+      </p>
+
       <div
         className={`relative border transition-colors ${flash === "ok" ? "border-arcade-neon-green" : flash === "bad" ? "border-arcade-neon-red" : "border-arcade-border"}`}
         style={flash === "ok" ? { boxShadow: "0 0 24px #00ff4177" } : flash === "bad" ? { boxShadow: "0 0 24px #ff333377" } : undefined}
@@ -457,6 +563,12 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
               <path key={p.id} d={p.d} fill="#0d1420" stroke="#1a1a2e" strokeWidth={0.8} strokeDasharray="3 3" />
             )
           )}
+          {keyboardPieceId !== null && (
+            <g aria-hidden="true" pointerEvents="none">
+              <circle cx={keyboardCursor.x} cy={keyboardCursor.y} r="12" fill="#00ffa6" fillOpacity="0.18" stroke="#00ffa6" strokeWidth="3" />
+              <circle cx={keyboardCursor.x} cy={keyboardCursor.y} r="2" fill="#00ffa6" />
+            </g>
+          )}
         </svg>
       </div>
 
@@ -466,8 +578,12 @@ function TectonicSnapMashup({ mashupSeed, onMashupComplete }: MashupProps) {
           {trayPieces.map((p) => (
             <button
               key={p.id}
-              onPointerDown={(e) => { e.preventDefault(); setDragId(p.id); setDragPos({ x: e.clientX, y: e.clientY }); }}
-              className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${dragId === p.id ? "border-arcade-neon-mint text-arcade-neon-mint opacity-40" : "border-arcade-border text-gray-200 hover:border-arcade-neon-mint hover:text-arcade-neon-mint"}`}
+              type="button"
+              aria-pressed={keyboardPieceId === p.id}
+              aria-describedby="tectonic-mashup-keyboard-help"
+              onKeyDown={(event) => handleKeyboardControl(event, p.id)}
+              onPointerDown={(e) => { e.preventDefault(); setKeyboardPieceId(null); setDragId(p.id); setDragPos({ x: e.clientX, y: e.clientY }); }}
+              className={`shrink-0 min-h-[40px] px-3 py-2 border bg-arcade-surface font-mono text-sm touch-none cursor-grab transition-colors ${dragId === p.id || keyboardPieceId === p.id ? "border-arcade-neon-mint text-arcade-neon-mint" : "border-arcade-border text-gray-200 hover:border-arcade-neon-mint hover:text-arcade-neon-mint"}`}
             >
               {p.name}
             </button>

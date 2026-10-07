@@ -69,6 +69,12 @@ export function spend(s: TokenState, n: number, nowMs: number): TokenState | nul
   };
 }
 
+/** Reverse a guest-only run cost when a game chunk fails before play begins. */
+export function refundGuestToken(s: TokenState | null, guest: boolean): TokenState | null {
+  if (!guest || !s || s.coins >= TOKEN_CEILING) return null;
+  return { ...s, coins: s.coins + 1 };
+}
+
 /** Milliseconds until the next regenerated token, or null when regen is idle. */
 export function msToNextToken(s: TokenState, nowMs: number): number | null {
   if (!isRegening(s)) return null;

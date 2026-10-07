@@ -1,35 +1,18 @@
 "use client";
 
 import { useState, useMemo, useCallback, useRef } from "react";
-import { Trophy, Skull, Gem } from "lucide-react";
+import { Trophy, Skull } from "lucide-react";
 import type { GameSlug } from "@/store/gameStore";
-import { useCoinStore } from "@/store/coinStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { seededShuffle } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { useT } from "@/lib/i18n";
 import { GAME_REGISTRY, MASHUP_POOL } from "@/lib/games";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
 
 const LADDER = 15;
-
-// Safe-step milestones. Highest tier reached pays out (not cumulative):
-//   beat L15 → 10, reach L10 → 3, reach L5 → 1.
-const MILESTONES = [
-  { min: 10, reward: 3 },
-  { min: 5, reward: 1 },
-] as const;
-const JACKPOT_REWARD = 10;
-
-/** Premium tokens earned. `reachedLevel` = rung the player was on; `won` = beat L15. */
-function payoutFor(reachedLevel: number, won: boolean): number {
-  if (won) return JACKPOT_REWARD;
-  for (const m of MILESTONES) if (reachedLevel >= m.min) return m.reward;
-  return 0;
-}
 
 // The mini-games the boss rush draws from — every game in GAME_REGISTRY that
 // implements the MashupProps contract (src/lib/games.ts is the single source
@@ -55,18 +38,15 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
 
   const [level, setLevel] = useState(1); // 1-based current rung
   const [status, setStatus] = useState<"playing" | "won" | "lost">("playing");
-  const [reward, setReward] = useState(0);
   const savedRef = useRef(false);
 
-  // Persist score + award the premium-token payout, exactly once, at game end.
+  // Persist the reported score exactly once at game end. The browser cannot
+  // verify a run, so it must not authorize a persistent premium-token grant.
   const finish = useCallback((reachedLevel: number, won: boolean) => {
     if (savedRef.current) return;
     savedRef.current = true;
     const cleared = won ? LADDER : reachedLevel - 1;
     saveHighScore("atlas-jackpot", cleared);
-    const payout = payoutFor(reachedLevel, won);
-    setReward(payout);
-    if (payout > 0) useCoinStore.getState().earnPremium(payout);
   }, []);
 
   const handleResult = useCallback((success: boolean) => {
@@ -135,8 +115,6 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
             <div className="border border-arcade-neon-yellow p-8 text-center space-y-3" style={{ boxShadow: "0 0 40px #ffe60055" }}>
               <p className="font-pixel text-sm text-arcade-neon-yellow neon-text-yellow tracking-widest">{t("igJackpot")}</p>
               <p className="font-mono text-lg text-white">{t("igAllStages").replace("{X}", String(LADDER))}</p>
-              <RewardBadge reward={reward} />
-              <DailyPercentile performance={1} />
             </div>
             <EndScreenActions slug="atlas-jackpot" gameTitle="ATLAS JACKPOT" score={LADDER} performance={1} squares={"🟩".repeat(10)} onExit={onExit} />
           </div>
@@ -154,8 +132,6 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
                 <span className="font-pixel text-[8px] text-gray-500">{t("igCleared")}</span>
                 <span className="font-mono text-sm text-white text-right">{cleared} / {LADDER}</span>
               </div>
-              <RewardBadge reward={reward} />
-              <DailyPercentile performance={cleared / LADDER} />
             </div>
             <EndScreenActions
               slug="atlas-jackpot"
@@ -169,18 +145,6 @@ export default function AtlasJackpot({ onExit }: { onExit: () => void }) {
         )}
       </div>
     </div>
-  );
-}
-
-function RewardBadge({ reward }: { reward: number }) {
-  const t = useT();
-  if (reward <= 0) {
-    return <p className="font-pixel text-[7px] text-gray-600 tracking-widest">{t("igNoPremium")}</p>;
-  }
-  return (
-    <p className="flex items-center justify-center gap-2 font-pixel text-[10px] text-arcade-neon-green neon-text-green tracking-widest">
-      <Gem size={12} /> {(reward === 1 ? t("igPremiumToken") : t("igPremiumTokens")).replace("{X}", String(reward))}
-    </p>
   );
 }
 

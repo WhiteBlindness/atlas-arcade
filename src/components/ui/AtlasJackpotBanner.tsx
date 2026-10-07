@@ -1,7 +1,9 @@
 "use client";
 
 import { Trophy, Gem, Lock } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useAuthStore } from "@/store/authStore";
+import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { useCoinStore } from "@/store/coinStore";
 import { ATLAS_JACKPOT_COST } from "@/lib/supabase/coins";
@@ -15,15 +17,36 @@ import { GAME_THEME } from "@/lib/gameTheme";
 export function AtlasJackpotBanner() {
   const { user, openModal } = useAuthStore();
   const startGame = useGameStore((s) => s.startGame);
-  const { spendTokens } = useCoinStore();
+  const spendTokens = useCoinStore((s) => s.spendTokens);
+  const spending = useCoinStore((s) => s.spending);
   const t = useT();
   const a = GAME_THEME["atlas-jackpot"];
+  const [playPending, setPlayPending] = useState(false);
+  const pendingRef = useRef(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const play = async () => {
+    if (pendingRef.current || useCoinStore.getState().spending) return;
+    if (!user) { sfx.click(); openModal("signin"); return; }
+    pendingRef.current = true;
+    setPlayPending(true);
     sfx.click();
-    if (!user) { openModal("signin"); return; }
-    const ok = await spendTokens(ATLAS_JACKPOT_COST);
-    if (ok) startGame("atlas-jackpot", "arcade");
+    try {
+      const ok = await spendTokens(ATLAS_JACKPOT_COST);
+      const currentUser = useAuthStore.getState().user;
+      const currentGame = useGameStore.getState();
+      if (ok && mountedRef.current && pendingRef.current && currentUser?.id === user.id && currentGame.activeGame === null) {
+        startGame("atlas-jackpot", "arcade");
+      }
+    } finally {
+      pendingRef.current = false;
+      if (mountedRef.current) setPlayPending(false);
+    }
     // spendTokens opens the OUT OF TOKENS modal itself when short
   };
 
@@ -32,9 +55,11 @@ export function AtlasJackpotBanner() {
       <button
         type="button"
         onClick={play}
+        disabled={playPending || spending}
+        aria-busy={playPending || spending || undefined}
         aria-label="Atlas Jackpot"
-        className="group relative w-full flex flex-col sm:flex-row items-center gap-5 p-6 sm:p-8 bg-arcade-surface border border-arcade-neon-yellow text-left cursor-pointer active:scale-[0.99] transition-all overflow-hidden"
-        style={{ boxShadow: "0 0 18px #ffe60055, inset 0 0 32px #ffe6000f" }}
+        className="group game-action-card relative w-full flex flex-col sm:flex-row items-center gap-5 p-6 sm:p-8 bg-arcade-surface border border-arcade-neon-yellow text-left cursor-pointer active:scale-[0.99] transition-all overflow-hidden disabled:cursor-wait"
+        style={{ boxShadow: "0 0 18px #ffe60055, inset 0 0 32px #ffe6000f", "--game-action-color": a.actionColor } as CSSProperties}
       >
         {/* corner ticks */}
         <span className="absolute top-0 left-0 w-3 h-3 border-t border-l border-arcade-neon-yellow" />
@@ -51,7 +76,7 @@ export function AtlasJackpotBanner() {
           <h2 className="font-pixel text-sm sm:text-lg text-arcade-neon-yellow neon-text-yellow tracking-widest">
             ATLAS JACKPOT
           </h2>
-          <p className="font-mono text-sm text-gray-400 light:text-arcade-border leading-relaxed">{t("descJackpot")}</p>
+          <p className="font-mono text-sm text-gray-300 light:text-gray-700 leading-relaxed">{t("descJackpot")}</p>
           <p className="font-pixel text-[7px] text-arcade-neon-green tracking-wider flex items-center gap-1 justify-center sm:justify-start">
             <Gem size={9} /> {t("jackpotReward")}
           </p>
@@ -62,7 +87,7 @@ export function AtlasJackpotBanner() {
             {!user && <Lock size={10} />}
             {t("jackpotCost").replace("{X}", String(ATLAS_JACKPOT_COST))}
           </span>
-          <span className={`font-pixel text-[10px] px-4 py-2 border border-arcade-neon-yellow text-arcade-neon-yellow light:text-white ${a.solidLight} group-hover:bg-arcade-neon-yellow group-hover:text-black transition-all`}>
+          <span className={`${a.solidLight} font-pixel text-[10px] px-4 py-2 border border-arcade-neon-yellow text-arcade-neon-yellow light:text-white game-action-fill transition-all`} style={{ "--game-action-color": a.actionColor } as CSSProperties}>
             {user ? t("jackpotEnter") : t("jackpotSignIn")}
           </span>
         </div>

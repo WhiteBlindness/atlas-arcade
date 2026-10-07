@@ -11,7 +11,7 @@ export function GameBackButton({ onExit }: { onExit: () => void }) {
   return (
     <button
       onClick={onExit}
-      className="flex items-center gap-2 min-h-[44px] pr-3 -ml-1 pl-1 font-pixel text-[9px] text-gray-500 hover:text-white active:scale-95 transition-all"
+      className="flex items-center gap-2 min-h-[44px] pr-3 -ml-1 pl-1 font-pixel text-[9px] text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 active:scale-95 transition-all"
     >
       <ArrowLeft size={14} /> {mode === "daily" ? t("home") : t("arcadeWord")}
     </button>

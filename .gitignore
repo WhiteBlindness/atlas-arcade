@@ -47,3 +47,6 @@ start.log
 
 # graphify generated output (knowledge-graph artifacts, not project source)
 /graphify-out/
+# browser test output
+/playwright-report/
+/test-results/

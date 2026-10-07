@@ -6,38 +6,37 @@ product
 
 ## Users
 
-Two overlapping groups, roughly 70/30:
-- **Casual geo-trivia players (majority)**: play 1-2 quick rounds a day via the Daily Challenge, chasing a streak and leaderboard bragging rights. Low commitment, drop in/out in under a minute.
-- **Competitive score-chasers (minority)**: grind Arcade mode for high scores, spend coins across the 12 mini-games, and push toward the Atlas Jackpot boss stage (unlocked at L5·L10·L15).
+Two intended groups share the same shell:
 
-Both groups share one app shell: a game-select grid, a Daily/Arcade mode-select modal per game, in-game HUDs, and a coin economy that gates Arcade attempts.
+- Casual geography players who want a short daily challenge.
+- Players who want repeat arcade rounds, personal high scores and the Atlas Jackpot boss stage.
 
-## Product Purpose
+The product has no verified audience-size or usage-frequency statistics.
 
-A retro arcade cabinet of geography mini-games (GeoRadar, Capital Strike, Flag Frenzy, Peaks & Valleys, Tectonic Snap, Frontier Face-Off, One Strike, Urban Legends, Skyline Silhouette, Border Blitz, Stat Attack, plus the Atlas Jackpot boss stage). Success looks like: a player opens the arcade, immediately reads which game does what and what mode they're in, and gets clean instant feedback on every guess — no dead air, no ambiguity about score or state.
+## Product purpose
 
-## Brand Personality
+Atlas Arcade offers 11 geography mini-games and a boss stage. Players choose a game, select daily or arcade mode, answer geography questions and review their result. The daily sequence uses a UTC-date seed. Arcade coins limit attempts and replenish over time.
 
-Punchy, retro, precise — a real arcade cabinet, not a mobile hyper-casual skin.
-- **Retro / nostalgic**: 80s-90s arcade cabinet, CRT scanlines, pixel font (Press Start 2P + VT323), neon glow on dark.
-- **Punchy / high-energy**: fast feedback, instant score reveals, bold neon accents, confident retro-UI chrome (`[ BUTTON ]` bracket styling, blinking CTAs).
-- **Precise / educational**: geography accuracy is the actual product — real distance-based scoring, real country/city data. The retro skin sits on top of a genuinely accurate geo-quiz engine, never at the expense of it.
-- Accessible by design intent: high-energy does not mean high-risk — no strobe/seizure-triggering effects, ever (see Accessibility).
+## Brand personality
 
-## Anti-references
+The interface follows an arcade cabinet: square controls, CRT scanlines, Press Start 2P labels, VT323 body text and distinct game accents. Keep this identity when fixing usability defects. Avoid rounded mobile-game styling, unrelated gradients, mascots and ad-shaped placeholders.
 
-Explicitly not: generic mobile hyper-casual (bright rounded gradients, cartoon mascots, aggressive ad-style interstitials, Candy-Crush/King-style chrome). Atlas Arcade is a cabinet game, not a gacha app — no forced-cheerful mascots, no gradient-soup buttons, no ad-shaped UI pretending to be content.
+Distance-based scoring and curated geography datasets support the educational theme. Coordinates, borders and statistics have source and age limits; the product does not guarantee exact or current reference data.
 
-## Design Principles
+## Design principles
 
-1. **Instant feedback, always.** Every guess, reveal, and mode transition must read as immediate — no visible network/render lag on the comparison moment (see the Peaks & Valleys image-preload fix as the standard to match elsewhere).
-2. **One accent color per game, used consistently.** Each of the 12 games owns a single neon identity color (already codified in `src/lib/gameTheme.ts`) carried through its card, mode-select modal, and in-game HUD. Yellow is reserved exclusively for Atlas Jackpot.
-3. **Retro chrome, not retro friction.** Pixel fonts and bracket-button styling (`[ PLAY ]`) are the voice; they must never come at the cost of tap targets, readability, or load speed.
-4. **Explicit state, explicit close.** Modals close only via their `X`/`[ CLOSE ]` control, never backdrop click — state changes (mode chosen, coin spent, answer locked) must be deliberate, not accidental.
-5. **High-energy, zero seizure-risk.** Flicker/glitch/blink effects stay subtle and looping at safe, non-strobing rates (see `body::before` flicker, `neonPulse`) — never used as a substitute for real motion design, never fast/high-contrast enough to be a photosensitivity risk.
+1. Give immediate answer feedback from data available during the round. Preload the next comparison image where practical.
+2. Keep one accent per game, shared by the card, mode selector and game interface. Yellow identifies Atlas Jackpot and game coins.
+3. Preserve readable text and visible keyboard focus in both themes. Retro styling must accommodate touch targets and narrow screens.
+4. Require deliberate actions to choose a mode or spend a coin. Explicit close controls and Escape dismiss dialogs; backdrop clicks do not.
+5. Keep essential labels visible. Reduced-motion preferences remove non-essential ambient and decorative animation.
 
-## Accessibility & Inclusion
+## Accessibility and inclusion
 
-- **WCAG AA contrast**: 4.5:1 minimum for body text against its background, in both the dark (default) and light (`.light` class) themes.
-- **No seizure-risk motion**: no strobe, no rapid high-contrast flashing. Existing `flicker`/`blink`/`glitch` effects must stay within safe amplitude/frequency — flagged explicitly by the user as a hard constraint, not a nice-to-have.
-- **Screen reader support**: meaningful `aria-label`s on icon-only controls (already the pattern for close/X buttons), live-region announcements for score/state changes where practical, and no information conveyed by color/animation alone without a text or icon fallback.
+Text contrast targets are at least 4.5:1 for normal text and 3:1 for large text. Important focus indicators target 3:1 against adjacent surfaces. Browser tests verify representative rendered states; these checks do not certify whole-application WCAG conformance.
+
+Icon-only controls need accessible names. Dialogs need names, initial focus, a focus trap and focus restoration. Score and state changes should be announced where useful. Names, text and icons accompany color so players do not depend on a hue alone.
+
+## Trust boundaries
+
+Game coins have no cash value. Guest balances and daily progress live in the browser. Authenticated balance changes require guarded database functions; client-computed outcomes cannot safely authorize persistent rewards. Server-bounded score submissions remain browser-reported results rather than verified gameplay.

@@ -8,7 +8,7 @@ import { todayUTC } from "@/lib/daily";
 export interface DailyResult {
   day: string;          // UTC date the daily was completed
   score: number;
-  performance: number;  // normalized 0..1 (drives the percentile)
+  performance: number;  // Normalized round performance (0..1).
   squares?: string;     // emoji progression for the share text
 }
 

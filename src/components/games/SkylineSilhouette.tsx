@@ -5,9 +5,7 @@ import dynamic from "next/dynamic";
 import { MeshBasicMaterial } from "three";
 import { feature } from "topojson-client";
 
-// Same engine as the GeoRadar globe. The MapLibre globe renders nothing here
-// (blank canvas, no land), which is exactly why GeoRadar was migrated; using
-// react-globe.gl keeps the pin-drop map actually visible.
+// Use the same client-side globe renderer as GeoRadar.
 const Globe = dynamic(() => import("./globle/GlobeInner"), { ssr: false });
 import { CITIES } from "@/data/cities";
 import { CITY_COORDS } from "@/data/cityCoords";
@@ -18,12 +16,10 @@ import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededPick, createSeededRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { useT } from "@/lib/i18n";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
 import type { MashupProps } from "./mashup";
-import "maplibre-gl/dist/maplibre-gl.css";
 
 const REVEAL_MS = 25000;         // silhouette → clear over 25s (slow, dramatic reveal)
 const MAX_POINTS = 5000;
@@ -73,6 +69,62 @@ async function fetchCountries(): Promise<any> {
 
 // Only cities we have coordinates for can be scored.
 const POOL = CITIES.filter((c) => CITY_COORDS[c.id]);
+
+function KeyboardCoordinatePicker({ onSelect }: { onSelect: (lat: number, lng: number) => void }) {
+  const t = useT();
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+
+  return (
+    <details className="absolute z-30 top-2 left-2 right-2">
+      <summary className="flex min-h-[44px] w-fit items-center border border-arcade-neon-white/60 bg-black/85 px-3 font-pixel text-[8px] text-white light:text-white cursor-pointer">
+        {t("skCoordinates")}
+      </summary>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const lat = Number(latitude);
+          const lng = Number(longitude);
+          if (Number.isFinite(lat) && lat >= -90 && lat <= 90 && Number.isFinite(lng) && lng >= -180 && lng <= 180) {
+            onSelect(lat, lng);
+          }
+        }}
+        className="mt-2 grid grid-cols-2 gap-2 border border-arcade-neon-white/60 bg-black/90 p-3"
+      >
+        <label htmlFor="skyline-latitude" className="font-pixel text-[7px] text-white">{t("skLatitude")}</label>
+        <label htmlFor="skyline-longitude" className="font-pixel text-[7px] text-white">{t("skLongitude")}</label>
+        <input
+          id="skyline-latitude"
+          type="number"
+          min="-90"
+          max="90"
+          step="any"
+          required
+          value={latitude}
+          onChange={(event) => setLatitude(event.target.value)}
+          className="min-h-[44px] min-w-0 border border-arcade-border bg-arcade-surface px-2 font-mono text-base text-white light:text-gray-900"
+        />
+        <input
+          id="skyline-longitude"
+          type="number"
+          min="-180"
+          max="180"
+          step="any"
+          required
+          value={longitude}
+          onChange={(event) => setLongitude(event.target.value)}
+          className="min-h-[44px] min-w-0 border border-arcade-border bg-arcade-surface px-2 font-mono text-base text-white light:text-gray-900"
+        />
+        <button
+          type="submit"
+          className="col-span-2 min-h-[44px] border border-arcade-neon-green px-3 font-pixel text-[8px] text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black"
+        >
+          {t("skPlacePin")}
+        </button>
+      </form>
+    </details>
+  );
+}
 
 interface Guess {
   lng: number;
@@ -268,7 +320,7 @@ function SkylineSilhouetteStandalone({ onExit }: { onExit: () => void }) {
           <div className="w-full h-full flex items-center justify-center font-pixel text-[9px] text-gray-600">—</div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <img crossOrigin="anonymous"
             src={city.imageUrl}
             alt="Skyline"
             className="w-full h-full object-cover"
@@ -288,6 +340,7 @@ function SkylineSilhouetteStandalone({ onExit }: { onExit: () => void }) {
           flex column past h-dvh, and under overflow-hidden the canvas ends up
           measured but never painted. */}
       <div ref={mapWrapRef} className="flex-1 min-h-0 w-full relative" style={{ background: CANVAS_BG }}>
+        <KeyboardCoordinatePicker onSelect={placePin} />
         {mapSize.w > 0 && globeH > 0 && geo && (
           <Globe
             globeRef={globeRef}
@@ -365,7 +418,6 @@ function SkylineSilhouetteStandalone({ onExit }: { onExit: () => void }) {
               </p>
               <div className="h-px bg-arcade-border" />
               <p className="font-pixel text-[10px] text-arcade-neon-white neon-text-white">{t("igPtsSplash").replace("{X}", formatNumber(result.points))}</p>
-              <DailyPercentile performance={Math.min(1, result.points / MAX_POINTS)} />
               <EndScreenActions
                 slug="skyline-silhouette"
                 gameTitle="SKYLINE SILHOUETTE"
@@ -466,7 +518,7 @@ function SkylineSilhouetteMashup({ mashupSeed, onMashupComplete }: MashupProps) 
           <div className="w-full h-full flex items-center justify-center font-pixel text-[9px] text-gray-600">—</div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <img crossOrigin="anonymous"
             src={city.imageUrl}
             alt="Skyline"
             className="w-full h-full object-cover"
@@ -482,6 +534,7 @@ function SkylineSilhouetteMashup({ mashupSeed, onMashupComplete }: MashupProps) 
       </div>
 
       <div className="flex-1 min-h-0 w-full relative" style={{ background: CANVAS_BG }}>
+        <KeyboardCoordinatePicker onSelect={placePin} />
         {mapSize.w > 0 && mapSize.h > 0 && geo && (
           <Globe
             globeRef={globeRef}

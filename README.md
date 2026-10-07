@@ -1,65 +1,60 @@
 # Atlas Arcade
 
-Geography mini-games and a boss stage, in a retro arcade cabinet.
+Onze minijogos de geografia e o desafio Atlas Jackpot, numa recreativa com estética retro.
 
-**Live:** https://atlasarcade.app
+[Jogar Atlas Arcade](https://atlasarcade.app)
 
-**Status:** Live. Verified on September 27, 2026.
+O Atlas Arcade está publicado. Os convidados podem jogar sem conta. A Supabase suporta autenticação, perfis, recordes e convites. Os desafios diários usam uma sequência determinada pela data UTC; o modo recreativa usa fichas que se regeneram. As fichas diárias e premium não têm valor monetário e não existe um percurso de compra.
 
-The game list includes GeoRadar, Capital Strike, Flag Frenzy, Peaks & Valleys, Tectonic Snap, Frontier Face-Off, One Strike, Urban Legends, Skyline Silhouette, Border Blitz, and Stat Attack. **Atlas Jackpot** is a boss stage that unlocks at levels 5, 10, and 15.
+## Produto e engenharia
 
-## Motivation
+Os jogos abrangem países, capitais, bandeiras, altitude, fronteiras, cidades e estatísticas geográficas. Um registo partilhado alimenta a grelha de jogos, a seleção de modos e o conjunto do Jackpot. O Zustand gere o estado da sessão e as preferências do navegador; funções puras mantêm as regras de pontuação e regeneração separadas da interface.
 
-Online geography quizzes often take one of two routes. Educational games can feel like school, while polished casual games can use approximate scoring or outdated facts. Wordle showed that a daily puzzle can be quick, shared, and worth returning to because it is limited.
+O sistema visual usa tipografia pixelizada, controlos quadrados e uma cor por jogo. Cores explícitas de texto e fundo mantêm a legibilidade dos cartões nos estados de passagem do rato, foco e pressão, nos dois temas. Os diálogos suportam teclado; os testes Playwright e axe abrangem a estrutura partilhada. A preferência por movimento reduzido desativa animações decorativas.
 
-Atlas Arcade combines a daily puzzle, an arcade-style game loop, and a quiz engine based on real geography data. Its games cover location, names, elevation, skylines, and borders.
+Os componentes dos jogos carregam quando são necessários. O globo usa react-globe.gl e three.js. Peaks & Valleys pré-carrega a fotografia da comparação seguinte durante a ronda atual; a revelação usa os dados disponíveis. As imagens e os mapas externos continuam dependentes dos fornecedores e da ligação.
 
-## The idea
+## Tecnologias
 
-The CRT skin is the surface. Underneath is a quiz engine that takes geography seriously: real distance-based scoring against real country and city data, no approximations dressed up as difficulty. The retro styling never gets to cost accuracy, and it never gets to cost tap targets or load speed either.
+Next.js App Router, React, TypeScript, Zustand, Supabase, Tailwind, react-globe.gl, three.js, Press Start 2P e VT323. A Vercel aloja a aplicação, que disponibiliza textos dos jogos em inglês, português e espanhol.
 
-Every game runs in one of two modes. **Daily Challenge** is the same puzzle worldwide, seeded by UTC date, with streaks and leaderboard rankings. **Arcade** allows unlimited play for score and uses a coin economy that refills over time. The daily challenge stays limited, while extended play remains optional.
+## Executar localmente
 
-## Problems worth solving
-
-**One shell for every game.** A change to the mode selector should not require edits in each game. The game-select grid, Daily/Arcade modal, HUD frame, scoring reveal, and coin spend each live in one shared shell. A game supplies its round logic and accent color through `gameTheme.ts`.
-
-**The comparison moment cannot lag.** In a guessing game, the instant between locking an answer and seeing the result is the entire product. Peaks & Valleys shipped with a visible stall there, because the comparison image was fetched at reveal time. Preloading it during the guess phase fixed that game and set the standard the others are held to: no network work on the reveal path, ever.
-
-**Dark theme without a flash.** The arcade is dark by default and saves the user's choice, so the theme must be applied to `<html>` before first paint. Otherwise, each load starts with a white flash. A synchronous inline script runs before hydration. `layout.tsx` documents the React setup and two warnings in this Next.js fork that isolation testing found cannot be fixed in application code.
-
-**An energy economy that respects the player.** Arcade play is gated by coins, and the balance is easy to get wrong in the greedy direction. The rules (`src/lib/tokens.ts`): hold at most 5, regenerate 1 every 2 hours while below the ceiling, at most 10 granted per UTC day, reset at UTC midnight alongside the daily challenge. Crucially the same model runs for guests in localStorage and for signed-in players in Supabase, so nobody is punished for not having an account.
-
-**High-energy visuals with limits.** Retro visuals can include flicker, glitch, and neon. Those effects can pose photosensitivity risks, so each is limited in intensity and frequency. The game never relies on color or motion alone to convey information.
-
-## Design rules the code enforces
-
-These aren't style preferences, they're constraints checked during review:
-
-- **Zero border-radius**, anywhere. Elevation is glow, never a drop shadow.
-- **One neon accent per game**, defined once in `src/lib/gameTheme.ts` and carried through the game's card, its mode-select modal and its in-game HUD. Yellow belongs to Atlas Jackpot alone.
-- **Modals require an explicit close action.** Use the `X` or `[ CLOSE ]` control. A backdrop click never closes a modal. Spending a coin or locking an answer should require intent.
-- **No strobe. Ever.** The flicker, blink and glitch effects stay low-amplitude and slow. High-energy must not mean photosensitivity risk, and WCAG AA contrast holds in both the dark and light themes.
-
-Full visual system in `DESIGN.md`, product intent in `PRODUCT.md`.
-
-## Stack
-
-Next.js App Router · TypeScript · Zustand for game state · Supabase for auth, profiles, leaderboards and referrals · MapLibre GL and react-globe.gl / three.js for the map and globe games · Tailwind · Press Start 2P + VT323
-
-Deployed on Vercel. UI is localized through `src/lib/i18n.ts`.
-
-## Running it
+Usar Node.js 24 e npm:
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-A Supabase project is optional. To enable sign-in, leaderboards, and referral bonuses, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`, then apply the files in `supabase/migrations/` in filename order. Anonymous play works without Supabase.
+Definir `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` em `.env.local`. O cliente inicializa a Supabase também nas sessões de convidados; jogar sem conta não exige registo. A pasta de migrações não constitui uma instalação completa de um projeto novo. A estrutura de teste reproduz o catálogo das tabelas e funções da aplicação, mas não todo o sistema Supabase Auth.
 
-Country data is regenerated with `node scripts/fetchCountries.mjs`.
+Os dados dos países são regenerados com `node scripts/fetchCountries.mjs`.
 
-## Note on the fork
+## Verificações
 
-This project uses a Next.js version with breaking API changes. Read `node_modules/next/dist/docs/` instead of assuming upstream conventions. See `AGENTS.md` for project guidance.
+```bash
+npm test
+npx tsc --noEmit
+npm run lint
+npm run build
+npx playwright install chromium
+npm run test:e2e
+npm run test:e2e:live
+npm audit
+npm audit --omit=dev
+```
+
+Os testes de navegador usam um serviço de teste isolado. A verificação pública lê o site numa sessão limpa e não envia dados de contas ou pontuações. Os testes de contraste usam as cores calculadas pelo navegador; as capturas complementam as asserções.
+
+`npm run test:db` exige `ATLAS_TEST_DB_PORT` de uma instância PostgreSQL local e, se necessário, `ATLAS_TEST_DB_PASSWORD`. Aceita apenas a interface de rede local e cria e remove a sua própria base temporária. Testa permissões, migração, criação e remoção de contas, além de transações concorrentes. A CI executa esta verificação com PostgreSQL 17. O percurso `npm run test:auth:local` exige a aplicação e serviços reais Auth/PostgREST locais já configurados; os requisitos estão na [validação Supabase](docs/audit/remote-supabase-validation.md). A matriz dos clientes antigo e novo usa `npm run test:rollout:local`, com a base isolada em cada fase do [procedimento](docs/audit/supabase-rollout.md).
+
+## Dados, conteúdos e limites
+
+O rodapé dá acesso à privacidade, às condições, à informação de armazenamento e aos créditos. A [proveniência](docs/asset-provenance.md) regista licenças e obrigações por imagem. As estatísticas e coordenadas são dados selecionados para os jogos; alguns valores são arredondados ou podem ficar desatualizados.
+
+A proteção de saldos, pontuações e convites usa uma publicação em três passos: expansão compatível da base, publicação do cliente e bloqueio das escritas antigas. Os ficheiros e critérios de aborto estão no [procedimento Supabase](docs/audit/supabase-rollout.md). A produção aguarda aprovação separada para cada passo; este ramo desativa a publicação automática Vercel. As pontuações continuam declaradas pelo navegador e os prémios do Jackpot calculados no cliente não autorizam fichas numa conta.
+
+A identidade pública do responsável, o contacto de privacidade, os fundamentos jurídicos e os prazos de retenção continuam por definir. A remoção da conta elimina os dados associados pelas relações verificadas na base; não estabelece os prazos dos registos técnicos ou das cópias de segurança. Os testes selecionados não certificam a acessibilidade integral nem todos os direitos sobre conteúdos externos.
+
+As [regras de design](DESIGN.md) e a [intenção do produto](PRODUCT.md) descrevem a interface. Antes de alterar APIs do Next.js, consultar os guias da versão instalada em `node_modules/next/dist/docs/`.

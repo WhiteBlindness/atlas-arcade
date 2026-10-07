@@ -4,12 +4,18 @@ import { useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { useCoinStore } from "@/store/coinStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { storeReferralCode, redeemPendingReferral } from "@/lib/supabase/profile";
 import { toast } from "@/store/toastStore";
 import { useT } from "@/lib/i18n";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const t = useT();
+  const lang = useSettingsStore((state) => state.lang);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   const setUser = useAuthStore((s) => s.setUser);
   const loadCoins = useCoinStore((s) => s.load);
   const resetCoins = useCoinStore((s) => s.reset);

@@ -5,6 +5,7 @@ import { X, Trophy } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useT } from "@/lib/i18n";
 import { formatNumber } from "@/lib/utils";
+import { useDialogFocus } from "@/components/ui/useDialogFocus";
 
 interface Row {
   username: string;
@@ -32,6 +33,7 @@ const MEDAL = ["🥇", "🥈", "🥉"];
 export function LeaderboardModal() {
   const { leaderboardOpen, closeLeaderboard } = useAuthStore();
   const t = useT();
+  const dialogRef = useDialogFocus<HTMLDivElement>(leaderboardOpen, closeLeaderboard);
   const [slug, setSlug] = useState("globle");
   const [rows, setRows] = useState<Row[]>([]);
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
@@ -61,12 +63,12 @@ export function LeaderboardModal() {
   // No backdrop-click-to-close — matches AuthModal. Only the X button closes it.
   return (
     <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-      <div className="relative w-full max-w-md max-h-[85dvh] flex flex-col bg-arcade-surface border border-arcade-neon-yellow shadow-neon-yellow p-6 modal-enter">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="leaderboard-title" tabIndex={-1} className="relative w-full max-w-md max-h-[85dvh] flex flex-col bg-arcade-surface border border-arcade-neon-yellow shadow-neon-yellow p-6 modal-enter">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="flex items-center gap-2 font-pixel text-xs text-arcade-neon-yellow neon-text-yellow tracking-wider">
+          <h2 id="leaderboard-title" className="flex items-center gap-2 font-pixel text-xs text-arcade-neon-yellow neon-text-yellow tracking-wider">
             <Trophy size={14} /> {t("lbTitle")}
           </h2>
-          <button onClick={closeLeaderboard} aria-label={t("closeLabel")} className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-500 hover:text-white active:scale-90 transition-all">
+          <button onClick={closeLeaderboard} aria-label={t("closeLabel")} data-dialog-initial-focus className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-300 light:text-gray-700 hover:text-white active:scale-90 transition-all">
             <X size={18} />
           </button>
         </div>
@@ -77,10 +79,10 @@ export function LeaderboardModal() {
             <button
               key={g.slug}
               onClick={() => setSlug(g.slug)}
-              className={`shrink-0 px-3 py-1.5 font-pixel text-[8px] border transition-colors ${
+              className={`shrink-0 min-h-[44px] px-3 py-1.5 font-pixel text-[8px] border transition-colors ${
                 slug === g.slug
                   ? "border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow"
-                  : "border-arcade-border text-gray-500 hover:text-gray-300"
+                  : "border-arcade-border text-gray-300 light:text-gray-700 hover:text-gray-300"
               }`}
             >
               {g.title}
@@ -89,13 +91,13 @@ export function LeaderboardModal() {
         </div>
 
         {/* Column header */}
-        <div className="flex items-center justify-between px-3 pb-1 font-pixel text-[7px] text-gray-600 tracking-widest shrink-0">
+        <div className="flex items-center justify-between px-3 pb-1 font-pixel text-[7px] text-gray-300 light:text-gray-700 tracking-widest shrink-0">
           <span>{t("lbPlayer")}</span>
           <span>{t("lbPoints")}</span>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto border border-arcade-border">
+        <div role="region" aria-label={t("lbTitle")} tabIndex={0} className="flex-1 overflow-y-auto border border-arcade-border">
           {status === "loading" && (
             <p className="font-pixel text-[9px] text-arcade-neon-yellow animate-blink text-center py-10">{t("authLoading")}</p>
           )}
@@ -103,13 +105,13 @@ export function LeaderboardModal() {
             <p className="font-mono text-sm text-arcade-neon-red text-center py-10 px-4">{t("lbError")}</p>
           )}
           {status === "ok" && rows.length === 0 && (
-            <p className="font-mono text-sm text-gray-600 text-center py-10">{t("lbEmpty")}</p>
+            <p className="font-mono text-sm text-gray-300 light:text-gray-700 text-center py-10">{t("lbEmpty")}</p>
           )}
           {status === "ok" && rows.map((r, i) => (
             <div key={`${r.username}-${i}`} className="flex items-center justify-between px-3 py-2 border-b border-arcade-border last:border-b-0">
               <span className="flex items-center gap-2 min-w-0">
-                <span className="font-pixel text-[9px] text-gray-500 w-6 shrink-0">{MEDAL[i] ?? `${i + 1}.`}</span>
-                <span className="font-mono text-sm text-gray-200 truncate">{r.username}</span>
+                <span className="font-pixel text-[9px] text-gray-300 light:text-gray-700 w-6 shrink-0">{MEDAL[i] ?? `${i + 1}.`}</span>
+                <span className="font-mono text-sm text-gray-300 light:text-gray-700 truncate">{r.username}</span>
               </span>
               <span className="font-pixel text-[10px] text-arcade-neon-yellow neon-text-yellow shrink-0">{formatNumber(r.score)}</span>
             </div>

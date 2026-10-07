@@ -9,7 +9,6 @@ import { saveHighScore } from "@/lib/supabase/scores";
 import { seededShuffle, gameRng, createSeededRng } from "@/lib/daily";
 import { sfx } from "@/lib/sfx";
 import { useT, type TKey } from "@/lib/i18n";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -101,8 +100,7 @@ function StatAttackStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[9px] text-arcade-neon-red neon-text-red">{t("gameOver")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-pink neon-text-pink">{formatNumber(score)}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("saRounds").replace("{X}", formatNumber(score))}</p>
-          <DailyPercentile performance={Math.min(1, score / 15)} />
-        </div>
+</div>
         <EndScreenActions
           slug="stat-attack"
           gameTitle="STAT ATTACK"

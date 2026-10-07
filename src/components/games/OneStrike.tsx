@@ -10,7 +10,6 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -82,8 +81,8 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
   const { addScore } = useGameStore();
   const pool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
   // persistent rng: in daily mode the whole question sequence is shared globally
-  const rngRef = useRef<Rng>(gameRng("one-strike", useGameStore.getState().mode));
-  const [question, setQuestion] = useState<Question>(() => makeQuestion(pool, rngRef.current));
+  const [sessionRng] = useState<Rng>(() => gameRng("one-strike", useGameStore.getState().mode));
+  const [question, setQuestion] = useState<Question>(() => makeQuestion(pool, sessionRng));
   const [streak, setStreak] = useState(0);
   const [score, setScore] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
@@ -118,12 +117,12 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
     const id = setTimeout(() => {
       if (!wasCorrect) setStatus("done");
       else {
-        setQuestion(makeQuestion(pool, rngRef.current));
+        setQuestion(makeQuestion(pool, sessionRng));
         setChosen(null);
       }
     }, wasCorrect ? 500 : 1400);
     return () => clearTimeout(id);
-  }, [isAnswered, chosen, question, pool]);
+  }, [isAnswered, chosen, question, pool, sessionRng]);
 
   useEffect(() => {
     if (status === "done" && !scoreSavedRef.current) {
@@ -154,8 +153,7 @@ function OneStrikeStandalone({ onExit }: { onExit: () => void }) {
           <Skull size={28} className="mx-auto text-arcade-neon-red" />
           <p className="font-pixel text-[8px] text-gray-500">{t("igSurvived").replace("{X}", String(streak))}</p>
           <p className="font-pixel text-4xl text-arcade-neon-red neon-text-red">{score}</p>
-          <DailyPercentile performance={Math.min(1, streak / 15)} />
-        </div>
+</div>
         <EndScreenActions
           slug="one-strike"
           gameTitle="ONE STRIKE"

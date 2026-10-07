@@ -7,7 +7,6 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { createDailyRng, createSeededRng, seededShuffle, seededPick, type Rng } from "@/lib/daily";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -72,7 +71,7 @@ function SkylineImage({ city }: { city: CityEntry }) {
   return (
     <div className="relative w-full h-full overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <img crossOrigin="anonymous"
         src={city.imageUrl}
         alt="Mystery city"
         className="w-full h-full object-cover"
@@ -192,8 +191,7 @@ function UrbanLegendsStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">{t("finalScore")}</p>
           <p className="font-pixel text-4xl text-arcade-neon-magenta neon-text-magenta">{score}</p>
           <p className="font-pixel text-[8px] text-gray-500">{t("igCities").replace("{X}", String(ROUNDS))} · {tier ? t(TIER_KEY[tier]) : ""}</p>
-          <DailyPercentile performance={tier ? score / (ROUNDS * CLUE_POINTS[0] * TIER_MULTIPLIER[tier]) : 0} />
-        </div>
+</div>
         <EndScreenActions
           slug="urban-legends"
           gameTitle="URBAN LEGENDS"

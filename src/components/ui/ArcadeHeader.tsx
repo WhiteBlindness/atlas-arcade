@@ -27,15 +27,16 @@ export function ArcadeHeader() {
     <header className="flex flex-nowrap justify-between items-center gap-x-2 sm:gap-x-4 px-3 sm:px-6 py-3 sm:py-4 border-b border-arcade-border w-full max-w-full overflow-hidden">
       <div className="shrink-0">
         <h1 className="font-pixel text-xs sm:text-sm text-arcade-neon-cyan neon-text-cyan tracking-widest">ATLAS</h1>
-        <p className="font-pixel text-[7px] sm:text-[8px] text-gray-500 mt-1 tracking-wider">ARCADE</p>
+        <p className="font-pixel text-[7px] sm:text-[8px] text-gray-400 light:text-gray-600 mt-1 tracking-wider">ARCADE</p>
       </div>
 
-      <div className="flex items-center flex-nowrap justify-end gap-1.5 sm:gap-4 min-w-0 overflow-x-auto scrollbar-hide">
+      <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-4 min-w-0">
+        <div className="flex shrink-0 items-center border-r border-arcade-border pr-1 sm:pr-2">
         {/* Language switcher — compact globe on mobile, full EN|PT|ES on desktop */}
         <button
           onClick={cycleLang}
           aria-label="Change language"
-          className="sm:hidden shrink-0 flex items-center gap-1 min-h-[40px] px-1 text-gray-400 hover:text-arcade-neon-green active:scale-90 transition-all duration-200"
+          className="sm:hidden shrink-0 flex min-w-[44px] min-h-[44px] items-center justify-center gap-1 px-1 text-gray-400 light:text-gray-600 hover:text-arcade-neon-green active:scale-90 transition-all duration-200"
         >
           <Globe size={15} />
           <span className="font-pixel text-[9px]">{lang.toUpperCase()}</span>
@@ -47,8 +48,8 @@ export function ArcadeHeader() {
               <button
                 onClick={() => { setLang(l); sfx.click(); }}
                 aria-pressed={lang === l}
-                className={`font-pixel text-[9px] px-0.5 py-1 transition-colors ${
-                  lang === l ? "text-arcade-neon-green neon-text-green" : "text-gray-600 hover:text-gray-300"
+                  className={`min-w-[44px] min-h-[44px] px-2 font-pixel text-[9px] transition-colors ${
+                  lang === l ? "text-arcade-neon-green neon-text-green" : "text-gray-400 light:text-gray-600 hover:text-gray-300 light:hover:text-gray-700"
                 }`}
               >
                 {l.toUpperCase()}
@@ -56,7 +57,9 @@ export function ArcadeHeader() {
             </span>
           ))}
         </div>
+        </div>
 
+        <div className="flex flex-1 items-center flex-nowrap justify-end gap-1.5 sm:gap-4 min-w-0 overflow-x-auto scrollbar-hide">
         {/* Daily streak */}
         {streak > 0 && (
           <div className="flex shrink-0 items-center gap-1 px-1.5 sm:px-2 py-1 sm:py-1.5 border border-arcade-neon-red/60" title="Daily challenge streak">
@@ -101,7 +104,7 @@ export function ArcadeHeader() {
           onClick={() => { openLeaderboard(); sfx.click(); }}
           title="Leaderboard"
           aria-label="Leaderboard"
-          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all duration-200"
+          className="shrink-0 w-11 h-11 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all duration-200"
         >
           <Trophy size={17} />
         </button>
@@ -111,7 +114,7 @@ export function ArcadeHeader() {
           onClick={() => { toggleTheme(); sfx.click(); }}
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          className="shrink-0 w-10 h-10 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all duration-200"
+          className="shrink-0 w-11 h-11 flex items-center justify-center text-arcade-neon-yellow hover:text-arcade-neon-cyan active:scale-90 transition-all duration-200"
         >
           {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
         </button>
@@ -121,7 +124,7 @@ export function ArcadeHeader() {
           onClick={() => { toggleSound(); if (!sound) sfx.click(); }}
           title={sound ? "Sound on" : "Sound off"}
           aria-label={sound ? "Mute sound" : "Unmute sound"}
-          className={`shrink-0 w-10 h-10 flex items-center justify-center active:scale-90 transition-all duration-200 ${sound ? "text-arcade-neon-cyan" : "text-gray-700 hover:text-gray-400"}`}
+          className={`shrink-0 w-11 h-11 flex items-center justify-center active:scale-90 transition-all duration-200 ${sound ? "text-arcade-neon-cyan" : "text-gray-400 light:text-gray-600 hover:text-gray-300 light:hover:text-gray-700"}`}
         >
           {sound ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>
@@ -132,14 +135,14 @@ export function ArcadeHeader() {
             <button
               onClick={() => { openProfile(); sfx.click(); }}
               aria-label="Open profile"
-              className="flex items-center gap-2 text-gray-400 min-w-0 hover:text-arcade-neon-green active:scale-95 transition-all duration-200"
+              className="flex min-h-[44px] min-w-[44px] items-center gap-2 text-gray-400 light:text-gray-600 hover:text-arcade-neon-green active:scale-95 transition-all duration-200"
             >
               <User size={13} className="shrink-0" />
               <span className="hidden sm:inline font-mono text-xs text-arcade-neon-green neon-text-green truncate max-w-[120px]">
                 {user.user_metadata?.username ?? user.email?.split("@")[0]}
               </span>
             </button>
-            <button onClick={() => { sfx.click(); signOut(); }} className="flex items-center gap-1 text-gray-500 hover:text-arcade-neon-red transition-colors" title="Sign out">
+            <button onClick={() => { sfx.click(); signOut(); }} className="flex min-w-[44px] min-h-[44px] items-center justify-center gap-1 text-gray-400 light:text-gray-600 hover:text-arcade-neon-red transition-colors" title="Sign out">
               <LogOut size={14} />
             </button>
           </div>
@@ -149,19 +152,20 @@ export function ArcadeHeader() {
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
               aria-label={t("insertCoin")}
-              className="sm:hidden shrink-0 flex items-center justify-center w-10 h-10 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 active:bg-current/30 transition-all duration-200"
+              className="sm:hidden shrink-0 flex items-center justify-center w-11 h-11 border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-90 active:bg-current/30 transition-all duration-200"
             >
               <LogIn size={16} />
             </button>
             {/* Desktop: full label */}
             <button
               onClick={() => { openModal("signin"); sfx.click(); }}
-              className="hidden sm:block font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200 whitespace-nowrap"
+              className="hidden sm:block min-h-[44px] font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow neon-text-yellow px-3 py-2 hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200 whitespace-nowrap"
             >
               {t("insertCoin")}
             </button>
           </>
         )}
+        </div>
       </div>
     </header>
   );
