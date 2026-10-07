@@ -1,0 +1,2990 @@
+[
+  {
+    "code": "AF",
+    "numeric": 4,
+    "name": {
+      "en": "Afghanistan",
+      "pt": "Afeganistão",
+      "es": "Afganistán"
+    },
+    "lat": 33,
+    "lng": 65,
+    "population": 37172386
+  },
+  {
+    "code": "AX",
+    "numeric": 248,
+    "name": {
+      "en": "Åland Islands",
+      "pt": "Alândia",
+      "es": "Alandia"
+    },
+    "lat": 60.116667,
+    "lng": 19.9,
+    "population": null
+  },
+  {
+    "code": "AL",
+    "numeric": 8,
+    "name": {
+      "en": "Albania",
+      "pt": "Albânia",
+      "es": "Albania"
+    },
+    "lat": 41,
+    "lng": 20,
+    "population": 2866376
+  },
+  {
+    "code": "DZ",
+    "numeric": 12,
+    "name": {
+      "en": "Algeria",
+      "pt": "Argélia",
+      "es": "Argelia"
+    },
+    "lat": 28,
+    "lng": 3,
+    "population": 42228429
+  },
+  {
+    "code": "AS",
+    "numeric": 16,
+    "name": {
+      "en": "American Samoa",
+      "pt": "Samoa Americana",
+      "es": "Samoa Americana"
+    },
+    "lat": -14.33333333,
+    "lng": -170,
+    "population": 55465
+  },
+  {
+    "code": "AD",
+    "numeric": 20,
+    "name": {
+      "en": "Andorra",
+      "pt": "Andorra",
+      "es": "Andorra"
+    },
+    "lat": 42.5,
+    "lng": 1.5,
+    "population": 77006
+  },
+  {
+    "code": "AO",
+    "numeric": 24,
+    "name": {
+      "en": "Angola",
+      "pt": "Angola",
+      "es": "Angola"
+    },
+    "lat": -12.5,
+    "lng": 18.5,
+    "population": 30809762
+  },
+  {
+    "code": "AI",
+    "numeric": 660,
+    "name": {
+      "en": "Anguilla",
+      "pt": "Anguilla",
+      "es": "Anguilla"
+    },
+    "lat": 18.25,
+    "lng": -63.16666666,
+    "population": 15094
+  },
+  {
+    "code": "AQ",
+    "numeric": 10,
+    "name": {
+      "en": "Antarctica",
+      "pt": "Antártida",
+      "es": "Antártida"
+    },
+    "lat": -90,
+    "lng": 0,
+    "population": 1106
+  },
+  {
+    "code": "AG",
+    "numeric": 28,
+    "name": {
+      "en": "Antigua and Barbuda",
+      "pt": "Antígua e Barbuda",
+      "es": "Antigua y Barbuda"
+    },
+    "lat": 17.05,
+    "lng": -61.8,
+    "population": 96286
+  },
+  {
+    "code": "AR",
+    "numeric": 32,
+    "name": {
+      "en": "Argentina",
+      "pt": "Argentina",
+      "es": "Argentina"
+    },
+    "lat": -34,
+    "lng": -64,
+    "population": 44494502
+  },
+  {
+    "code": "AM",
+    "numeric": 51,
+    "name": {
+      "en": "Armenia",
+      "pt": "Arménia",
+      "es": "Armenia"
+    },
+    "lat": 40,
+    "lng": 45,
+    "population": 2951776
+  },
+  {
+    "code": "AW",
+    "numeric": 533,
+    "name": {
+      "en": "Aruba",
+      "pt": "Aruba",
+      "es": "Aruba"
+    },
+    "lat": 12.5,
+    "lng": -69.96666666,
+    "population": 105845
+  },
+  {
+    "code": "AU",
+    "numeric": 36,
+    "name": {
+      "en": "Australia",
+      "pt": "Austrália",
+      "es": "Australia"
+    },
+    "lat": -27,
+    "lng": 133,
+    "population": 24982688
+  },
+  {
+    "code": "AT",
+    "numeric": 40,
+    "name": {
+      "en": "Austria",
+      "pt": "Áustria",
+      "es": "Austria"
+    },
+    "lat": 47.33333333,
+    "lng": 13.33333333,
+    "population": 8840521
+  },
+  {
+    "code": "AZ",
+    "numeric": 31,
+    "name": {
+      "en": "Azerbaijan",
+      "pt": "Azerbeijão",
+      "es": "Azerbaiyán"
+    },
+    "lat": 40.5,
+    "lng": 47.5,
+    "population": 9939800
+  },
+  {
+    "code": "BS",
+    "numeric": 44,
+    "name": {
+      "en": "Bahamas",
+      "pt": "Bahamas",
+      "es": "Bahamas"
+    },
+    "lat": 24.25,
+    "lng": -76,
+    "population": 385640
+  },
+  {
+    "code": "BH",
+    "numeric": 48,
+    "name": {
+      "en": "Bahrain",
+      "pt": "Bahrein",
+      "es": "Bahrein"
+    },
+    "lat": 26,
+    "lng": 50.55,
+    "population": 1569439
+  },
+  {
+    "code": "BD",
+    "numeric": 50,
+    "name": {
+      "en": "Bangladesh",
+      "pt": "Bangladesh",
+      "es": "Bangladesh"
+    },
+    "lat": 24,
+    "lng": 90,
+    "population": 161356039
+  },
+  {
+    "code": "BB",
+    "numeric": 52,
+    "name": {
+      "en": "Barbados",
+      "pt": "Barbados",
+      "es": "Barbados"
+    },
+    "lat": 13.16666666,
+    "lng": -59.53333333,
+    "population": 286641
+  },
+  {
+    "code": "BY",
+    "numeric": 112,
+    "name": {
+      "en": "Belarus",
+      "pt": "Bielorússia",
+      "es": "Bielorrusia"
+    },
+    "lat": 53,
+    "lng": 28,
+    "population": 9483499
+  },
+  {
+    "code": "BE",
+    "numeric": 56,
+    "name": {
+      "en": "Belgium",
+      "pt": "Bélgica",
+      "es": "Bélgica"
+    },
+    "lat": 50.83333333,
+    "lng": 4,
+    "population": 11433256
+  },
+  {
+    "code": "BZ",
+    "numeric": 84,
+    "name": {
+      "en": "Belize",
+      "pt": "Belize",
+      "es": "Belice"
+    },
+    "lat": 17.25,
+    "lng": -88.75,
+    "population": 383071
+  },
+  {
+    "code": "BJ",
+    "numeric": 204,
+    "name": {
+      "en": "Benin",
+      "pt": "Benin",
+      "es": "Benín"
+    },
+    "lat": 9.5,
+    "lng": 2.25,
+    "population": 11485048
+  },
+  {
+    "code": "BM",
+    "numeric": 60,
+    "name": {
+      "en": "Bermuda",
+      "pt": "Bermudas",
+      "es": "Bermudas"
+    },
+    "lat": 32.33333333,
+    "lng": -64.75,
+    "population": 63973
+  },
+  {
+    "code": "BT",
+    "numeric": 64,
+    "name": {
+      "en": "Bhutan",
+      "pt": "Butão",
+      "es": "Bután"
+    },
+    "lat": 27.5,
+    "lng": 90.5,
+    "population": 754394
+  },
+  {
+    "code": "BO",
+    "numeric": 68,
+    "name": {
+      "en": "Bolivia",
+      "pt": "Bolívia",
+      "es": "Bolivia"
+    },
+    "lat": -17,
+    "lng": -65,
+    "population": 11353142
+  },
+  {
+    "code": "BA",
+    "numeric": 70,
+    "name": {
+      "en": "Bosnia and Herzegovina",
+      "pt": "Bósnia e Herzegovina",
+      "es": "Bosnia y Herzegovina"
+    },
+    "lat": 44,
+    "lng": 18,
+    "population": 3323929
+  },
+  {
+    "code": "BW",
+    "numeric": 72,
+    "name": {
+      "en": "Botswana",
+      "pt": "Botswana",
+      "es": "Botswana"
+    },
+    "lat": -22,
+    "lng": 24,
+    "population": 2254126
+  },
+  {
+    "code": "BV",
+    "numeric": 74,
+    "name": {
+      "en": "Bouvet Island",
+      "pt": "Ilha Bouvet",
+      "es": "Isla Bouvet"
+    },
+    "lat": -54.43333333,
+    "lng": 3.4,
+    "population": 0
+  },
+  {
+    "code": "BR",
+    "numeric": 76,
+    "name": {
+      "en": "Brazil",
+      "pt": "Brasil",
+      "es": "Brasil"
+    },
+    "lat": -10,
+    "lng": -55,
+    "population": 209469333
+  },
+  {
+    "code": "IO",
+    "numeric": 86,
+    "name": {
+      "en": "British Indian Ocean Territory",
+      "pt": "Território Britânico do Oceano Índico",
+      "es": "Territorio Británico del Océano Índico"
+    },
+    "lat": -6,
+    "lng": 71.5,
+    "population": 0
+  },
+  {
+    "code": "VG",
+    "numeric": 92,
+    "name": {
+      "en": "British Virgin Islands",
+      "pt": "Ilhas Virgens",
+      "es": "Islas Vírgenes del Reino Unido"
+    },
+    "lat": 18.431383,
+    "lng": -64.62305,
+    "population": 29802
+  },
+  {
+    "code": "BN",
+    "numeric": 96,
+    "name": {
+      "en": "Brunei",
+      "pt": "Brunei",
+      "es": "Brunei"
+    },
+    "lat": 4.5,
+    "lng": 114.66666666,
+    "population": 428962
+  },
+  {
+    "code": "BG",
+    "numeric": 100,
+    "name": {
+      "en": "Bulgaria",
+      "pt": "Bulgária",
+      "es": "Bulgaria"
+    },
+    "lat": 43,
+    "lng": 25,
+    "population": 7025037
+  },
+  {
+    "code": "BF",
+    "numeric": 854,
+    "name": {
+      "en": "Burkina Faso",
+      "pt": "Burkina Faso",
+      "es": "Burkina Faso"
+    },
+    "lat": 13,
+    "lng": -2,
+    "population": 19751535
+  },
+  {
+    "code": "BI",
+    "numeric": 108,
+    "name": {
+      "en": "Burundi",
+      "pt": "Burundi",
+      "es": "Burundi"
+    },
+    "lat": -3.5,
+    "lng": 30,
+    "population": 11175378
+  },
+  {
+    "code": "KH",
+    "numeric": 116,
+    "name": {
+      "en": "Cambodia",
+      "pt": "Camboja",
+      "es": "Camboya"
+    },
+    "lat": 13,
+    "lng": 105,
+    "population": 16249798
+  },
+  {
+    "code": "CM",
+    "numeric": 120,
+    "name": {
+      "en": "Cameroon",
+      "pt": "Camarões",
+      "es": "Camerún"
+    },
+    "lat": 6,
+    "lng": 12,
+    "population": 25216237
+  },
+  {
+    "code": "CA",
+    "numeric": 124,
+    "name": {
+      "en": "Canada",
+      "pt": "Canadá",
+      "es": "Canadá"
+    },
+    "lat": 60,
+    "lng": -95,
+    "population": 37057765
+  },
+  {
+    "code": "CV",
+    "numeric": 132,
+    "name": {
+      "en": "Cape Verde",
+      "pt": "Cabo Verde",
+      "es": "Cabo Verde"
+    },
+    "lat": 16,
+    "lng": -24,
+    "population": 525000
+  },
+  {
+    "code": "BQ",
+    "numeric": 535,
+    "name": {
+      "en": "Caribbean Netherlands",
+      "pt": "Países Baixos Caribenhos",
+      "es": "Caribe Neerlandés"
+    },
+    "lat": 12.18,
+    "lng": -68.25,
+    "population": null
+  },
+  {
+    "code": "KY",
+    "numeric": 136,
+    "name": {
+      "en": "Cayman Islands",
+      "pt": "Ilhas Caimão",
+      "es": "Islas Caimán"
+    },
+    "lat": 19.5,
+    "lng": -80.5,
+    "population": 64174
+  },
+  {
+    "code": "CF",
+    "numeric": 140,
+    "name": {
+      "en": "Central African Republic",
+      "pt": "República Centro-Africana",
+      "es": "República Centroafricana"
+    },
+    "lat": 7,
+    "lng": 21,
+    "population": 4666377
+  },
+  {
+    "code": "TD",
+    "numeric": 148,
+    "name": {
+      "en": "Chad",
+      "pt": "Chade",
+      "es": "Chad"
+    },
+    "lat": 15,
+    "lng": 19,
+    "population": 15477751
+  },
+  {
+    "code": "CL",
+    "numeric": 152,
+    "name": {
+      "en": "Chile",
+      "pt": "Chile",
+      "es": "Chile"
+    },
+    "lat": -30,
+    "lng": -71,
+    "population": 18729160
+  },
+  {
+    "code": "CN",
+    "numeric": 156,
+    "name": {
+      "en": "China",
+      "pt": "China",
+      "es": "China"
+    },
+    "lat": 35,
+    "lng": 105,
+    "population": 1392730000
+  },
+  {
+    "code": "CX",
+    "numeric": 162,
+    "name": {
+      "en": "Christmas Island",
+      "pt": "Ilha do Natal",
+      "es": "Isla de Navidad"
+    },
+    "lat": -10.5,
+    "lng": 105.66666666,
+    "population": 1402
+  },
+  {
+    "code": "CC",
+    "numeric": 166,
+    "name": {
+      "en": "Cocos (Keeling) Islands",
+      "pt": "Ilhas Cocos (Keeling)",
+      "es": "Islas Cocos o Islas Keeling"
+    },
+    "lat": -12.5,
+    "lng": 96.83333333,
+    "population": 596
+  },
+  {
+    "code": "CO",
+    "numeric": 170,
+    "name": {
+      "en": "Colombia",
+      "pt": "Colômbia",
+      "es": "Colombia"
+    },
+    "lat": 4,
+    "lng": -72,
+    "population": 49648685
+  },
+  {
+    "code": "KM",
+    "numeric": 174,
+    "name": {
+      "en": "Comoros",
+      "pt": "Comores",
+      "es": "Comoras"
+    },
+    "lat": -12.16666666,
+    "lng": 44.25,
+    "population": 832322
+  },
+  {
+    "code": "CG",
+    "numeric": 178,
+    "name": {
+      "en": "Congo",
+      "pt": "Congo",
+      "es": "Congo"
+    },
+    "lat": -1,
+    "lng": 15,
+    "population": 5244363
+  },
+  {
+    "code": "CK",
+    "numeric": 184,
+    "name": {
+      "en": "Cook Islands",
+      "pt": "Ilhas Cook",
+      "es": "Islas Cook"
+    },
+    "lat": -21.23333333,
+    "lng": -159.76666666,
+    "population": 17379
+  },
+  {
+    "code": "CR",
+    "numeric": 188,
+    "name": {
+      "en": "Costa Rica",
+      "pt": "Costa Rica",
+      "es": "Costa Rica"
+    },
+    "lat": 10,
+    "lng": -84,
+    "population": 4999441
+  },
+  {
+    "code": "HR",
+    "numeric": 191,
+    "name": {
+      "en": "Croatia",
+      "pt": "Croácia",
+      "es": "Croacia"
+    },
+    "lat": 45.16666666,
+    "lng": 15.5,
+    "population": 4087843
+  },
+  {
+    "code": "CU",
+    "numeric": 192,
+    "name": {
+      "en": "Cuba",
+      "pt": "Cuba",
+      "es": "Cuba"
+    },
+    "lat": 21.5,
+    "lng": -80,
+    "population": 11338138
+  },
+  {
+    "code": "CW",
+    "numeric": 531,
+    "name": {
+      "en": "Curaçao",
+      "pt": "ilha da Curação",
+      "es": "Curazao"
+    },
+    "lat": 12.116667,
+    "lng": -68.933333,
+    "population": null
+  },
+  {
+    "code": "CY",
+    "numeric": 196,
+    "name": {
+      "en": "Cyprus",
+      "pt": "Chipre",
+      "es": "Chipre"
+    },
+    "lat": 35,
+    "lng": 33,
+    "population": 1189265
+  },
+  {
+    "code": "CZ",
+    "numeric": 203,
+    "name": {
+      "en": "Czechia",
+      "pt": "Chéquia",
+      "es": "Chequia"
+    },
+    "lat": 49.75,
+    "lng": 15.5,
+    "population": 10629928
+  },
+  {
+    "code": "DK",
+    "numeric": 208,
+    "name": {
+      "en": "Denmark",
+      "pt": "Dinamarca",
+      "es": "Dinamarca"
+    },
+    "lat": 56,
+    "lng": 10,
+    "population": 5793636
+  },
+  {
+    "code": "DJ",
+    "numeric": 262,
+    "name": {
+      "en": "Djibouti",
+      "pt": "Djibouti",
+      "es": "Djibouti"
+    },
+    "lat": 11.5,
+    "lng": 43,
+    "population": 958920
+  },
+  {
+    "code": "DM",
+    "numeric": 212,
+    "name": {
+      "en": "Dominica",
+      "pt": "Dominica",
+      "es": "Dominica"
+    },
+    "lat": 15.41666666,
+    "lng": -61.33333333,
+    "population": 71625
+  },
+  {
+    "code": "DO",
+    "numeric": 214,
+    "name": {
+      "en": "Dominican Republic",
+      "pt": "República Dominicana",
+      "es": "República Dominicana"
+    },
+    "lat": 19,
+    "lng": -70.66666666,
+    "population": 10627165
+  },
+  {
+    "code": "CD",
+    "numeric": 180,
+    "name": {
+      "en": "DR Congo",
+      "pt": "República Democrática do Congo",
+      "es": "Congo (Rep. Dem.)"
+    },
+    "lat": 0,
+    "lng": 25,
+    "population": 102000000
+  },
+  {
+    "code": "EC",
+    "numeric": 218,
+    "name": {
+      "en": "Ecuador",
+      "pt": "Equador",
+      "es": "Ecuador"
+    },
+    "lat": -2,
+    "lng": -77.5,
+    "population": 17084357
+  },
+  {
+    "code": "EG",
+    "numeric": 818,
+    "name": {
+      "en": "Egypt",
+      "pt": "Egito",
+      "es": "Egipto"
+    },
+    "lat": 27,
+    "lng": 30,
+    "population": 98423595
+  },
+  {
+    "code": "SV",
+    "numeric": 222,
+    "name": {
+      "en": "El Salvador",
+      "pt": "El Salvador",
+      "es": "El Salvador"
+    },
+    "lat": 13.83333333,
+    "lng": -88.91666666,
+    "population": 6420744
+  },
+  {
+    "code": "GQ",
+    "numeric": 226,
+    "name": {
+      "en": "Equatorial Guinea",
+      "pt": "Guiné Equatorial",
+      "es": "Guinea Ecuatorial"
+    },
+    "lat": 2,
+    "lng": 10,
+    "population": 1308974
+  },
+  {
+    "code": "ER",
+    "numeric": 232,
+    "name": {
+      "en": "Eritrea",
+      "pt": "Eritreia",
+      "es": "Eritrea"
+    },
+    "lat": 15,
+    "lng": 39,
+    "population": 6213972
+  },
+  {
+    "code": "EE",
+    "numeric": 233,
+    "name": {
+      "en": "Estonia",
+      "pt": "Estónia",
+      "es": "Estonia"
+    },
+    "lat": 59,
+    "lng": 26,
+    "population": 1321977
+  },
+  {
+    "code": "SZ",
+    "numeric": 748,
+    "name": {
+      "en": "Eswatini",
+      "pt": "Essuatíni",
+      "es": "Esuatini"
+    },
+    "lat": -26.5,
+    "lng": 31.5,
+    "population": 1136191
+  },
+  {
+    "code": "ET",
+    "numeric": 231,
+    "name": {
+      "en": "Ethiopia",
+      "pt": "Etiópia",
+      "es": "Etiopía"
+    },
+    "lat": 8,
+    "lng": 38,
+    "population": 109224559
+  },
+  {
+    "code": "FK",
+    "numeric": 238,
+    "name": {
+      "en": "Falkland Islands",
+      "pt": "Ilhas Malvinas",
+      "es": "Islas Malvinas"
+    },
+    "lat": -51.75,
+    "lng": -59,
+    "population": 2840
+  },
+  {
+    "code": "FO",
+    "numeric": 234,
+    "name": {
+      "en": "Faroe Islands",
+      "pt": "Ilhas Faroé",
+      "es": "Islas Faroe"
+    },
+    "lat": 62,
+    "lng": -7,
+    "population": 48497
+  },
+  {
+    "code": "FJ",
+    "numeric": 242,
+    "name": {
+      "en": "Fiji",
+      "pt": "Fiji",
+      "es": "Fiyi"
+    },
+    "lat": -18,
+    "lng": 175,
+    "population": 924000
+  },
+  {
+    "code": "FI",
+    "numeric": 246,
+    "name": {
+      "en": "Finland",
+      "pt": "Finlândia",
+      "es": "Finlandia"
+    },
+    "lat": 64,
+    "lng": 26,
+    "population": 5515525
+  },
+  {
+    "code": "FR",
+    "numeric": 250,
+    "name": {
+      "en": "France",
+      "pt": "França",
+      "es": "Francia"
+    },
+    "lat": 46,
+    "lng": 2,
+    "population": 66977107
+  },
+  {
+    "code": "GF",
+    "numeric": 254,
+    "name": {
+      "en": "French Guiana",
+      "pt": "Guiana Francesa",
+      "es": "Guayana Francesa"
+    },
+    "lat": 4,
+    "lng": -53,
+    "population": 290691
+  },
+  {
+    "code": "PF",
+    "numeric": 258,
+    "name": {
+      "en": "French Polynesia",
+      "pt": "Polinésia Francesa",
+      "es": "Polinesia Francesa"
+    },
+    "lat": -15,
+    "lng": -140,
+    "population": 277679
+  },
+  {
+    "code": "TF",
+    "numeric": 260,
+    "name": {
+      "en": "French Southern and Antarctic Lands",
+      "pt": "Terras Austrais e Antárticas Francesas",
+      "es": "Tierras Australes y Antárticas Francesas"
+    },
+    "lat": -49.25,
+    "lng": 69.167,
+    "population": 0
+  },
+  {
+    "code": "GA",
+    "numeric": 266,
+    "name": {
+      "en": "Gabon",
+      "pt": "Gabão",
+      "es": "Gabón"
+    },
+    "lat": -1,
+    "lng": 11.75,
+    "population": 2119275
+  },
+  {
+    "code": "GM",
+    "numeric": 270,
+    "name": {
+      "en": "Gambia",
+      "pt": "Gâmbia",
+      "es": "Gambia"
+    },
+    "lat": 13.46666666,
+    "lng": -16.56666666,
+    "population": 2280102
+  },
+  {
+    "code": "GE",
+    "numeric": 268,
+    "name": {
+      "en": "Georgia",
+      "pt": "Geórgia",
+      "es": "Georgia"
+    },
+    "lat": 42,
+    "lng": 43.5,
+    "population": 3726549
+  },
+  {
+    "code": "DE",
+    "numeric": 276,
+    "name": {
+      "en": "Germany",
+      "pt": "Alemanha",
+      "es": "Alemania"
+    },
+    "lat": 51,
+    "lng": 9,
+    "population": 82905782
+  },
+  {
+    "code": "GH",
+    "numeric": 288,
+    "name": {
+      "en": "Ghana",
+      "pt": "Gana",
+      "es": "Ghana"
+    },
+    "lat": 8,
+    "lng": -2,
+    "population": 29767108
+  },
+  {
+    "code": "GI",
+    "numeric": 292,
+    "name": {
+      "en": "Gibraltar",
+      "pt": "Gibraltar",
+      "es": "Gibraltar"
+    },
+    "lat": 36.13333333,
+    "lng": -5.35,
+    "population": 33718
+  },
+  {
+    "code": "GR",
+    "numeric": 300,
+    "name": {
+      "en": "Greece",
+      "pt": "Grécia",
+      "es": "Grecia"
+    },
+    "lat": 39,
+    "lng": 22,
+    "population": 10731726
+  },
+  {
+    "code": "GL",
+    "numeric": 304,
+    "name": {
+      "en": "Greenland",
+      "pt": "Gronelândia",
+      "es": "Groenlandia"
+    },
+    "lat": 72,
+    "lng": -40,
+    "population": 56025
+  },
+  {
+    "code": "GD",
+    "numeric": 308,
+    "name": {
+      "en": "Grenada",
+      "pt": "Granada",
+      "es": "Grenada"
+    },
+    "lat": 12.11666666,
+    "lng": -61.66666666,
+    "population": 111454
+  },
+  {
+    "code": "GP",
+    "numeric": 312,
+    "name": {
+      "en": "Guadeloupe",
+      "pt": "Guadalupe",
+      "es": "Guadalupe"
+    },
+    "lat": 16.25,
+    "lng": -61.583333,
+    "population": 395700
+  },
+  {
+    "code": "GU",
+    "numeric": 316,
+    "name": {
+      "en": "Guam",
+      "pt": "Guam",
+      "es": "Guam"
+    },
+    "lat": 13.46666666,
+    "lng": 144.78333333,
+    "population": 165768
+  },
+  {
+    "code": "GT",
+    "numeric": 320,
+    "name": {
+      "en": "Guatemala",
+      "pt": "Guatemala",
+      "es": "Guatemala"
+    },
+    "lat": 15.5,
+    "lng": -90.25,
+    "population": 17247807
+  },
+  {
+    "code": "GG",
+    "numeric": 831,
+    "name": {
+      "en": "Guernsey",
+      "pt": "Guernsey",
+      "es": "Guernsey"
+    },
+    "lat": 49.46666666,
+    "lng": -2.58333333,
+    "population": null
+  },
+  {
+    "code": "GN",
+    "numeric": 324,
+    "name": {
+      "en": "Guinea",
+      "pt": "Guiné",
+      "es": "Guinea"
+    },
+    "lat": 11,
+    "lng": -10,
+    "population": 12414318
+  },
+  {
+    "code": "GW",
+    "numeric": 624,
+    "name": {
+      "en": "Guinea-Bissau",
+      "pt": "Guiné-Bissau",
+      "es": "Guinea-Bisáu"
+    },
+    "lat": 12,
+    "lng": -15,
+    "population": 1874309
+  },
+  {
+    "code": "GY",
+    "numeric": 328,
+    "name": {
+      "en": "Guyana",
+      "pt": "Guiana",
+      "es": "Guyana"
+    },
+    "lat": 5,
+    "lng": -59,
+    "population": 779004
+  },
+  {
+    "code": "HT",
+    "numeric": 332,
+    "name": {
+      "en": "Haiti",
+      "pt": "Haiti",
+      "es": "Haití"
+    },
+    "lat": 19,
+    "lng": -72.41666666,
+    "population": 11123176
+  },
+  {
+    "code": "HM",
+    "numeric": 334,
+    "name": {
+      "en": "Heard Island and McDonald Islands",
+      "pt": "Ilha Heard e Ilhas McDonald",
+      "es": "Islas Heard y McDonald"
+    },
+    "lat": -53.1,
+    "lng": 72.51666666,
+    "population": 0
+  },
+  {
+    "code": "HN",
+    "numeric": 340,
+    "name": {
+      "en": "Honduras",
+      "pt": "Honduras",
+      "es": "Honduras"
+    },
+    "lat": 15,
+    "lng": -86.5,
+    "population": 9587522
+  },
+  {
+    "code": "HK",
+    "numeric": 344,
+    "name": {
+      "en": "Hong Kong",
+      "pt": "Hong Kong",
+      "es": "Hong Kong"
+    },
+    "lat": 22.267,
+    "lng": 114.188,
+    "population": 7451000
+  },
+  {
+    "code": "HU",
+    "numeric": 348,
+    "name": {
+      "en": "Hungary",
+      "pt": "Hungria",
+      "es": "Hungría"
+    },
+    "lat": 47,
+    "lng": 20,
+    "population": 9775564
+  },
+  {
+    "code": "IS",
+    "numeric": 352,
+    "name": {
+      "en": "Iceland",
+      "pt": "Islândia",
+      "es": "Islandia"
+    },
+    "lat": 65,
+    "lng": -18,
+    "population": 352721
+  },
+  {
+    "code": "IN",
+    "numeric": 356,
+    "name": {
+      "en": "India",
+      "pt": "Índia",
+      "es": "India"
+    },
+    "lat": 20,
+    "lng": 77,
+    "population": 1352617328
+  },
+  {
+    "code": "ID",
+    "numeric": 360,
+    "name": {
+      "en": "Indonesia",
+      "pt": "Indonésia",
+      "es": "Indonesia"
+    },
+    "lat": -5,
+    "lng": 120,
+    "population": 267663435
+  },
+  {
+    "code": "IR",
+    "numeric": 364,
+    "name": {
+      "en": "Iran",
+      "pt": "Irão",
+      "es": "Iran"
+    },
+    "lat": 32,
+    "lng": 53,
+    "population": 81800269
+  },
+  {
+    "code": "IQ",
+    "numeric": 368,
+    "name": {
+      "en": "Iraq",
+      "pt": "Iraque",
+      "es": "Irak"
+    },
+    "lat": 33,
+    "lng": 44,
+    "population": 38433600
+  },
+  {
+    "code": "IE",
+    "numeric": 372,
+    "name": {
+      "en": "Ireland",
+      "pt": "Irlanda",
+      "es": "Irlanda"
+    },
+    "lat": 53,
+    "lng": -8,
+    "population": 4867309
+  },
+  {
+    "code": "IM",
+    "numeric": 833,
+    "name": {
+      "en": "Isle of Man",
+      "pt": "Ilha de Man",
+      "es": "Isla de Man"
+    },
+    "lat": 54.25,
+    "lng": -4.5,
+    "population": null
+  },
+  {
+    "code": "IL",
+    "numeric": 376,
+    "name": {
+      "en": "Israel",
+      "pt": "Israel",
+      "es": "Israel"
+    },
+    "lat": 31.47,
+    "lng": 35.13,
+    "population": 8882800
+  },
+  {
+    "code": "IT",
+    "numeric": 380,
+    "name": {
+      "en": "Italy",
+      "pt": "Itália",
+      "es": "Italia"
+    },
+    "lat": 42.83333333,
+    "lng": 12.83333333,
+    "population": 60421760
+  },
+  {
+    "code": "CI",
+    "numeric": 384,
+    "name": {
+      "en": "Ivory Coast",
+      "pt": "Costa do Marfim",
+      "es": "Costa de Marfil"
+    },
+    "lat": 8,
+    "lng": -5,
+    "population": 25069229
+  },
+  {
+    "code": "JM",
+    "numeric": 388,
+    "name": {
+      "en": "Jamaica",
+      "pt": "Jamaica",
+      "es": "Jamaica"
+    },
+    "lat": 18.25,
+    "lng": -77.5,
+    "population": 2934855
+  },
+  {
+    "code": "JP",
+    "numeric": 392,
+    "name": {
+      "en": "Japan",
+      "pt": "Japão",
+      "es": "Japón"
+    },
+    "lat": 36,
+    "lng": 138,
+    "population": 126529100
+  },
+  {
+    "code": "JE",
+    "numeric": 832,
+    "name": {
+      "en": "Jersey",
+      "pt": "Jersey",
+      "es": "Jersey"
+    },
+    "lat": 49.25,
+    "lng": -2.16666666,
+    "population": null
+  },
+  {
+    "code": "JO",
+    "numeric": 400,
+    "name": {
+      "en": "Jordan",
+      "pt": "Jordânia",
+      "es": "Jordania"
+    },
+    "lat": 31,
+    "lng": 36,
+    "population": 9956011
+  },
+  {
+    "code": "KZ",
+    "numeric": 398,
+    "name": {
+      "en": "Kazakhstan",
+      "pt": "Cazaquistão",
+      "es": "Kazajistán"
+    },
+    "lat": 48,
+    "lng": 68,
+    "population": 18272430
+  },
+  {
+    "code": "KE",
+    "numeric": 404,
+    "name": {
+      "en": "Kenya",
+      "pt": "Quénia",
+      "es": "Kenia"
+    },
+    "lat": 1,
+    "lng": 38,
+    "population": 51393010
+  },
+  {
+    "code": "KI",
+    "numeric": 296,
+    "name": {
+      "en": "Kiribati",
+      "pt": "Kiribati",
+      "es": "Kiribati"
+    },
+    "lat": 1.41666666,
+    "lng": 173,
+    "population": 115847
+  },
+  {
+    "code": "KW",
+    "numeric": 414,
+    "name": {
+      "en": "Kuwait",
+      "pt": "Kuwait",
+      "es": "Kuwait"
+    },
+    "lat": 29.5,
+    "lng": 45.75,
+    "population": 4137309
+  },
+  {
+    "code": "KG",
+    "numeric": 417,
+    "name": {
+      "en": "Kyrgyzstan",
+      "pt": "Quirguistão",
+      "es": "Kirguizistán"
+    },
+    "lat": 41,
+    "lng": 75,
+    "population": 6322800
+  },
+  {
+    "code": "LA",
+    "numeric": 418,
+    "name": {
+      "en": "Laos",
+      "pt": "Laos",
+      "es": "Laos"
+    },
+    "lat": 18,
+    "lng": 105,
+    "population": 7061507
+  },
+  {
+    "code": "LV",
+    "numeric": 428,
+    "name": {
+      "en": "Latvia",
+      "pt": "Letónia",
+      "es": "Letonia"
+    },
+    "lat": 57,
+    "lng": 25,
+    "population": 1927174
+  },
+  {
+    "code": "LB",
+    "numeric": 422,
+    "name": {
+      "en": "Lebanon",
+      "pt": "Líbano",
+      "es": "Líbano"
+    },
+    "lat": 33.83333333,
+    "lng": 35.83333333,
+    "population": 6848925
+  },
+  {
+    "code": "LS",
+    "numeric": 426,
+    "name": {
+      "en": "Lesotho",
+      "pt": "Lesoto",
+      "es": "Lesotho"
+    },
+    "lat": -29.5,
+    "lng": 28.5,
+    "population": 2108132
+  },
+  {
+    "code": "LR",
+    "numeric": 430,
+    "name": {
+      "en": "Liberia",
+      "pt": "Libéria",
+      "es": "Liberia"
+    },
+    "lat": 6.5,
+    "lng": -9.5,
+    "population": 4818977
+  },
+  {
+    "code": "LY",
+    "numeric": 434,
+    "name": {
+      "en": "Libya",
+      "pt": "Líbia",
+      "es": "Libia"
+    },
+    "lat": 25,
+    "lng": 17,
+    "population": 6678567
+  },
+  {
+    "code": "LI",
+    "numeric": 438,
+    "name": {
+      "en": "Liechtenstein",
+      "pt": "Liechtenstein",
+      "es": "Liechtenstein"
+    },
+    "lat": 47.26666666,
+    "lng": 9.53333333,
+    "population": 37910
+  },
+  {
+    "code": "LT",
+    "numeric": 440,
+    "name": {
+      "en": "Lithuania",
+      "pt": "Lituânia",
+      "es": "Lituania"
+    },
+    "lat": 56,
+    "lng": 24,
+    "population": 2801543
+  },
+  {
+    "code": "LU",
+    "numeric": 442,
+    "name": {
+      "en": "Luxembourg",
+      "pt": "Luxemburgo",
+      "es": "Luxemburgo"
+    },
+    "lat": 49.75,
+    "lng": 6.16666666,
+    "population": 607950
+  },
+  {
+    "code": "MO",
+    "numeric": 446,
+    "name": {
+      "en": "Macau",
+      "pt": "Macau",
+      "es": "Macao"
+    },
+    "lat": 22.16666666,
+    "lng": 113.55,
+    "population": 631636
+  },
+  {
+    "code": "MG",
+    "numeric": 450,
+    "name": {
+      "en": "Madagascar",
+      "pt": "Madagáscar",
+      "es": "Madagascar"
+    },
+    "lat": -20,
+    "lng": 47,
+    "population": 26262368
+  },
+  {
+    "code": "MW",
+    "numeric": 454,
+    "name": {
+      "en": "Malawi",
+      "pt": "Malawi",
+      "es": "Malawi"
+    },
+    "lat": -13.5,
+    "lng": 34,
+    "population": 18143315
+  },
+  {
+    "code": "MY",
+    "numeric": 458,
+    "name": {
+      "en": "Malaysia",
+      "pt": "Malásia",
+      "es": "Malasia"
+    },
+    "lat": 2.5,
+    "lng": 112.5,
+    "population": 31528585
+  },
+  {
+    "code": "MV",
+    "numeric": 462,
+    "name": {
+      "en": "Maldives",
+      "pt": "Maldivas",
+      "es": "Maldivas"
+    },
+    "lat": 3.25,
+    "lng": 73,
+    "population": 515696
+  },
+  {
+    "code": "ML",
+    "numeric": 466,
+    "name": {
+      "en": "Mali",
+      "pt": "Mali",
+      "es": "Mali"
+    },
+    "lat": 17,
+    "lng": -4,
+    "population": 19077690
+  },
+  {
+    "code": "MT",
+    "numeric": 470,
+    "name": {
+      "en": "Malta",
+      "pt": "Malta",
+      "es": "Malta"
+    },
+    "lat": 35.83333333,
+    "lng": 14.58333333,
+    "population": 484630
+  },
+  {
+    "code": "MH",
+    "numeric": 584,
+    "name": {
+      "en": "Marshall Islands",
+      "pt": "Ilhas Marshall",
+      "es": "Islas Marshall"
+    },
+    "lat": 9,
+    "lng": 168,
+    "population": 58413
+  },
+  {
+    "code": "MQ",
+    "numeric": 474,
+    "name": {
+      "en": "Martinique",
+      "pt": "Martinica",
+      "es": "Martinica"
+    },
+    "lat": 14.666667,
+    "lng": -61,
+    "population": 376480
+  },
+  {
+    "code": "MR",
+    "numeric": 478,
+    "name": {
+      "en": "Mauritania",
+      "pt": "Mauritânia",
+      "es": "Mauritania"
+    },
+    "lat": 20,
+    "lng": -12,
+    "population": 4403319
+  },
+  {
+    "code": "MU",
+    "numeric": 480,
+    "name": {
+      "en": "Mauritius",
+      "pt": "Maurício",
+      "es": "Mauricio"
+    },
+    "lat": -20.28333333,
+    "lng": 57.55,
+    "population": 1265303
+  },
+  {
+    "code": "YT",
+    "numeric": 175,
+    "name": {
+      "en": "Mayotte",
+      "pt": "Mayotte",
+      "es": "Mayotte"
+    },
+    "lat": -12.83333333,
+    "lng": 45.16666666,
+    "population": 270372
+  },
+  {
+    "code": "MX",
+    "numeric": 484,
+    "name": {
+      "en": "Mexico",
+      "pt": "México",
+      "es": "México"
+    },
+    "lat": 23,
+    "lng": -102,
+    "population": 126190788
+  },
+  {
+    "code": "FM",
+    "numeric": 583,
+    "name": {
+      "en": "Micronesia",
+      "pt": "Micronésia",
+      "es": "Micronesia"
+    },
+    "lat": 6.91666666,
+    "lng": 158.25,
+    "population": 112640
+  },
+  {
+    "code": "MD",
+    "numeric": 498,
+    "name": {
+      "en": "Moldova",
+      "pt": "Moldávia",
+      "es": "Moldavia"
+    },
+    "lat": 47,
+    "lng": 29,
+    "population": 2706049
+  },
+  {
+    "code": "MC",
+    "numeric": 492,
+    "name": {
+      "en": "Monaco",
+      "pt": "Mónaco",
+      "es": "Mónaco"
+    },
+    "lat": 43.73333333,
+    "lng": 7.4,
+    "population": 38682
+  },
+  {
+    "code": "MN",
+    "numeric": 496,
+    "name": {
+      "en": "Mongolia",
+      "pt": "Mongólia",
+      "es": "Mongolia"
+    },
+    "lat": 46,
+    "lng": 105,
+    "population": 3170208
+  },
+  {
+    "code": "ME",
+    "numeric": 499,
+    "name": {
+      "en": "Montenegro",
+      "pt": "Montenegro",
+      "es": "Montenegro"
+    },
+    "lat": 42.5,
+    "lng": 19.3,
+    "population": 631219
+  },
+  {
+    "code": "MS",
+    "numeric": 500,
+    "name": {
+      "en": "Montserrat",
+      "pt": "Montserrat",
+      "es": "Montserrat"
+    },
+    "lat": 16.75,
+    "lng": -62.2,
+    "population": 5900
+  },
+  {
+    "code": "MA",
+    "numeric": 504,
+    "name": {
+      "en": "Morocco",
+      "pt": "Marrocos",
+      "es": "Marruecos"
+    },
+    "lat": 32,
+    "lng": -5,
+    "population": 36029138
+  },
+  {
+    "code": "MZ",
+    "numeric": 508,
+    "name": {
+      "en": "Mozambique",
+      "pt": "Moçambique",
+      "es": "Mozambique"
+    },
+    "lat": -18.25,
+    "lng": 35,
+    "population": 29495962
+  },
+  {
+    "code": "MM",
+    "numeric": 104,
+    "name": {
+      "en": "Myanmar",
+      "pt": "Myanmar",
+      "es": "Myanmar"
+    },
+    "lat": 22,
+    "lng": 98,
+    "population": 53708395
+  },
+  {
+    "code": "NA",
+    "numeric": 516,
+    "name": {
+      "en": "Namibia",
+      "pt": "Namíbia",
+      "es": "Namibia"
+    },
+    "lat": -22,
+    "lng": 17,
+    "population": 2448255
+  },
+  {
+    "code": "NR",
+    "numeric": 520,
+    "name": {
+      "en": "Nauru",
+      "pt": "Nauru",
+      "es": "Nauru"
+    },
+    "lat": -0.53333333,
+    "lng": 166.91666666,
+    "population": 12704
+  },
+  {
+    "code": "NP",
+    "numeric": 524,
+    "name": {
+      "en": "Nepal",
+      "pt": "Nepal",
+      "es": "Nepal"
+    },
+    "lat": 28,
+    "lng": 84,
+    "population": 28087871
+  },
+  {
+    "code": "NL",
+    "numeric": 528,
+    "name": {
+      "en": "Netherlands",
+      "pt": "Holanda",
+      "es": "Países Bajos"
+    },
+    "lat": 52.5,
+    "lng": 5.75,
+    "population": 17231624
+  },
+  {
+    "code": "NC",
+    "numeric": 540,
+    "name": {
+      "en": "New Caledonia",
+      "pt": "Nova Caledónia",
+      "es": "Nueva Caledonia"
+    },
+    "lat": -21.5,
+    "lng": 165.5,
+    "population": 284060
+  },
+  {
+    "code": "NZ",
+    "numeric": 554,
+    "name": {
+      "en": "New Zealand",
+      "pt": "Nova Zelândia",
+      "es": "Nueva Zelanda"
+    },
+    "lat": -41,
+    "lng": 174,
+    "population": 4841000
+  },
+  {
+    "code": "NI",
+    "numeric": 558,
+    "name": {
+      "en": "Nicaragua",
+      "pt": "Nicarágua",
+      "es": "Nicaragua"
+    },
+    "lat": 13,
+    "lng": -85,
+    "population": 6465513
+  },
+  {
+    "code": "NE",
+    "numeric": 562,
+    "name": {
+      "en": "Niger",
+      "pt": "Níger",
+      "es": "Níger"
+    },
+    "lat": 16,
+    "lng": 8,
+    "population": 22442948
+  },
+  {
+    "code": "NG",
+    "numeric": 566,
+    "name": {
+      "en": "Nigeria",
+      "pt": "Nigéria",
+      "es": "Nigeria"
+    },
+    "lat": 10,
+    "lng": 8,
+    "population": 195874740
+  },
+  {
+    "code": "NU",
+    "numeric": 570,
+    "name": {
+      "en": "Niue",
+      "pt": "Niue",
+      "es": "Niue"
+    },
+    "lat": -19.03333333,
+    "lng": -169.86666666,
+    "population": 1624
+  },
+  {
+    "code": "NF",
+    "numeric": 574,
+    "name": {
+      "en": "Norfolk Island",
+      "pt": "Ilha Norfolk",
+      "es": "Isla de Norfolk"
+    },
+    "lat": -29.03333333,
+    "lng": 167.95,
+    "population": 2169
+  },
+  {
+    "code": "KP",
+    "numeric": 408,
+    "name": {
+      "en": "North Korea",
+      "pt": "Coreia do Norte",
+      "es": "Corea del Norte"
+    },
+    "lat": 40,
+    "lng": 127,
+    "population": 25549819
+  },
+  {
+    "code": "MK",
+    "numeric": 807,
+    "name": {
+      "en": "North Macedonia",
+      "pt": "Macedónia do Norte",
+      "es": "Macedonia del Norte"
+    },
+    "lat": 41.83333333,
+    "lng": 22,
+    "population": 2084367
+  },
+  {
+    "code": "MP",
+    "numeric": 580,
+    "name": {
+      "en": "Northern Mariana Islands",
+      "pt": "Marianas Setentrionais",
+      "es": "Islas Marianas del Norte"
+    },
+    "lat": 15.2,
+    "lng": 145.75,
+    "population": 56882
+  },
+  {
+    "code": "NO",
+    "numeric": 578,
+    "name": {
+      "en": "Norway",
+      "pt": "Noruega",
+      "es": "Noruega"
+    },
+    "lat": 62,
+    "lng": 10,
+    "population": 5311916
+  },
+  {
+    "code": "OM",
+    "numeric": 512,
+    "name": {
+      "en": "Oman",
+      "pt": "Omã",
+      "es": "Omán"
+    },
+    "lat": 21,
+    "lng": 57,
+    "population": 4829483
+  },
+  {
+    "code": "PK",
+    "numeric": 586,
+    "name": {
+      "en": "Pakistan",
+      "pt": "Paquistão",
+      "es": "Pakistán"
+    },
+    "lat": 30,
+    "lng": 70,
+    "population": 212215030
+  },
+  {
+    "code": "PW",
+    "numeric": 585,
+    "name": {
+      "en": "Palau",
+      "pt": "Palau",
+      "es": "Palau"
+    },
+    "lat": 7.5,
+    "lng": 134.5,
+    "population": 17907
+  },
+  {
+    "code": "PS",
+    "numeric": 275,
+    "name": {
+      "en": "Palestine",
+      "pt": "Palestina",
+      "es": "Palestina"
+    },
+    "lat": 31.9,
+    "lng": 35.2,
+    "population": 4569087
+  },
+  {
+    "code": "PA",
+    "numeric": 591,
+    "name": {
+      "en": "Panama",
+      "pt": "Panamá",
+      "es": "Panamá"
+    },
+    "lat": 9,
+    "lng": -80,
+    "population": 4176873
+  },
+  {
+    "code": "PG",
+    "numeric": 598,
+    "name": {
+      "en": "Papua New Guinea",
+      "pt": "Papua Nova Guiné",
+      "es": "Papúa Nueva Guinea"
+    },
+    "lat": -6,
+    "lng": 147,
+    "population": 8606316
+  },
+  {
+    "code": "PY",
+    "numeric": 600,
+    "name": {
+      "en": "Paraguay",
+      "pt": "Paraguai",
+      "es": "Paraguay"
+    },
+    "lat": -23,
+    "lng": -58,
+    "population": 6956071
+  },
+  {
+    "code": "PE",
+    "numeric": 604,
+    "name": {
+      "en": "Peru",
+      "pt": "Perú",
+      "es": "Perú"
+    },
+    "lat": -10,
+    "lng": -76,
+    "population": 31989256
+  },
+  {
+    "code": "PH",
+    "numeric": 608,
+    "name": {
+      "en": "Philippines",
+      "pt": "Filipinas",
+      "es": "Filipinas"
+    },
+    "lat": 13,
+    "lng": 122,
+    "population": 106651922
+  },
+  {
+    "code": "PN",
+    "numeric": 612,
+    "name": {
+      "en": "Pitcairn Islands",
+      "pt": "Ilhas Pitcairn",
+      "es": "Islas Pitcairn"
+    },
+    "lat": -25.06666666,
+    "lng": -130.1,
+    "population": 67
+  },
+  {
+    "code": "PL",
+    "numeric": 616,
+    "name": {
+      "en": "Poland",
+      "pt": "Polónia",
+      "es": "Polonia"
+    },
+    "lat": 52,
+    "lng": 20,
+    "population": 37974750
+  },
+  {
+    "code": "PT",
+    "numeric": 620,
+    "name": {
+      "en": "Portugal",
+      "pt": "Portugal",
+      "es": "Portugal"
+    },
+    "lat": 39.5,
+    "lng": -8,
+    "population": 10283822
+  },
+  {
+    "code": "PR",
+    "numeric": 630,
+    "name": {
+      "en": "Puerto Rico",
+      "pt": "Porto Rico",
+      "es": "Puerto Rico"
+    },
+    "lat": 18.25,
+    "lng": -66.5,
+    "population": 3195153
+  },
+  {
+    "code": "QA",
+    "numeric": 634,
+    "name": {
+      "en": "Qatar",
+      "pt": "Catar",
+      "es": "Catar"
+    },
+    "lat": 25.5,
+    "lng": 51.25,
+    "population": 2781677
+  },
+  {
+    "code": "RE",
+    "numeric": 638,
+    "name": {
+      "en": "Réunion",
+      "pt": "Reunião",
+      "es": "Reunión"
+    },
+    "lat": -21.15,
+    "lng": 55.5,
+    "population": 859959
+  },
+  {
+    "code": "RO",
+    "numeric": 642,
+    "name": {
+      "en": "Romania",
+      "pt": "Roménia",
+      "es": "Rumania"
+    },
+    "lat": 46,
+    "lng": 25,
+    "population": 19466145
+  },
+  {
+    "code": "RU",
+    "numeric": 643,
+    "name": {
+      "en": "Russia",
+      "pt": "Rússia",
+      "es": "Rusia"
+    },
+    "lat": 60,
+    "lng": 100,
+    "population": 144478050
+  },
+  {
+    "code": "RW",
+    "numeric": 646,
+    "name": {
+      "en": "Rwanda",
+      "pt": "Ruanda",
+      "es": "Ruanda"
+    },
+    "lat": -2,
+    "lng": 30,
+    "population": 12301939
+  },
+  {
+    "code": "BL",
+    "numeric": 652,
+    "name": {
+      "en": "Saint Barthélemy",
+      "pt": "São Bartolomeu",
+      "es": "San Bartolomé"
+    },
+    "lat": 18.5,
+    "lng": -63.41666666,
+    "population": null
+  },
+  {
+    "code": "SH",
+    "numeric": 654,
+    "name": {
+      "en": "Saint Helena, Ascension and Tristan da Cunha",
+      "pt": "Santa Helena, Ascensão e Tristão da Cunha",
+      "es": "Santa Elena, Ascensión y Tristán de Acuña"
+    },
+    "lat": -15.95,
+    "lng": -5.72,
+    "population": 6600
+  },
+  {
+    "code": "KN",
+    "numeric": 659,
+    "name": {
+      "en": "Saint Kitts and Nevis",
+      "pt": "São Cristóvão e Nevis",
+      "es": "San Cristóbal y Nieves"
+    },
+    "lat": 17.33333333,
+    "lng": -62.75,
+    "population": 52441
+  },
+  {
+    "code": "LC",
+    "numeric": 662,
+    "name": {
+      "en": "Saint Lucia",
+      "pt": "Santa Lúcia",
+      "es": "Santa Lucía"
+    },
+    "lat": 13.88333333,
+    "lng": -60.96666666,
+    "population": 181889
+  },
+  {
+    "code": "MF",
+    "numeric": 663,
+    "name": {
+      "en": "Saint Martin",
+      "pt": "São Martinho",
+      "es": "Saint Martin"
+    },
+    "lat": 18.08333333,
+    "lng": -63.95,
+    "population": null
+  },
+  {
+    "code": "PM",
+    "numeric": 666,
+    "name": {
+      "en": "Saint Pierre and Miquelon",
+      "pt": "Saint-Pierre e Miquelon",
+      "es": "San Pedro y Miquelón"
+    },
+    "lat": 46.83333333,
+    "lng": -56.33333333,
+    "population": 5888
+  },
+  {
+    "code": "VC",
+    "numeric": 670,
+    "name": {
+      "en": "Saint Vincent and the Grenadines",
+      "pt": "São Vincente e Granadinas",
+      "es": "San Vicente y Granadinas"
+    },
+    "lat": 13.25,
+    "lng": -61.2,
+    "population": 110210
+  },
+  {
+    "code": "WS",
+    "numeric": 882,
+    "name": {
+      "en": "Samoa",
+      "pt": "Samoa",
+      "es": "Samoa"
+    },
+    "lat": -13.58333333,
+    "lng": -172.33333333,
+    "population": 196130
+  },
+  {
+    "code": "SM",
+    "numeric": 674,
+    "name": {
+      "en": "San Marino",
+      "pt": "San Marino",
+      "es": "San Marino"
+    },
+    "lat": 43.76666666,
+    "lng": 12.41666666,
+    "population": 33785
+  },
+  {
+    "code": "ST",
+    "numeric": 678,
+    "name": {
+      "en": "São Tomé and Príncipe",
+      "pt": "São Tomé e Príncipe",
+      "es": "Santo Tomé y Príncipe"
+    },
+    "lat": 1,
+    "lng": 7,
+    "population": 211028
+  },
+  {
+    "code": "SA",
+    "numeric": 682,
+    "name": {
+      "en": "Saudi Arabia",
+      "pt": "Arábia Saudita",
+      "es": "Arabia Saudí"
+    },
+    "lat": 25,
+    "lng": 45,
+    "population": 33699947
+  },
+  {
+    "code": "SN",
+    "numeric": 686,
+    "name": {
+      "en": "Senegal",
+      "pt": "Senegal",
+      "es": "Senegal"
+    },
+    "lat": 14,
+    "lng": -14,
+    "population": 15854360
+  },
+  {
+    "code": "RS",
+    "numeric": 688,
+    "name": {
+      "en": "Serbia",
+      "pt": "Sérvia",
+      "es": "Serbia"
+    },
+    "lat": 44,
+    "lng": 21,
+    "population": 6963764
+  },
+  {
+    "code": "SC",
+    "numeric": 690,
+    "name": {
+      "en": "Seychelles",
+      "pt": "Seicheles",
+      "es": "Seychelles"
+    },
+    "lat": -4.58333333,
+    "lng": 55.66666666,
+    "population": 96762
+  },
+  {
+    "code": "SL",
+    "numeric": 694,
+    "name": {
+      "en": "Sierra Leone",
+      "pt": "Serra Leoa",
+      "es": "Sierra Leone"
+    },
+    "lat": 8.5,
+    "lng": -11.5,
+    "population": 7650154
+  },
+  {
+    "code": "SG",
+    "numeric": 702,
+    "name": {
+      "en": "Singapore",
+      "pt": "Singapura",
+      "es": "Singapur"
+    },
+    "lat": 1.36666666,
+    "lng": 103.8,
+    "population": 5638676
+  },
+  {
+    "code": "SX",
+    "numeric": 534,
+    "name": {
+      "en": "Sint Maarten",
+      "pt": "São Martinho",
+      "es": "Sint Maarten"
+    },
+    "lat": 18.033333,
+    "lng": -63.05,
+    "population": null
+  },
+  {
+    "code": "SK",
+    "numeric": 703,
+    "name": {
+      "en": "Slovakia",
+      "pt": "Eslováquia",
+      "es": "Eslovaquia"
+    },
+    "lat": 48.66666666,
+    "lng": 19.5,
+    "population": 5446771
+  },
+  {
+    "code": "SI",
+    "numeric": 705,
+    "name": {
+      "en": "Slovenia",
+      "pt": "Eslovénia",
+      "es": "Eslovenia"
+    },
+    "lat": 46.11666666,
+    "lng": 14.81666666,
+    "population": 2073894
+  },
+  {
+    "code": "SB",
+    "numeric": 90,
+    "name": {
+      "en": "Solomon Islands",
+      "pt": "Ilhas Salomão",
+      "es": "Islas Salomón"
+    },
+    "lat": -8,
+    "lng": 159,
+    "population": 652858
+  },
+  {
+    "code": "SO",
+    "numeric": 706,
+    "name": {
+      "en": "Somalia",
+      "pt": "Somália",
+      "es": "Somalia"
+    },
+    "lat": 10,
+    "lng": 49,
+    "population": 15008154
+  },
+  {
+    "code": "ZA",
+    "numeric": 710,
+    "name": {
+      "en": "South Africa",
+      "pt": "África do Sul",
+      "es": "Sudáfrica"
+    },
+    "lat": -29,
+    "lng": 24,
+    "population": 57779622
+  },
+  {
+    "code": "GS",
+    "numeric": 239,
+    "name": {
+      "en": "South Georgia",
+      "pt": "Ilhas Geórgia do Sul e Sandwich do Sul",
+      "es": "Islas Georgias del Sur y Sandwich del Sur"
+    },
+    "lat": -54.5,
+    "lng": -37,
+    "population": 30
+  },
+  {
+    "code": "KR",
+    "numeric": 410,
+    "name": {
+      "en": "South Korea",
+      "pt": "Coreia do Sul",
+      "es": "Corea del Sur"
+    },
+    "lat": 37,
+    "lng": 127.5,
+    "population": 51606633
+  },
+  {
+    "code": "SS",
+    "numeric": 728,
+    "name": {
+      "en": "South Sudan",
+      "pt": "Sudão do Sul",
+      "es": "Sudán del Sur"
+    },
+    "lat": 7,
+    "lng": 30,
+    "population": 10975920
+  },
+  {
+    "code": "ES",
+    "numeric": 724,
+    "name": {
+      "en": "Spain",
+      "pt": "Espanha",
+      "es": "España"
+    },
+    "lat": 40,
+    "lng": -4,
+    "population": 46796540
+  },
+  {
+    "code": "LK",
+    "numeric": 144,
+    "name": {
+      "en": "Sri Lanka",
+      "pt": "Sri Lanka",
+      "es": "Sri Lanka"
+    },
+    "lat": 7,
+    "lng": 81,
+    "population": 21670000
+  },
+  {
+    "code": "SD",
+    "numeric": 729,
+    "name": {
+      "en": "Sudan",
+      "pt": "Sudão",
+      "es": "Sudán"
+    },
+    "lat": 15,
+    "lng": 30,
+    "population": 41801533
+  },
+  {
+    "code": "SR",
+    "numeric": 740,
+    "name": {
+      "en": "Suriname",
+      "pt": "Suriname",
+      "es": "Surinam"
+    },
+    "lat": 4,
+    "lng": -56,
+    "population": 575991
+  },
+  {
+    "code": "SJ",
+    "numeric": 744,
+    "name": {
+      "en": "Svalbard and Jan Mayen",
+      "pt": "Ilhas Svalbard e Jan Mayen",
+      "es": "Islas Svalbard y Jan Mayen"
+    },
+    "lat": 78,
+    "lng": 20,
+    "population": 2572
+  },
+  {
+    "code": "SE",
+    "numeric": 752,
+    "name": {
+      "en": "Sweden",
+      "pt": "Suécia",
+      "es": "Suecia"
+    },
+    "lat": 62,
+    "lng": 15,
+    "population": 10175214
+  },
+  {
+    "code": "CH",
+    "numeric": 756,
+    "name": {
+      "en": "Switzerland",
+      "pt": "Suíça",
+      "es": "Suiza"
+    },
+    "lat": 47,
+    "lng": 8,
+    "population": 8513227
+  },
+  {
+    "code": "SY",
+    "numeric": 760,
+    "name": {
+      "en": "Syria",
+      "pt": "Síria",
+      "es": "Siria"
+    },
+    "lat": 35,
+    "lng": 38,
+    "population": 16906283
+  },
+  {
+    "code": "TW",
+    "numeric": 158,
+    "name": {
+      "en": "Taiwan",
+      "pt": "Ilha Formosa",
+      "es": "Taiwán"
+    },
+    "lat": 23.5,
+    "lng": 121,
+    "population": 23500000
+  },
+  {
+    "code": "TJ",
+    "numeric": 762,
+    "name": {
+      "en": "Tajikistan",
+      "pt": "Tajiquistão",
+      "es": "Tayikistán"
+    },
+    "lat": 39,
+    "lng": 71,
+    "population": 9100837
+  },
+  {
+    "code": "TZ",
+    "numeric": 834,
+    "name": {
+      "en": "Tanzania",
+      "pt": "Tanzânia",
+      "es": "Tanzania"
+    },
+    "lat": -6,
+    "lng": 35,
+    "population": 56318348
+  },
+  {
+    "code": "TH",
+    "numeric": 764,
+    "name": {
+      "en": "Thailand",
+      "pt": "Tailândia",
+      "es": "Tailandia"
+    },
+    "lat": 15,
+    "lng": 100,
+    "population": 69428524
+  },
+  {
+    "code": "TL",
+    "numeric": 626,
+    "name": {
+      "en": "Timor-Leste",
+      "pt": "Timor-Leste",
+      "es": "Timor Oriental"
+    },
+    "lat": -8.83333333,
+    "lng": 125.91666666,
+    "population": 1267972
+  },
+  {
+    "code": "TG",
+    "numeric": 768,
+    "name": {
+      "en": "Togo",
+      "pt": "Togo",
+      "es": "Togo"
+    },
+    "lat": 8,
+    "lng": 1.16666666,
+    "population": 7889094
+  },
+  {
+    "code": "TK",
+    "numeric": 772,
+    "name": {
+      "en": "Tokelau",
+      "pt": "Tokelau",
+      "es": "Islas Tokelau"
+    },
+    "lat": -9,
+    "lng": -172,
+    "population": 1411
+  },
+  {
+    "code": "TO",
+    "numeric": 776,
+    "name": {
+      "en": "Tonga",
+      "pt": "Tonga",
+      "es": "Tonga"
+    },
+    "lat": -20,
+    "lng": -175,
+    "population": 103197
+  },
+  {
+    "code": "TT",
+    "numeric": 780,
+    "name": {
+      "en": "Trinidad and Tobago",
+      "pt": "Trinidade e Tobago",
+      "es": "Trinidad y Tobago"
+    },
+    "lat": 11,
+    "lng": -61,
+    "population": 1389858
+  },
+  {
+    "code": "TN",
+    "numeric": 788,
+    "name": {
+      "en": "Tunisia",
+      "pt": "Tunísia",
+      "es": "Túnez"
+    },
+    "lat": 34,
+    "lng": 9,
+    "population": 11565204
+  },
+  {
+    "code": "TR",
+    "numeric": 792,
+    "name": {
+      "en": "Türkiye",
+      "pt": "Turquia",
+      "es": "Turquía"
+    },
+    "lat": 39,
+    "lng": 35,
+    "population": 85000000
+  },
+  {
+    "code": "TM",
+    "numeric": 795,
+    "name": {
+      "en": "Turkmenistan",
+      "pt": "Turquemenistão",
+      "es": "Turkmenistán"
+    },
+    "lat": 40,
+    "lng": 60,
+    "population": 5850908
+  },
+  {
+    "code": "TC",
+    "numeric": 796,
+    "name": {
+      "en": "Turks and Caicos Islands",
+      "pt": "Ilhas Turks e Caicos",
+      "es": "Islas Turks y Caicos"
+    },
+    "lat": 21.75,
+    "lng": -71.58333333,
+    "population": 37665
+  },
+  {
+    "code": "TV",
+    "numeric": 798,
+    "name": {
+      "en": "Tuvalu",
+      "pt": "Tuvalu",
+      "es": "Tuvalu"
+    },
+    "lat": -8,
+    "lng": 178,
+    "population": 11508
+  },
+  {
+    "code": "UG",
+    "numeric": 800,
+    "name": {
+      "en": "Uganda",
+      "pt": "Uganda",
+      "es": "Uganda"
+    },
+    "lat": 1,
+    "lng": 32,
+    "population": 42723139
+  },
+  {
+    "code": "UA",
+    "numeric": 804,
+    "name": {
+      "en": "Ukraine",
+      "pt": "Ucrânia",
+      "es": "Ucrania"
+    },
+    "lat": 49,
+    "lng": 32,
+    "population": 44622516
+  },
+  {
+    "code": "AE",
+    "numeric": 784,
+    "name": {
+      "en": "United Arab Emirates",
+      "pt": "Emirados Árabes Unidos",
+      "es": "Emiratos Árabes Unidos"
+    },
+    "lat": 24,
+    "lng": 54,
+    "population": 9630959
+  },
+  {
+    "code": "GB",
+    "numeric": 826,
+    "name": {
+      "en": "United Kingdom",
+      "pt": "Reino Unido",
+      "es": "Reino Unido"
+    },
+    "lat": 54,
+    "lng": -2,
+    "population": 66460344
+  },
+  {
+    "code": "US",
+    "numeric": 840,
+    "name": {
+      "en": "United States",
+      "pt": "Estados Unidos",
+      "es": "Estados Unidos"
+    },
+    "lat": 38,
+    "lng": -97,
+    "population": 326687501
+  },
+  {
+    "code": "UM",
+    "numeric": 581,
+    "name": {
+      "en": "United States Minor Outlying Islands",
+      "pt": "Ilhas Menores Distantes dos Estados Unidos",
+      "es": "Islas Ultramarinas Menores de Estados Unidos"
+    },
+    "lat": 19.3,
+    "lng": 166.633333,
+    "population": 300
+  },
+  {
+    "code": "VI",
+    "numeric": 850,
+    "name": {
+      "en": "United States Virgin Islands",
+      "pt": "Ilhas Virgens dos Estados Unidos",
+      "es": "Islas Vírgenes de los Estados Unidos"
+    },
+    "lat": 18.35,
+    "lng": -64.933333,
+    "population": 106977
+  },
+  {
+    "code": "UY",
+    "numeric": 858,
+    "name": {
+      "en": "Uruguay",
+      "pt": "Uruguai",
+      "es": "Uruguay"
+    },
+    "lat": -33,
+    "lng": -56,
+    "population": 3449299
+  },
+  {
+    "code": "UZ",
+    "numeric": 860,
+    "name": {
+      "en": "Uzbekistan",
+      "pt": "Uzbequistão",
+      "es": "Uzbekistán"
+    },
+    "lat": 41,
+    "lng": 64,
+    "population": 32955400
+  },
+  {
+    "code": "VU",
+    "numeric": 548,
+    "name": {
+      "en": "Vanuatu",
+      "pt": "Vanuatu",
+      "es": "Vanuatu"
+    },
+    "lat": -16,
+    "lng": 167,
+    "population": 292680
+  },
+  {
+    "code": "VA",
+    "numeric": 336,
+    "name": {
+      "en": "Vatican City",
+      "pt": "Cidade do Vaticano",
+      "es": "Ciudad del Vaticano"
+    },
+    "lat": 41.9,
+    "lng": 12.45,
+    "population": 825
+  },
+  {
+    "code": "VE",
+    "numeric": 862,
+    "name": {
+      "en": "Venezuela",
+      "pt": "Venezuela",
+      "es": "Venezuela"
+    },
+    "lat": 8,
+    "lng": -66,
+    "population": 28870195
+  },
+  {
+    "code": "VN",
+    "numeric": 704,
+    "name": {
+      "en": "Vietnam",
+      "pt": "Vietname",
+      "es": "Vietnam"
+    },
+    "lat": 16.16666666,
+    "lng": 107.83333333,
+    "population": 95540395
+  },
+  {
+    "code": "WF",
+    "numeric": 876,
+    "name": {
+      "en": "Wallis and Futuna",
+      "pt": "Wallis e Futuna",
+      "es": "Wallis y Futuna"
+    },
+    "lat": -13.3,
+    "lng": -176.2,
+    "population": 15289
+  },
+  {
+    "code": "EH",
+    "numeric": 732,
+    "name": {
+      "en": "Western Sahara",
+      "pt": "Saara Ocidental",
+      "es": "Sahara Occidental"
+    },
+    "lat": 24.5,
+    "lng": -13,
+    "population": 652271
+  },
+  {
+    "code": "YE",
+    "numeric": 887,
+    "name": {
+      "en": "Yemen",
+      "pt": "Iémen",
+      "es": "Yemen"
+    },
+    "lat": 15,
+    "lng": 48,
+    "population": 28498687
+  },
+  {
+    "code": "ZM",
+    "numeric": 894,
+    "name": {
+      "en": "Zambia",
+      "pt": "Zâmbia",
+      "es": "Zambia"
+    },
+    "lat": -15,
+    "lng": 30,
+    "population": 17351822
+  },
+  {
+    "code": "ZW",
+    "numeric": 716,
+    "name": {
+      "en": "Zimbabwe",
+      "pt": "Zimbabwe",
+      "es": "Zimbabue"
+    },
+    "lat": -20,
+    "lng": 30,
+    "population": 14439018
+  }
+]

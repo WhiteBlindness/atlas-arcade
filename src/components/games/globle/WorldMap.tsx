@@ -84,9 +84,13 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
   const tokenRef = useRef<CancelToken>({ cancelled: false });
 
   // —— user pan/zoom (mobile pinch, drag, wheel) ——
-  const [view, setView] = useState<UserView>(IDENTITY);
+  const [view, setView] = useState<UserView>(() =>
+    typeof window !== "undefined" && window.innerWidth < MOBILE_BREAKPOINT
+      ? { s: MOBILE_INITIAL_SCALE, tx: 0, ty: 0 }
+      : IDENTITY,
+  );
   const viewRef = useRef(view);
-  viewRef.current = view;
+  useEffect(() => { viewRef.current = view; }, [view]);
   const wrapRef = useRef<HTMLDivElement>(null);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const gestureRef = useRef<{
@@ -97,12 +101,6 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
     startPos: { x: number; y: number };
   } | null>(null);
 
-  // better initial scale on small screens
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < MOBILE_BREAKPOINT) {
-      setView({ s: MOBILE_INITIAL_SCALE, tx: 0, ty: 0 });
-    }
-  }, []);
 
   useEffect(() => {
     fetchWorld().then((world) => {
@@ -111,9 +109,8 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
       const projection = geoNaturalEarth1().fitSize([W, H], countries);
       const pathGen = geoPath(projection);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const built: GeoPathEntry[] = countries.features
-        .map((f: any) => {
+        .map((f: { id: string; type: "Feature"; geometry: GeoJSON.Geometry; properties: GeoJSON.GeoJsonProperties }) => {
           const id = parseInt(f.id, 10);
           const d = pathGen(f) ?? "";
           const [cx, cy] = pathGen.centroid(f);
@@ -132,7 +129,7 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
     if (!target) return;
 
     // reset user transform so the animation is not distorted
-    setView(IDENTITY);
+    const resetFrame = requestAnimationFrame(() => setView(IDENTITY));
 
     clearTimeout(holdTimerRef.current);
     tokenRef.current.cancelled = true;
@@ -147,13 +144,25 @@ export function WorldMap({ colorMap, mysteryNumeric, zoomTarget }: Props) {
     const full: [number, number, number, number] = [0, 0, W, H];
     const zoomed: [number, number, number, number] = [x, y, zw, zh];
 
-    animateViewBox(full, zoomed, ANIM_MS, setViewBox, token, () => {
-      holdTimerRef.current = setTimeout(() => {
-        animateViewBox(zoomed, full, ANIM_MS, setViewBox, token);
-      }, ZOOM_HOLD_MS);
-    });
+    const resetView = () => {
+      if (!token.cancelled) setViewBox(full.join(" "));
+    };
+
+    let reducedMotionFrame: number | undefined;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      reducedMotionFrame = requestAnimationFrame(() => setViewBox(zoomed.join(" ")));
+      holdTimerRef.current = setTimeout(resetView, ZOOM_HOLD_MS);
+    } else {
+      animateViewBox(full, zoomed, ANIM_MS, setViewBox, token, () => {
+        holdTimerRef.current = setTimeout(() => {
+          animateViewBox(zoomed, full, ANIM_MS, setViewBox, token);
+        }, ZOOM_HOLD_MS);
+      });
+    }
 
     return () => {
+      cancelAnimationFrame(resetFrame);
+      if (reducedMotionFrame !== undefined) cancelAnimationFrame(reducedMotionFrame);
       clearTimeout(holdTimerRef.current);
       token.cancelled = true;
     };

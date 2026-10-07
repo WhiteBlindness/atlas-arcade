@@ -1,11 +1,10 @@
 "use client";
 
-import { todayUTC, mockPercentile } from "./daily";
+import { todayUTC } from "./daily";
 
 // Wordle-style share text for daily results.
 // 🌍 Atlas Arcade | GEORADAR
 // Score: 850
-// I beat 78% of players today!
 // 🟧🟨🟩
 // 2026-07-14 · atlasarcade.app
 
@@ -20,7 +19,6 @@ export function buildShareText(opts: {
   const lines = [
     `🌍 Atlas Arcade | ${opts.gameTitle}`,
     `Score: ${opts.score}`,
-    `I beat ${mockPercentile(opts.performance)}% of players today!`,
   ];
   if (opts.squares) lines.push(opts.squares);
   lines.push(`${todayUTC()} · ${SITE}`);

@@ -8,7 +8,6 @@ import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
 import { useT } from "@/lib/i18n";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -224,7 +223,6 @@ function BorderBlitzStandalone({ onExit }: { onExit: () => void }) {
                   <p className="font-pixel text-[11px] text-arcade-neon-red neon-text-red tracking-widest">{t("gameOver")}</p>
                   <p className="font-pixel text-3xl text-arcade-neon-lime neon-text-lime">{territories}</p>
                   <p className="font-pixel text-[8px] text-gray-500">{t("bbTerritories").replace("{X}", String(territories))}</p>
-                  <DailyPercentile performance={Math.min(1, territories / 20)} />
                   <EndScreenActions
                     slug="border-blitz"
                     gameTitle="BORDER BLITZ"

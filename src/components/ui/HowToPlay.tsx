@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { HelpCircle } from "lucide-react";
 import { useT, type TKey } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
 import type { GameSlug } from "@/store/gameStore";
+import { useDialogFocus } from "@/components/ui/useDialogFocus";
 
 /** Three tutorial steps per game, as i18n keys. */
 const STEPS: Record<GameSlug, [TKey, TKey, TKey]> = {
@@ -25,16 +26,19 @@ const STEPS: Record<GameSlug, [TKey, TKey, TKey]> = {
 interface HowToPlayButtonProps {
   slug: GameSlug;
   accent?: string;
+  disabled?: boolean;
   /** "icon": compact [?] glyph for game headers (default). "block": full-width labeled button for the pre-game modal. */
   variant?: "icon" | "block";
 }
 
 /** Retro "[ ? ]" button + the tutorial modal it opens. Drop into a game header. */
-export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", variant = "icon" }: HowToPlayButtonProps) {
+export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", variant = "icon", disabled = false }: HowToPlayButtonProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const steps = STEPS[slug];
+  const close = useCallback(() => { sfx.click(); setOpen(false); setStep(0); }, []);
+  const dialogRef = useDialogFocus<HTMLDivElement>(open, close);
 
   // Lock background scroll while the modal is open.
   useEffect(() => {
@@ -43,7 +47,6 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
     return () => document.body.classList.remove("overflow-hidden");
   }, [open]);
 
-  const close = () => { sfx.click(); setOpen(false); setStep(0); };
   const go = (d: number) => { sfx.click(); setStep((s) => Math.min(steps.length - 1, Math.max(0, s + d))); };
 
   return (
@@ -51,18 +54,26 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
       {variant === "block" ? (
         <button
           type="button"
+          disabled={disabled}
           onClick={() => { sfx.click(); setOpen(true); }}
-          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 active:bg-current/15 transition-all duration-200`}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls="how-to-play-dialog"
+          className={`w-full min-h-[44px] flex items-center justify-center gap-2 py-2 font-pixel text-[9px] border border-arcade-border ${accent} hover:border-current active:scale-95 active:bg-current/15 transition-all duration-200 disabled:cursor-wait`}
         >
           <HelpCircle size={13} /> {t("htpTitle")}
         </button>
       ) : (
         <button
           type="button"
+          disabled={disabled}
           onClick={() => { sfx.click(); setOpen(true); }}
           aria-label={t("htpTitle")}
           title={t("htpTitle")}
-          className={`shrink-0 flex items-center justify-center w-10 h-10 font-pixel text-[9px] ${accent} hover:brightness-150 active:scale-90 transition-all duration-200`}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls="how-to-play-dialog"
+          className={`shrink-0 flex items-center justify-center w-11 h-11 font-pixel text-[9px] ${accent} hover:brightness-150 active:scale-90 transition-all duration-200 disabled:cursor-wait`}
         >
           <HelpCircle size={16} />
         </button>
@@ -71,17 +82,17 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
       {/* No backdrop-click-to-close — matches AuthModal. Only [ CLOSE ] closes it. */}
       {open && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 backdrop-blur-sm px-4">
-          <div className="relative w-full max-w-sm bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
-            <h2 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest text-center mb-1">
+          <div id="how-to-play-dialog" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="how-to-play-title" tabIndex={-1} className="relative w-full max-w-sm max-h-[85dvh] overflow-y-auto bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
+            <h2 id="how-to-play-title" className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-widest text-center mb-1">
               {t("htpTitle")}
             </h2>
-            <p className="font-pixel text-[7px] text-gray-600 tracking-[0.3em] text-center mb-5">
+            <p aria-live="polite" className="font-pixel text-[7px] text-gray-300 light:text-gray-700 tracking-[0.3em] text-center mb-5">
               {t("htpStep").replace("{X}", String(step + 1)).replace("{Y}", String(steps.length))}
             </p>
 
             {/* Step body — fixed height so the modal doesn't jump between steps */}
             <div className="min-h-[92px] flex items-center justify-center border border-arcade-border bg-arcade-bg px-4 py-5 mb-5">
-              <p className="font-mono text-base text-white text-center leading-relaxed">
+              <p className="font-mono text-base text-gray-900 dark:text-white text-center leading-relaxed">
                 {t(steps[step])}
               </p>
             </div>
@@ -102,23 +113,24 @@ export function HowToPlayButton({ slug, accent = "text-arcade-neon-cyan", varian
               <button
                 type="button"
                 onClick={() => go(-1)}
-                disabled={step === 0}
-                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label={t("htpPrevious")}
+                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-300 light:text-gray-700 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 [ &lt;- ]
               </button>
               <button
                 type="button"
                 onClick={close}
-                className="flex-1 min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan neon-text-cyan hover:bg-arcade-neon-cyan hover:text-black active:scale-95 transition-all duration-200"
+                data-dialog-initial-focus
+                className="flex-1 min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-neon-cyan text-arcade-neon-cyan neon-text-cyan hover:bg-arcade-neon-cyan hover:text-black light:hover:text-white active:scale-95 transition-all duration-200"
               >
                 [ {t("htpClose")} ]
               </button>
               <button
                 type="button"
                 onClick={() => go(1)}
-                disabled={step === steps.length - 1}
-                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-400 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label={t("htpNext")}
+                className="min-h-[44px] px-3 font-pixel text-[9px] border border-arcade-border text-gray-300 light:text-gray-700 hover:text-arcade-neon-cyan hover:border-arcade-neon-cyan active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 [ -&gt; ]
               </button>

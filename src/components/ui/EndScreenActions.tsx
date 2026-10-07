@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameStore, type GameSlug } from "@/store/gameStore";
 import { useDailyStore } from "@/store/dailyStore";
 import { useCoinStore } from "@/store/coinStore";
@@ -30,29 +30,65 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
   const markCompleted = useDailyStore((s) => s.markCompleted);
   const spend = useCoinStore((s) => s.spend);
   const spendTokens = useCoinStore((s) => s.spendTokens);
+  const spending = useCoinStore((s) => s.spending);
   const t = useT();
   const isDaily = mode === "daily";
   const isJackpot = slug === "atlas-jackpot";
+  const [replayPending, setReplayPending] = useState(false);
+  const pendingRef = useRef(false);
+  const mountedRef = useRef(true);
+  const busy = replayPending || spending;
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     if (isDaily) markCompleted(slug, { score, performance, squares });
   }, [isDaily, slug, score, performance, squares, markCompleted]);
 
   const playAgain = async () => {
+    if (pendingRef.current || useCoinStore.getState().spending) return;
+    const before = useGameStore.getState();
+    if (before.activeGame !== slug || before.mode !== "arcade") return;
+    pendingRef.current = true;
+    setReplayPending(true);
     sfx.click();
-    // Atlas Jackpot re-entry costs the full token price (daily first, then premium).
-    const paid = isJackpot ? await spendTokens(ATLAS_JACKPOT_COST) : await spend();
-    if (paid) startGame(slug, "arcade");
+    try {
+      // Atlas Jackpot re-entry costs the full token price (daily first, then premium).
+      const paid = isJackpot ? await spendTokens(ATLAS_JACKPOT_COST) : await spend();
+      const current = useGameStore.getState();
+      if (
+        paid
+        && mountedRef.current
+        && pendingRef.current
+        && current.activeGame === slug
+        && current.mode === "arcade"
+        && current.runId === before.runId
+      ) {
+        startGame(slug, "arcade");
+      }
+    } finally {
+      pendingRef.current = false;
+      if (mountedRef.current) setReplayPending(false);
+    }
+  };
+
+  const exitWhenIdle = () => {
+    if (pendingRef.current || useCoinStore.getState().spending) return;
+    onExit();
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-3">
+    <div className="flex flex-wrap justify-center gap-3" aria-busy={busy || undefined}>
       {isDaily ? (
         <>
           <ShareButton gameTitle={gameTitle} score={score} performance={performance} squares={squares} />
           <button
-            onClick={onExit}
-            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 active:bg-white/10 transition-all duration-200"
+            onClick={exitWhenIdle}
+            disabled={busy}
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 hover:border-white light:hover:border-gray-900 active:scale-95 active:bg-white/10 transition-all duration-200"
           >
             {t("backToGames")}
           </button>
@@ -61,13 +97,16 @@ export function EndScreenActions({ slug, gameTitle, score, performance, squares,
         <>
           <button
             onClick={playAgain}
-            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200"
+            disabled={busy}
+            aria-busy={busy || undefined}
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-neon-yellow text-arcade-neon-yellow hover:bg-arcade-neon-yellow hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200 disabled:cursor-wait"
           >
             {isJackpot ? t("playAgainTokens").replace("{X}", String(ATLAS_JACKPOT_COST)) : t("playAgainCoin")}
           </button>
           <button
-            onClick={onExit}
-            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 active:bg-white/10 transition-all duration-200"
+            onClick={exitWhenIdle}
+            disabled={busy}
+            className="min-h-[44px] py-2 px-4 font-pixel text-[9px] border border-arcade-border text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 hover:border-white light:hover:border-gray-900 active:scale-95 active:bg-white/10 transition-all duration-200 disabled:cursor-wait"
           >
             {t("backToArcade")}
           </button>

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@fontsource/google-sans/latin-500.css";
 @import "@fontsource/press-start-2p";
 @import "@fontsource/vt323";
 
@@ -19,7 +20,7 @@
   --color-arcade-neon-yellow:  #ffe600;
   --color-arcade-neon-red:     #ff3333;
   --color-arcade-neon-orange:  #ff8c00;
-  --color-arcade-neon-purple:  #b800ff;
+  --color-arcade-neon-purple:  #d000ff;
   --color-arcade-neon-blue:    #0088ff;
   --color-arcade-neon-mint:    #00ffa6;
   --color-arcade-neon-pink:    #ff00aa;
@@ -30,6 +31,7 @@
      Press Start 2P lacks fall back to a retro glyph instead of tofu. */
   --font-pixel: "Press Start 2P", "VT323", monospace;
   --font-mono:  "VT323", monospace;
+  --font-google-sans: "Google Sans", Arial, sans-serif;
 
   /* Neon box shadows */
   --shadow-neon-green:   0 0 8px #00ff41, 0 0 20px #00ff4155;
@@ -38,7 +40,7 @@
   --shadow-neon-yellow:  0 0 8px #ffe600, 0 0 20px #ffe60055;
   --shadow-neon-red:     0 0 8px #ff3333, 0 0 20px #ff333355;
   --shadow-neon-orange:  0 0 8px #ff8c00, 0 0 20px #ff8c0055;
-  --shadow-neon-purple:  0 0 8px #b800ff, 0 0 20px #b800ff55;
+  --shadow-neon-purple:  0 0 8px #d000ff, 0 0 20px #d000ff55;
   --shadow-neon-blue:    0 0 8px #0088ff, 0 0 20px #0088ff55;
   --shadow-neon-mint:    0 0 8px #00ffa6, 0 0 20px #00ffa655;
   --shadow-neon-pink:    0 0 8px #ff00aa, 0 0 20px #ff00aa55;
@@ -53,7 +55,7 @@
 /* Keyframes */
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  50%       { opacity: 0.99; }
 }
 
 @keyframes glitch {
@@ -97,7 +99,7 @@
 
 @keyframes neonPulse {
   0%, 100% { opacity: 1;    text-shadow: 0 0 6px currentColor; }
-  50%      { opacity: 0.55; text-shadow: 0 0 14px currentColor, 0 0 28px currentColor; }
+  50%      { opacity: 1;    text-shadow: 0 0 14px currentColor, 0 0 28px currentColor; }
 }
 
 /* Custom utilities */
@@ -107,7 +109,7 @@
 @utility neon-text-yellow  { text-shadow: 0 0 8px #ffe600, 0 0 20px #ffe60055; }
 @utility neon-text-red     { text-shadow: 0 0 8px #ff3333, 0 0 20px #ff333355; }
 @utility neon-text-orange  { text-shadow: 0 0 8px #ff8c00, 0 0 20px #ff8c0055; }
-@utility neon-text-purple  { text-shadow: 0 0 8px #b800ff, 0 0 20px #b800ff55; }
+@utility neon-text-purple  { text-shadow: 0 0 8px #d000ff, 0 0 20px #d000ff55; }
 @utility neon-text-blue    { text-shadow: 0 0 8px #0088ff, 0 0 20px #0088ff55; }
 @utility neon-text-mint    { text-shadow: 0 0 8px #00ffa6, 0 0 20px #00ffa655; }
 @utility neon-text-pink    { text-shadow: 0 0 8px #ff00aa, 0 0 20px #ff00aa55; }
@@ -148,6 +150,23 @@ html {
    on both axes so gameplay screens feel locked to the viewport. */
 html, body {
   overscroll-behavior: none;
+}
+
+body {
+  isolation: isolate;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  background-blend-mode: multiply;
 }
 
 /* ── Light mode ──────────────────────────────────────────────────────────────
@@ -223,8 +242,16 @@ html.light .text-white { color: #16161f; }
 /* … but stays white inside dark scrim panels/overlays (modals, HUD, win/lose). */
 html.light [class*="bg-black/"] .text-white { color: #ffffff; }
 
-/* The fixed scanline overlay reads as a faint grid on light — soften it. */
-html.light body::before { opacity: 0.5; }
+/* Keep the scanline texture faint on light surfaces. */
+html.light body > * {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+}
 
 /* Kill the 300ms mobile tap delay on every interactive control */
 button, a, [role="button"] {
@@ -243,6 +270,45 @@ body::before {
     rgba(0, 0, 0, 0.12) 4px
   );
   pointer-events: none;
-  z-index: 9999;
+  z-index: 0;
   animation: flicker 8s infinite;
+}
+
+/* Os elementos interativos precisam de um indicador de foco visível nos dois temas. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* A barra de ação recebe a cor do jogo sem mudar os rácios de contraste. */
+.game-action-card:not(:disabled):is(:hover, :focus-visible, :active) .game-action-fill {
+  background-color: var(--game-action-color);
+}
+
+html.dark .game-action-card:not(:disabled):is(:hover, :focus-visible, :active) .game-action-fill {
+  color: var(--color-arcade-bg);
+}
+
+html.light .game-action-fill {
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .animate-blink,
+  .animate-glitch,
+  .animate-spin,
+  .modal-enter,
+  [class*="animate-[slideFromRight"],
+  [class*="animate-[fadeUp"],
+  body::before,
+  [style*="neonPulse"],
+  [style*="fadeUp"] {
+    animation: none !important;
+  }
 }

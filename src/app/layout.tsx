@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/Toaster";
 
 export const metadata: Metadata = {
   title: { default: "ATLAS ARCADE", template: "%s | ATLAS ARCADE" },
-  description: "Retro geography mini-game arcade — GeoRadar, Capital Strike, Flag Frenzy, Peaks & Valleys and more.",
+  description: "Geography mini-games with daily challenges, arcade play and the Atlas Jackpot boss stage.",
 };
 
 export const viewport: Viewport = {
@@ -19,28 +19,7 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
-// Applies the persisted theme to <html> before first paint, so there is no
-// light/dark flash. Runs synchronously as the browser parses the HTML — the
-// pattern documented for this fork at
-// node_modules/next/dist/docs/01-app/02-guides/preventing-flash-before-hydration.md
-// ("Themes"): a raw <script>, not next/script's beforeInteractive, with a
-// server/client `type` switch + suppressHydrationWarning to quiet React's
-// dev-only "Encountered a script tag" warning.
-//
-// KNOWN ISSUE, verified by isolation testing (removing the script entirely and
-// re-checking the dev console):
-//  - The "Encountered a script tag while rendering React component" warning
-//    still fires here despite following the documented type-switch fix. It
-//    also fired identically with next/script's beforeInteractive. It is gone
-//    only when no <script> is rendered via JSX at all — in this fork's dev
-//    overlay the warning appears to trigger on the element type itself, not on
-//    whether the type attribute makes it inert. Not something fixable from
-//    application code with either documented approach.
-//  - The separate hydration mismatch inside Next's own metadata Suspense
-//    boundary (<Head> > MetadataWrapper > __next_metadata_boundary__) is
-//    UNRELATED to this script — it reproduces identically on a bare layout
-//    with the script removed entirely. Pre-existing in this fork/build, not
-//    caused by or fixable via this file.
+// Restore the saved theme before hydration to avoid a theme flash.
 const THEME_INIT_JS =
   "try{if(typeof window!=='undefined'){var s=JSON.parse(localStorage.getItem('atlas-arcade-settings'));var t=(s&&s.state&&s.state.theme)||'dark';document.documentElement.classList.add(t);}else{document.documentElement.classList.add('dark');}}catch(e){document.documentElement.classList.add('dark');}";
 

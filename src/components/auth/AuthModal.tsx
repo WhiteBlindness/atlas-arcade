@@ -1,19 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useDialogFocus } from "@/components/ui/useDialogFocus";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/store/toastStore";
 import { firstAuthError, isValidEmail, isValidUsername, passwordStrength, signupChecks } from "@/lib/validation";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
+import { useSettingsStore } from "@/store/settingsStore";
 import { X } from "lucide-react";
 
 type View = "signin" | "signup" | "reset";
 
 export function AuthModal() {
   const { modalOpen, closeModal } = useAuthStore();
+  const dialogRef = useDialogFocus<HTMLDivElement>(modalOpen, closeModal);
   const t = useT();
+  const lang = useSettingsStore((state) => state.lang);
+  const pt = lang === "pt";
   const [view, setView] = useState<View>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -149,10 +155,10 @@ export function AuthModal() {
   // dropping whatever the player had typed. Only the X button closes it.
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-      <div className="relative w-full max-w-sm bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" tabIndex={-1} className="relative w-full max-w-sm max-h-[85dvh] overflow-y-auto bg-arcade-surface border border-arcade-neon-cyan shadow-neon-cyan p-6 modal-enter">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-wider">{title}</h2>
-          <button onClick={closeModal} aria-label={t("cancel")} className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-500 hover:text-white active:scale-90 transition-all">
+          <h2 id="auth-modal-title" className="font-pixel text-xs text-arcade-neon-cyan neon-text-cyan tracking-wider">{title}</h2>
+          <button onClick={closeModal} aria-label={t("cancel")} className="w-11 h-11 -mr-3 flex items-center justify-center text-gray-300 light:text-gray-700 hover:text-arcade-neon-cyan active:scale-90 transition-all">
             <X size={18} />
           </button>
         </div>
@@ -163,9 +169,10 @@ export function AuthModal() {
               <button
                 key={v}
                 type="button"
+                aria-pressed={view === v}
                 onClick={() => switchView(v)}
-                className={`flex-1 min-h-[44px] py-2 font-pixel text-[10px] active:brightness-125 transition-all ${
-                  view === v ? "bg-arcade-neon-cyan text-black" : "text-gray-500 hover:text-white"
+                className={`flex-1 min-h-[44px] py-2 font-pixel text-[10px] transition-all ${
+                  view === v ? "bg-arcade-neon-cyan text-black light:text-white" : "text-gray-300 light:text-gray-700 hover:text-arcade-neon-cyan"
                 }`}
               >
                 {v === "signin" ? t("authTabSignin") : t("authTabSignup")}
@@ -174,14 +181,35 @@ export function AuthModal() {
           </div>
         )}
 
-        <form onSubmit={handleAuth} className="flex flex-col gap-3">
+        <form onSubmit={handleAuth} aria-busy={loading || undefined} className="flex flex-col gap-3">
           {view === "signup" && (
-            <ArcadeInput placeholder={t("authPhUsername")} value={username} onChange={(v) => { setUsername(v); setServerErr(null); }} autoComplete="username" disabled={loading} error={usernameErr} />
+            <div className="mb-1">
+              <p className="font-mono text-base leading-5 text-gray-300 light:text-gray-700">
+                {pt ? "Antes de criar uma conta, consulte:" : "Before creating an account, read:"}
+              </p>
+              <nav aria-label={pt ? "Informação sobre a conta" : "Account information"} className="mt-1 flex flex-wrap gap-x-4">
+                <Link href="/privacy" onClick={closeModal} className="min-h-11 py-3 font-mono text-base text-arcade-neon-cyan underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-arcade-neon-cyan">
+                  {pt ? "Política de privacidade" : "Privacy policy"}
+                </Link>
+                <Link href="/terms" onClick={closeModal} className="min-h-11 py-3 font-mono text-base text-arcade-neon-cyan underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-arcade-neon-cyan">
+                  {pt ? "Condições de utilização" : "Terms of use"}
+                </Link>
+              </nav>
+            </div>
           )}
-          <ArcadeInput placeholder={t("authPhEmail")} type="email" value={email} onChange={(v) => { setEmail(v); setServerErr(null); }} autoComplete="email" disabled={loading} error={emailErr} />
+          {view === "signup" && (
+            <>
+            <label className="sr-only" htmlFor="auth-username">{t("authPhUsername")}</label>
+            <ArcadeInput id="auth-username" placeholder={t("authPhUsername")} value={username} onChange={(v) => { setUsername(v); setServerErr(null); }} autoComplete="username" disabled={loading} error={usernameErr} />
+          </>
+          )}
+          <label className="sr-only" htmlFor="auth-email">{t("authPhEmail")}</label>
+          <ArcadeInput id="auth-email" initialFocus placeholder={t("authPhEmail")} type="email" value={email} onChange={(v) => { setEmail(v); setServerErr(null); }} autoComplete="email" disabled={loading} error={emailErr} />
 
           {view !== "reset" && (
+            <><label className="sr-only" htmlFor="auth-password">{t("authPhPassword")}</label>
             <ArcadeInput
+              id="auth-password"
               placeholder={t("authPhPassword")}
               type="password"
               value={password}
@@ -189,7 +217,7 @@ export function AuthModal() {
               autoComplete={view === "signup" ? "new-password" : "current-password"}
               disabled={loading}
               error={passwordErr}
-            />
+            /></>
           )}
 
           {/* Password strength meter (signup only) */}
@@ -216,10 +244,10 @@ export function AuthModal() {
           <button
             type="submit"
             disabled={loading || signupBlocked}
-            className="mt-2 min-h-[44px] py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-2 min-h-[44px] py-3 font-pixel text-[10px] bg-transparent border border-arcade-neon-green text-arcade-neon-green shadow-neon-green hover:bg-arcade-neon-green hover:text-black light:hover:text-white active:scale-95 transition-all disabled:cursor-not-allowed"
           >
             {loading ? (
-              <span className="text-arcade-neon-green" style={{ animation: "neonPulse 1s ease-in-out infinite" }}>{t("authLoading")}</span>
+              <span role="status" style={{ animation: "neonPulse 1s ease-in-out infinite" }}>{t("authLoading")}</span>
             ) : submitLabel}
           </button>
         </form>
@@ -229,7 +257,7 @@ export function AuthModal() {
           <>
             <div className="flex items-center gap-3 my-4" aria-hidden>
               <span className="flex-1 h-px bg-arcade-border" />
-              <span className="font-pixel text-[8px] text-gray-600 tracking-widest">{t("authOr")}</span>
+              <span className="font-pixel text-[8px] text-gray-300 light:text-gray-700 tracking-widest">{t("authOr")}</span>
               <span className="flex-1 h-px bg-arcade-border" />
             </div>
 
@@ -237,10 +265,10 @@ export function AuthModal() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full min-h-[44px] flex items-center justify-center gap-2 py-3 font-pixel text-[9px] bg-arcade-bg border border-arcade-border text-gray-300 hover:border-arcade-neon-cyan hover:text-arcade-neon-cyan hover:shadow-neon-cyan active:scale-95 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full min-h-[44px] flex items-center justify-center gap-2.5 px-3 py-3 font-google-sans text-[14px] font-medium leading-5 bg-white border border-[#747775] text-[#1f1f1f] hover:bg-gray-100 hover:text-[#1f1f1f] active:scale-95 transition-all disabled:cursor-not-allowed"
             >
               {/* Google "G" — inline SVG keeps the brand mark crisp at any size. */}
-              <svg width="14" height="14" viewBox="0 0 48 48" aria-hidden className="shrink-0">
+              <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden className="shrink-0">
                 <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.5h7.1c4.1-3.8 6.6-9.500 6.6-16.1z" />
                 <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.4l-7.1-5.5c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.4 46 24 46z" />
                 <path fill="#FBBC05" d="M11.8 28.2c-.4-1.3-.7-2.7-.7-4.2s.3-2.9.7-4.2v-5.7H4.5C3 17.1 2.2 20.4 2.2 24s.8 6.9 2.3 9.9l7.3-5.7z" />
@@ -257,7 +285,7 @@ export function AuthModal() {
             <button
               type="button"
               onClick={() => switchView("reset")}
-              className="font-pixel text-[8px] text-gray-500 hover:text-arcade-neon-cyan active:scale-95 transition-all"
+              className="min-h-[44px] px-3 font-pixel text-[8px] text-gray-300 light:text-gray-700 hover:text-arcade-neon-cyan active:scale-95 transition-all"
             >
               {t("authForgot")}
             </button>
@@ -266,18 +294,19 @@ export function AuthModal() {
             <button
               type="button"
               onClick={() => switchView("signin")}
-              className="font-pixel text-[8px] text-gray-500 hover:text-arcade-neon-cyan active:scale-95 transition-all"
+              className="min-h-[44px] px-3 font-pixel text-[8px] text-gray-300 light:text-gray-700 hover:text-arcade-neon-cyan active:scale-95 transition-all"
             >
               {t("authBack")}
             </button>
           )}
-        </div>
       </div>
+    </div>
     </div>
   );
 }
 
-function ArcadeInput({ placeholder, value, onChange, type = "text", autoComplete, disabled, error }: {
+function ArcadeInput({ id, placeholder, value, onChange, type = "text", autoComplete, disabled, error, initialFocus }: {
+  id: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
@@ -285,6 +314,7 @@ function ArcadeInput({ placeholder, value, onChange, type = "text", autoComplete
   autoComplete?: string;
   disabled?: boolean;
   error?: string | null;
+  initialFocus?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -296,13 +326,16 @@ function ArcadeInput({ placeholder, value, onChange, type = "text", autoComplete
         autoComplete={autoComplete}
         disabled={disabled}
         aria-invalid={!!error}
-        className={`w-full bg-arcade-bg border outline-none px-3 py-2 font-mono text-sm text-white placeholder-gray-600 transition-all disabled:opacity-50 ${
+        id={id}
+        data-dialog-initial-focus={initialFocus ? "" : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`w-full min-h-[44px] bg-arcade-bg border outline-none px-3 py-2 font-mono text-sm text-gray-100 light:text-gray-900 placeholder-gray-500 light:placeholder-gray-600 transition-all disabled:cursor-wait ${
           error
             ? "border-arcade-neon-red focus:border-arcade-neon-red focus:shadow-neon-red"
             : "border-arcade-border focus:border-arcade-neon-cyan focus:shadow-neon-cyan"
         }`}
       />
-      {error && <p role="alert" className="font-mono text-[12px] text-arcade-neon-red leading-snug">{error}</p>}
+      {error && <p id={`${id}-error`} role="alert" className="font-mono text-[12px] text-arcade-neon-red leading-snug">{error}</p>}
     </div>
   );
 }

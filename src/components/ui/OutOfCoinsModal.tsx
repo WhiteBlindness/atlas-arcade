@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Clapperboard, Gem, Clock } from "lucide-react";
+import { X, Gem, Clock } from "lucide-react";
 import { useCoinStore } from "@/store/coinStore";
 import { useT } from "@/lib/i18n";
 import { sfx } from "@/lib/sfx";
+import { useDialogFocus } from "@/components/ui/useDialogFocus";
 
 /** Formats ms as "1H 23M" (>1h) or "23M 04S". */
 function fmtCountdown(ms: number): string {
@@ -37,25 +38,12 @@ function TokenTimer() {
 }
 
 export function OutOfCoinsModal() {
-  const { outOfCoinsOpen, closeOutOfCoins, earnOne } = useCoinStore();
+  const { outOfCoinsOpen, closeOutOfCoins, guest } = useCoinStore();
   const t = useT();
-  const [adPlaying, setAdPlaying] = useState(false);
   const [premiumNote, setPremiumNote] = useState(false);
+  const dialogRef = useDialogFocus<HTMLDivElement>(outOfCoinsOpen, closeOutOfCoins);
 
   if (!outOfCoinsOpen) return null;
-
-  const watchAd = () => {
-    if (adPlaying) return;
-    sfx.click();
-    setAdPlaying(true);
-    // placeholder "ad" — 2s fake spot, then reward
-    setTimeout(async () => {
-      await earnOne();
-      sfx.correct();
-      setAdPlaying(false);
-      closeOutOfCoins();
-    }, 2000);
-  };
 
   const premium = () => {
     sfx.click();
@@ -66,7 +54,12 @@ export function OutOfCoinsModal() {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4">
       <div
-        className="relative w-full max-w-sm border border-arcade-neon-red bg-arcade-bg p-6 space-y-4 text-center modal-enter"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="out-of-coins-title"
+        tabIndex={-1}
+        className="relative w-full max-w-sm max-h-[85dvh] overflow-y-auto border border-arcade-neon-red bg-arcade-bg p-6 space-y-4 text-center modal-enter"
         style={{ boxShadow: "0 0 40px #ff333344" }}
       >
         <button
@@ -77,25 +70,18 @@ export function OutOfCoinsModal() {
           <X size={16} />
         </button>
 
-        <p className="font-pixel text-sm text-arcade-neon-red neon-text-red tracking-widest animate-blink">
+        <p id="out-of-coins-title" className="font-pixel text-sm text-arcade-neon-red neon-text-red tracking-widest animate-blink">
           {t("outOfCoins")}
         </p>
         <p className="font-pixel text-2xl">🪙</p>
         <p className="font-mono text-sm text-gray-400 leading-relaxed">{t("outOfCoinsDesc")}</p>
 
-        {/* Regen countdown — when the next free token arrives */}
+        {guest && (
+          <p className="font-pixel text-[8px] text-gray-500 tracking-wide">{t("guestTokenRefill")}</p>
+        )}
         <div className="border border-arcade-border py-2">
           <TokenTimer />
         </div>
-
-        <button
-          onClick={watchAd}
-          disabled={adPlaying}
-          className="w-full min-h-[44px] flex items-center justify-center gap-2 py-3 font-pixel text-[9px] border border-arcade-neon-green text-arcade-neon-green hover:bg-arcade-neon-green hover:text-black active:scale-95 active:bg-current/30 transition-all duration-200 disabled:opacity-60"
-        >
-          <Clapperboard size={12} />
-          {adPlaying ? "AD PLAYING..." : t("watchAd")}
-        </button>
 
         <button
           onClick={premium}

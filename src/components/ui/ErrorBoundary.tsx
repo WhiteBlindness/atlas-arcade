@@ -8,11 +8,11 @@ interface Props {
   /** true if the player paid a coin to enter this run (arcade mode) */
   paid?: boolean;
   /** refund the coin when a paid run fails to load its chunk */
-  onRefund?: () => void;
+  onRefund?: () => Promise<boolean>;
   /** re-mount the game to retry the dynamic import */
   onRetry?: () => void;
 }
-interface State { error: Error | null; }
+interface State { error: Error | null; refundStatus: "pending" | "issued" | "unavailable"; }
 
 function isChunkError(err: Error): boolean {
   return (
@@ -22,24 +22,28 @@ function isChunkError(err: Error): boolean {
 }
 
 export class GameErrorBoundary extends Component<Props, State> {
-  state: State = { error: null };
+  state: State = { error: null, refundStatus: "unavailable" };
   private refunded = false;
 
   static getDerivedStateFromError(error: Error): State {
-    return { error };
+    return { error, refundStatus: "unavailable" };
   }
 
   componentDidCatch(error: Error) {
-    // A failed chunk load means the game never mounted — hand the coin back.
+    // The game did not mount, so restore an eligible guest token.
     if (isChunkError(error) && this.props.paid && this.props.onRefund && !this.refunded) {
       this.refunded = true;
-      this.props.onRefund();
+      this.setState({ refundStatus: "pending" });
+      void this.props.onRefund().then(
+        (refunded) => this.setState({ refundStatus: refunded ? "issued" : "unavailable" }),
+        () => this.setState({ refundStatus: "unavailable" }),
+      );
     }
   }
 
   private retry = () => {
     this.refunded = false;
-    this.setState({ error: null });
+    this.setState({ error: null, refundStatus: "unavailable" });
     this.props.onRetry?.();
   };
 
@@ -52,11 +56,15 @@ export class GameErrorBoundary extends Component<Props, State> {
           <p className="font-pixel text-xs text-arcade-neon-red neon-text-red">
             {chunk ? "CONNECTION DROPPED" : "GAME CRASHED"}
           </p>
-          <p className="font-mono text-sm text-gray-500 max-w-xs">
+          <p className="font-mono text-sm text-gray-400 light:text-gray-700 max-w-xs">
             {chunk
               ? this.props.paid
-                ? "Couldn't load the game. Your coin was refunded."
-                : "Couldn't load the game — check your connection."
+                ? this.state.refundStatus === "issued"
+                  ? "Couldn't load the game. Your guest token was refunded."
+                  : this.state.refundStatus === "pending"
+                    ? "Couldn't load the game. Checking your balance..."
+                    : "Couldn't load the game. No refund was issued."
+                : "Couldn't load the game. Check your connection."
               : error.message}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -71,7 +79,7 @@ export class GameErrorBoundary extends Component<Props, State> {
             )}
             <button
               onClick={this.props.onExit}
-              className="min-h-[44px] py-2 px-5 font-pixel text-[9px] border border-arcade-border text-gray-500 hover:text-white hover:border-white active:scale-95 transition-all"
+              className="min-h-[44px] py-2 px-5 font-pixel text-[9px] border border-arcade-border text-gray-400 light:text-gray-700 hover:text-white light:hover:text-gray-900 hover:border-white light:hover:border-gray-900 active:scale-95 transition-all"
               style={{ touchAction: "manipulation" }}
             >
               BACK TO ARCADE

@@ -2,16 +2,24 @@
 
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
-import { fetchUserState, persistTokenRow, addPremium, spendPremium } from "@/lib/supabase/coins";
+import { fetchUserState, refreshUserTokens, consumeUserTokens } from "@/lib/supabase/coins";
 import { fetchProfile } from "@/lib/supabase/profile";
 import { useGameStore } from "@/store/gameStore";
+import { t } from "@/lib/i18n";
+import { useSettingsStore } from "@/store/settingsStore";
+import { toast } from "@/store/toastStore";
 import {
-  accrue, spend as spendTokensState, msToNextToken, freshDay,
-  TOKEN_CEILING, type TokenState,
+  accrue,
+  spend as spendTokensState,
+  refundGuestToken,
+  msToNextToken,
+  freshDay,
+  type TokenState,
 } from "@/lib/tokens";
 import { msUntilNextUtcMidnight } from "@/lib/daily";
+import { classifyAuthLookup } from "@/lib/security/coin-state";
 
-// Guests keep a token state in localStorage (same regen rules, UTC reset).
+// Guest tokens are intentionally local and do not provide account value.
 const GUEST_KEY = "atlas-arcade-guest-tokens";
 
 function readGuestState(): TokenState {
@@ -19,19 +27,21 @@ function readGuestState(): TokenState {
   try {
     const raw = localStorage.getItem(GUEST_KEY);
     if (raw) {
-      const s = JSON.parse(raw) as TokenState;
-      if (typeof s.coins === "number" && typeof s.accrualAt === "number") return accrue(s, Date.now());
+      const state = JSON.parse(raw) as TokenState;
+      if (typeof state.coins === "number" && typeof state.accrualAt === "number") {
+        return accrue(state, Date.now());
+      }
     }
-  } catch { /* corrupted → reset */ }
+  } catch { /* corrupted or unavailable storage falls back to a fresh guest balance */ }
   const fresh = freshDay(Date.now());
   writeGuestState(fresh);
   return fresh;
 }
 
-function writeGuestState(s: TokenState) {
+function writeGuestState(state: TokenState) {
   try {
-    localStorage.setItem(GUEST_KEY, JSON.stringify(s));
-  } catch { /* storage unavailable — session-only balance */ }
+    localStorage.setItem(GUEST_KEY, JSON.stringify(state));
+  } catch { /* storage unavailable; the balance lasts for this session */ }
 }
 
 interface CoinStore {
@@ -46,23 +56,22 @@ interface CoinStore {
   /** Admin/dev account: plays are free and the counter shows ∞. */
   isAdmin: boolean;
   loading: boolean;
+  /** An account token spend is in flight; callers use this to prevent duplicate starts. */
+  spending: boolean;
   outOfCoinsOpen: boolean;
   load: () => Promise<void>;
-  /** Regen tick — accrue elapsed tokens; called on an interval. */
+  /** Regen tick: accrue elapsed tokens; called on an interval. */
   tick: () => void;
   /** Milliseconds until the next regenerated token, or null when idle. */
   msToNext: () => number | null;
   /** Try to spend 1 token. Returns true if the game may start. */
   spend: () => Promise<boolean>;
-  /** Spend `cost` tokens for the Atlas Jackpot (daily first, then premium).
-   *  Signed-in accounts only. Returns true if the boss stage may start. */
+  /** Spend `cost` tokens for the Atlas Jackpot (daily first, then premium). */
   spendTokens: (cost: number) => Promise<boolean>;
-  /** Award n premium tokens (Atlas Jackpot milestone payout). */
+  /** Client-computed game results cannot authorize premium token grants. */
   earnPremium: (n: number) => Promise<void>;
-  /** "Watch ad" placeholder: +1 token (up to the ceiling). */
-  earnOne: () => Promise<void>;
-  /** Give back a spent token when a paid run fails to load. */
-  refund: () => Promise<void>;
+  /** Give back a spent token when a guest run fails to load. */
+  refund: () => Promise<boolean>;
   openOutOfCoins: () => void;
   closeOutOfCoins: () => void;
   reset: () => void;
@@ -70,12 +79,38 @@ interface CoinStore {
 
 let midnightTimer: ReturnType<typeof setTimeout> | null = null;
 let regenTimer: ReturnType<typeof setInterval> | null = null;
+let activeSpend: symbol | null = null;
+let activeLoad: symbol | null = null;
 
-/** Persist a new token state to the right backend and reflect it in the store. */
-function commit(set: (p: Partial<CoinStore>) => void, guest: boolean, next: TokenState) {
-  set({ tokens: next, coins: next.coins });
-  if (guest) writeGuestState(next);
-  else persistTokenRow(next);
+function setTokenState(set: (patch: Partial<CoinStore>) => void, tokens: TokenState, premiumTokens?: number) {
+  set({
+    tokens,
+    coins: tokens.coins,
+    ...(premiumTokens === undefined ? {} : { premiumTokens }),
+  });
+}
+
+function beginSpend(
+  get: () => CoinStore,
+  set: (patch: Partial<CoinStore>) => void,
+): symbol | null {
+  if (get().spending || activeSpend) return null;
+
+  const attempt = Symbol("coin-spend");
+  activeSpend = attempt;
+  set({ spending: true });
+  return attempt;
+}
+
+function finishSpend(attempt: symbol, set: (patch: Partial<CoinStore>) => void) {
+  if (activeSpend !== attempt) return;
+  activeSpend = null;
+  set({ spending: false });
+}
+
+function markAccountBalanceUnavailable(set: (patch: Partial<CoinStore>) => void) {
+  set({ tokens: null, coins: null, premiumTokens: null, isAdmin: false, outOfCoinsOpen: false });
+  toast.error(t(useSettingsStore.getState().lang, "errBalanceUnavailable"));
 }
 
 export const useCoinStore = create<CoinStore>((set, get) => ({
@@ -85,26 +120,34 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
   guest: true,
   isAdmin: false,
   loading: false,
+  spending: false,
   outOfCoinsOpen: false,
 
   load: async () => {
+    const request = Symbol("coin-load");
+    activeLoad = request;
     set({ loading: true });
-    const { data: { user } } = await supabase.auth.getUser();
-    const now = Date.now();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (activeLoad !== request) return;
+    const authState = classifyAuthLookup(user, authError);
 
-    if (user) {
-      // Single RPC: token row + premium + high scores (was 3 separate reads),
-      // plus the profile row for the admin flag.
+    if (authState === "unavailable") {
+      set({ tokens: null, coins: null, premiumTokens: null, guest: false, isAdmin: false, loading: false });
+    } else if (authState === "account") {
+      // Let the database clock apply reset and regeneration before reading the
+      // consolidated balance and score state.
+      const tokens = await refreshUserTokens();
+      if (activeLoad !== request) return;
       const [state, profile] = await Promise.all([fetchUserState(), fetchProfile()]);
+      if (activeLoad !== request) return;
       set({ isAdmin: !!profile?.isAdmin });
-      if (!state) {
-        // RPC unavailable — do NOT fabricate a balance, or a later spend would
-        // overwrite the real DB row. Leave it unknown (null) so spends no-op.
+
+      if (!tokens || !state) {
+        // An unavailable RPC must never be replaced with a fabricated balance.
         set({ tokens: null, coins: null, premiumTokens: null, guest: false, loading: false });
       } else {
-        const tokens = accrue(state.tokens, now);
-        set({ tokens, coins: tokens.coins, premiumTokens: state.premiumTokens, guest: false, loading: false });
-        if (tokens.coins !== state.tokens.coins || tokens.day !== state.tokens.day) persistTokenRow(tokens);
+        setTokenState(set, tokens, state.premiumTokens);
+        set({ guest: false, loading: false });
         useGameStore.getState().setHighScores(state.highScores);
       }
     } else {
@@ -112,11 +155,10 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
       set({ tokens, coins: tokens.coins, premiumTokens: null, guest: true, isAdmin: false, loading: false });
     }
 
-    // refill automatically when UTC midnight passes mid-session
+    if (activeLoad !== request) return;
     if (midnightTimer) clearTimeout(midnightTimer);
     midnightTimer = setTimeout(() => get().load(), msUntilNextUtcMidnight() + 1000);
 
-    // regen accrual tick (grants tokens 1/2h while below the ceiling)
     if (regenTimer) clearInterval(regenTimer);
     regenTimer = setInterval(() => get().tick(), 60_000);
   },
@@ -125,8 +167,12 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
     const { tokens, guest } = get();
     if (!tokens) return;
     const next = accrue(tokens, Date.now());
-    if (next === tokens) return; // no token granted, no day change
-    commit(set, guest, next);
+    if (next === tokens) return;
+
+    // The authenticated value is only a display estimate. The database
+    // computes accrual again during the next spend and remains authoritative.
+    setTokenState(set, next);
+    if (guest) writeGuestState(next);
   },
 
   msToNext: () => {
@@ -135,69 +181,116 @@ export const useCoinStore = create<CoinStore>((set, get) => ({
   },
 
   spend: async () => {
-    const { tokens, guest, isAdmin } = get();
-    // Admin/dev accounts play for free — nothing is deducted or persisted.
-    if (isAdmin) return true;
-    if (!tokens) return false;
-    const next = spendTokensState(tokens, 1, Date.now());
-    if (!next) { set({ outOfCoinsOpen: true }); return false; }
-    commit(set, guest, next);
-    return true;
+    const attempt = beginSpend(get, set);
+    if (!attempt) return false;
+
+    try {
+      if (activeSpend !== attempt) return false;
+      const { tokens, guest } = get();
+      if (guest) {
+        if (!tokens) return false;
+        const next = spendTokensState(tokens, 1, Date.now());
+        if (!next) {
+          set({ outOfCoinsOpen: true });
+          return false;
+        }
+        setTokenState(set, next);
+        if (activeSpend !== attempt) return false;
+        writeGuestState(next);
+        return true;
+      }
+
+      let result;
+      try {
+        result = await consumeUserTokens(1);
+      } catch {
+        if (activeSpend !== attempt) return false;
+        markAccountBalanceUnavailable(set);
+        return false;
+      }
+      if (activeSpend !== attempt) return false;
+      if (!result) {
+        markAccountBalanceUnavailable(set);
+        return false;
+      }
+      set({
+        tokens: result.tokens,
+        coins: result.tokens.coins,
+        premiumTokens: result.premiumTokens,
+        isAdmin: result.isAdmin,
+        ...(!result.ok ? { outOfCoinsOpen: true } : {}),
+      });
+      return result.ok;
+    } finally {
+      finishSpend(attempt, set);
+    }
   },
 
-  // Atlas Jackpot entry: spend `cost` tokens, daily first then premium. Accounts only.
   spendTokens: async (cost) => {
-    const { tokens, premiumTokens, guest, isAdmin } = get();
-    if (isAdmin) return true; // free entry for admin/dev accounts
-    if (guest || !tokens) return false; // sign-in required for the boss stage
-    const prem = premiumTokens ?? 0;
-    if (tokens.coins + prem < cost) {
-      set({ outOfCoinsOpen: true });
-      return false;
-    }
-    const fromDaily = Math.min(tokens.coins, cost);
-    const fromPrem = cost - fromDaily;
+    if (!Number.isInteger(cost) || cost < 1 || cost > 5 || get().guest) return false;
 
-    if (fromDaily > 0) {
-      const next = spendTokensState(tokens, fromDaily, Date.now());
-      if (next) commit(set, false, next);
+    const attempt = beginSpend(get, set);
+    if (!attempt) return false;
+
+    try {
+      if (activeSpend !== attempt) return false;
+      let result;
+      try {
+        result = await consumeUserTokens(cost);
+      } catch {
+        if (activeSpend !== attempt) return false;
+        markAccountBalanceUnavailable(set);
+        return false;
+      }
+      if (activeSpend !== attempt) return false;
+      if (!result) {
+        markAccountBalanceUnavailable(set);
+        return false;
+      }
+      set({
+        tokens: result.tokens,
+        coins: result.tokens.coins,
+        premiumTokens: result.premiumTokens,
+        isAdmin: result.isAdmin,
+        ...(!result.ok ? { outOfCoinsOpen: true } : {}),
+      });
+      return result.ok;
+    } finally {
+      finishSpend(attempt, set);
     }
-    if (fromPrem > 0) {
-      set({ premiumTokens: prem - fromPrem }); // optimistic
-      const p = await spendPremium(prem, fromPrem);
-      if (p !== null) set({ premiumTokens: p });
-    }
-    return true;
   },
 
-  earnPremium: async (n) => {
-    if (n <= 0) return;
-    const { premiumTokens, guest } = get();
-    if (guest || premiumTokens === null) return;
-    set({ premiumTokens: premiumTokens + n }); // optimistic
-    const p = await addPremium(premiumTokens, n);
-    if (p !== null) set({ premiumTokens: p });
-  },
-
-  // Bonus token (watch-ad / refund). Tops up toward the ceiling without touching
-  // the daily grant budget, so it never blocks or is blocked by regen.
-  earnOne: async () => {
-    const { tokens, guest } = get();
-    if (!tokens || tokens.coins >= TOKEN_CEILING) return;
-    commit(set, guest, { ...tokens, coins: tokens.coins + 1 });
-  },
+  // Jackpot outcomes are computed in the browser, so they cannot safely mint
+  // persistent premium balance. Keep the API while a verified attempt flow is absent.
+  earnPremium: async () => {},
 
   refund: async () => {
-    await get().earnOne();
+    const { tokens, guest } = get();
+    const next = refundGuestToken(tokens, guest);
+    if (!next) return false;
+    setTokenState(set, next);
+    writeGuestState(next);
+    return true;
   },
 
   openOutOfCoins: () => set({ outOfCoinsOpen: true }),
   closeOutOfCoins: () => set({ outOfCoinsOpen: false }),
   reset: () => {
+    activeSpend = null;
+    activeLoad = null;
     if (midnightTimer) clearTimeout(midnightTimer);
     if (regenTimer) clearInterval(regenTimer);
     midnightTimer = null;
     regenTimer = null;
-    set({ coins: null, tokens: null, premiumTokens: null, guest: true, isAdmin: false, outOfCoinsOpen: false });
+    set({
+      coins: null,
+      tokens: null,
+      premiumTokens: null,
+      guest: true,
+      isAdmin: false,
+      loading: false,
+      spending: false,
+      outOfCoinsOpen: false,
+    });
   },
 }));

@@ -1,65 +1,58 @@
 # Atlas Arcade
 
-Geography mini-games and a boss stage, in a retro arcade cabinet.
+Eleven geography mini-games and the Atlas Jackpot boss stage, in a retro arcade cabinet.
 
-**Live:** https://atlasarcade.app
+[Play Atlas Arcade](https://atlasarcade.app)
 
-**Status:** Live. Verified on September 27, 2026.
+Atlas Arcade is live. Guests can play without an account. Supabase supports sign-in, profiles, high scores and referrals. Daily challenges use a seed derived from the UTC date; arcade mode uses replenishing game coins. Coins and premium tokens have no cash value, and the app has no purchase flow.
 
-The game list includes GeoRadar, Capital Strike, Flag Frenzy, Peaks & Valleys, Tectonic Snap, Frontier Face-Off, One Strike, Urban Legends, Skyline Silhouette, Border Blitz, and Stat Attack. **Atlas Jackpot** is a boss stage that unlocks at levels 5, 10, and 15.
+## Product and engineering
 
-## Motivation
+The games cover country locations, capitals, flags, elevation, borders, cities and geography statistics. A shared registry supplies the game grid, mode selector and Jackpot pool. Zustand stores session state and browser preferences; pure geography and token functions keep scoring and regeneration rules separate from the interface.
 
-Online geography quizzes often take one of two routes. Educational games can feel like school, while polished casual games can use approximate scoring or outdated facts. Wordle showed that a daily puzzle can be quick, shared, and worth returning to because it is limited.
+The visual system uses pixel typography, square controls and a distinct accent for each game. Explicit foreground and background tokens preserve game-card readability across hover, focus and pressed states in dark and light themes. Modal keyboard support and focused Playwright/axe checks cover the shared shell. Reduced-motion preferences disable non-essential animation.
 
-Atlas Arcade combines a daily puzzle, an arcade-style game loop, and a quiz engine based on real geography data. Its games cover location, names, elevation, skylines, and borders.
-
-## The idea
-
-The CRT skin is the surface. Underneath is a quiz engine that takes geography seriously: real distance-based scoring against real country and city data, no approximations dressed up as difficulty. The retro styling never gets to cost accuracy, and it never gets to cost tap targets or load speed either.
-
-Every game runs in one of two modes. **Daily Challenge** is the same puzzle worldwide, seeded by UTC date, with streaks and leaderboard rankings. **Arcade** allows unlimited play for score and uses a coin economy that refills over time. The daily challenge stays limited, while extended play remains optional.
-
-## Problems worth solving
-
-**One shell for every game.** A change to the mode selector should not require edits in each game. The game-select grid, Daily/Arcade modal, HUD frame, scoring reveal, and coin spend each live in one shared shell. A game supplies its round logic and accent color through `gameTheme.ts`.
-
-**The comparison moment cannot lag.** In a guessing game, the instant between locking an answer and seeing the result is the entire product. Peaks & Valleys shipped with a visible stall there, because the comparison image was fetched at reveal time. Preloading it during the guess phase fixed that game and set the standard the others are held to: no network work on the reveal path, ever.
-
-**Dark theme without a flash.** The arcade is dark by default and saves the user's choice, so the theme must be applied to `<html>` before first paint. Otherwise, each load starts with a white flash. A synchronous inline script runs before hydration. `layout.tsx` documents the React setup and two warnings in this Next.js fork that isolation testing found cannot be fixed in application code.
-
-**An energy economy that respects the player.** Arcade play is gated by coins, and the balance is easy to get wrong in the greedy direction. The rules (`src/lib/tokens.ts`): hold at most 5, regenerate 1 every 2 hours while below the ceiling, at most 10 granted per UTC day, reset at UTC midnight alongside the daily challenge. Crucially the same model runs for guests in localStorage and for signed-in players in Supabase, so nobody is punished for not having an account.
-
-**High-energy visuals with limits.** Retro visuals can include flicker, glitch, and neon. Those effects can pose photosensitivity risks, so each is limited in intensity and frequency. The game never relies on color or motion alone to convey information.
-
-## Design rules the code enforces
-
-These aren't style preferences, they're constraints checked during review:
-
-- **Zero border-radius**, anywhere. Elevation is glow, never a drop shadow.
-- **One neon accent per game**, defined once in `src/lib/gameTheme.ts` and carried through the game's card, its mode-select modal and its in-game HUD. Yellow belongs to Atlas Jackpot alone.
-- **Modals require an explicit close action.** Use the `X` or `[ CLOSE ]` control. A backdrop click never closes a modal. Spending a coin or locking an answer should require intent.
-- **No strobe. Ever.** The flicker, blink and glitch effects stay low-amplitude and slow. High-energy must not mean photosensitivity risk, and WCAG AA contrast holds in both the dark and light themes.
-
-Full visual system in `DESIGN.md`, product intent in `PRODUCT.md`.
+Game components load on demand. The globe renderer uses react-globe.gl and three.js. Peaks & Valleys preloads the next comparison image during the current round; reveal handlers use the current round data rather than waiting for a new question request. External images and map data still depend on their providers and the connection.
 
 ## Stack
 
-Next.js App Router · TypeScript · Zustand for game state · Supabase for auth, profiles, leaderboards and referrals · MapLibre GL and react-globe.gl / three.js for the map and globe games · Tailwind · Press Start 2P + VT323
+Next.js App Router, React, TypeScript, Zustand, Supabase, Tailwind, react-globe.gl, three.js, Press Start 2P and VT323. The app is hosted on Vercel and has English, Portuguese and Spanish game text.
 
-Deployed on Vercel. UI is localized through `src/lib/i18n.ts`.
+## Run locally
 
-## Running it
+Use Node.js 24 and npm:
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-A Supabase project is optional. To enable sign-in, leaderboards, and referral bonuses, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`, then apply the files in `supabase/migrations/` in filename order. Anonymous play works without Supabase.
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` before starting the app. The client initializes Supabase even for guest sessions; playing as a guest does not require creating an account. The repository does not yet contain the complete deployed database schema and RPC definitions; do not treat its migration directory as a complete fresh-project setup.
 
 Country data is regenerated with `node scripts/fetchCountries.mjs`.
 
-## Note on the fork
+## Checks
 
-This project uses a Next.js version with breaking API changes. Read `node_modules/next/dist/docs/` instead of assuming upstream conventions. See `AGENTS.md` for project guidance.
+```bash
+npm test
+npx tsc --noEmit
+npm run lint
+npm run build
+npx playwright install chromium
+npm run test:e2e
+npm run test:e2e:live
+npm audit
+npm audit --omit=dev
+```
+
+Local browser tests use an isolated Supabase test endpoint. The live smoke test reads the public site in a fresh browser context and does not submit account or score data. Card tests calculate contrast from browser-computed colors; screenshots supplement those assertions.
+
+## Data, content and limits
+
+Privacy, terms, storage information and source credits are available through the app footer. [Asset provenance](docs/asset-provenance.md) records image-level licences, attribution conditions and unresolved rights. Geography statistics and coordinates are curated snapshots; some are rounded or can become outdated. They are game data, rather than a reference source for current statistics.
+
+Authenticated balance and score hardening includes guarded database RPCs and a migration with schema preflight checks. That migration requires review against the deployed schema and validation in a test database before production application. The client fails closed when these RPCs are missing. Scores are still reported by the browser; the server bounds submissions but does not verify each answer. Client-computed Jackpot rewards cannot authorize account token grants.
+
+The operator's public identity, privacy contact, retention schedule and deployed deletion behavior remain necessary policy decisions. Full application accessibility and third-party asset rights are not certified by the focused automated checks.
+
+[Design rules](DESIGN.md) and [product intent](PRODUCT.md) describe the interface. Read the installed Next.js guides under `node_modules/next/dist/docs/` before changing framework APIs.

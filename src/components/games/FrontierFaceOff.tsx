@@ -8,7 +8,6 @@ import { COUNTRIES, COUNTRY_BY_NUMERIC } from "@/data/countries";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { sfx } from "@/lib/sfx";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -113,7 +112,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
   const [status, setStatus] = useState<"loading" | "playing" | "done">("loading");
 
   const livesRef = useRef(useGameStore.getState().mode === "daily" ? START_LIVES : 1);
-  const questionStartRef = useRef(Date.now());
+  const questionStartRef = useRef(0);
   const scoreSavedRef = useRef(false);
   const isAnswered = chosen !== null;
   const current = questions?.[idx];
@@ -187,8 +186,7 @@ function FrontierFaceOffStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">
             {t("igBordersNailed").replace("{X}", `${correct}${isDaily ? ` / ${TOTAL_QUESTIONS}` : ""}`)}
           </p>
-          <DailyPercentile performance={0.6 * (correct / TOTAL_QUESTIONS) + 0.4 * Math.min(1, score / (TOTAL_QUESTIONS * 170))} />
-        </div>
+</div>
         <EndScreenActions
           slug="frontier-faceoff"
           gameTitle="FRONTIER FACE-OFF"

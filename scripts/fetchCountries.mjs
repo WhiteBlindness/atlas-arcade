@@ -1,31 +1,24 @@
 // scripts/fetchCountries.mjs
 //
-// Generates src/data/worldCountries.json — the comprehensive GeoRadar country
-// pool with localized (EN/PT/ES) names, coordinates, ISO numeric code and
-// population.
+// Generates matching app and public snapshots for country reference data.
+// They include localized names, coordinates, ISO numeric code, and population.
 //
-// NOTE ON THE DATA SOURCE:
-// The task originally specified https://restcountries.com/v3.1/all, but that
-// endpoint is DEPRECATED — it now 301-redirects to a "This API version has been
-// deprecated … migrate to v5" error and returns no data. Rather than depend on a
-// dead (and now gated) API, this script pulls the SAME underlying dataset that
-// restcountries is built from, straight from its open static sources on jsDelivr:
-//   • mledoze/world-countries — name.common, translations.por/spa.common,
-//     cca2, ccn3 (ISO numeric), latlng. Everything except population.
-//   • samayo/country-json      — population, keyed by English country name.
-// Both are static CDN JSON (no key, no rate limit), so re-running this stays
-// reproducible and the app ships a baked JSON with zero runtime API latency.
-//
+// Data sources:
+// - mledoze/countries supplies localized names, country codes, and coordinates.
+// - samayo/country-json supplies population values by English country name.
+// This script merges the static datasets into the app and public snapshots.
 // Run: node scripts/fetchCountries.mjs
 
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const GEO_URL = "https://cdn.jsdelivr.net/gh/mledoze/countries@master/countries.json";
 const POP_URL = "https://cdn.jsdelivr.net/gh/samayo/country-json@master/src/country-by-population.json";
 
-const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "data", "worldCountries.json");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const OUT = join(ROOT, "src", "data", "worldCountries.json");
+const PUBLIC_OUT = join(ROOT, "public", "licenses", "world-countries.json");
 
 /** Normalize a country name for fuzzy matching: strip accents, punctuation, case. */
 const norm = (s) =>
@@ -101,10 +94,19 @@ async function main() {
   }
 
   out.sort((a, b) => a.name.en.localeCompare(b.name.en));
-  await writeFile(OUT, JSON.stringify(out, null, 2) + "\n", "utf8");
+  const serialized = JSON.stringify(out, null, 2) + "\n";
+  await Promise.all([
+    mkdir(dirname(OUT), { recursive: true }),
+    mkdir(dirname(PUBLIC_OUT), { recursive: true }),
+  ]);
+  await Promise.all([
+    writeFile(OUT, serialized, "utf8"),
+    writeFile(PUBLIC_OUT, serialized, "utf8"),
+  ]);
 
   // ── Report ────────────────────────────────────────────────────────────────
   console.log(`\nWrote ${out.length} countries → ${OUT}`);
+  console.log("Public license snapshot: " + PUBLIC_OUT);
   console.log(`Skipped (no ISO numeric): ${skipped.length ? skipped.join(", ") : "none"}`);
   console.log(`No population matched (${noPopulation.length}): ${noPopulation.join(", ") || "none"}`);
   const bottom = [...out].filter((c) => c.population != null).sort((a, b) => a.population - b.population).slice(0, 20);

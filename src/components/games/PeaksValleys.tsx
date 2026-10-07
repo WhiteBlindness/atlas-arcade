@@ -7,7 +7,6 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededShuffle, createSeededRng } from "@/lib/daily";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -126,7 +125,7 @@ function EntryCard({ entry, revealed, phase, isRight, onHigher, onLower }: CardP
     >
       {/* Background photo with dark overlay to keep arcade contrast */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <img crossOrigin="anonymous"
         src={entry.imageUrl}
         alt=""
         aria-hidden
@@ -236,7 +235,7 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
   // Both current cards render unconditionally (see EntryCard), so their photos
   // are already fetching from the moment they enter state — that part was never
   // slow. The 1-2s stall is the NEXT round's card: its identity is only decided
-  // inside the setTimeout at transition time, so its <img src> doesn't exist
+  // inside the setTimeout at transition time, so its image element doesn't exist
   // until the instant it needs to already be on screen. drawNext() is pure, so
   // predicting what it will draw lets the browser start fetching that photo the
   // moment this round begins — giving it the whole round's dwell time instead
@@ -288,8 +287,8 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
       {/* React 19 hoists <link> anywhere in the tree into <head>, deduping by
           href — this is the "preload before it's mounted" fix: the browser
           starts fetching next round's photo now, so it's already cached by the
-          time the real <img> for it mounts. */}
-      {preloadEntry && <link rel="preload" as="image" href={preloadEntry.imageUrl} />}
+          time the real image element for it mounts. */}
+      {preloadEntry && <link rel="preload" as="image" crossOrigin="anonymous" href={preloadEntry.imageUrl} />}
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-arcade-border shrink-0">
@@ -371,7 +370,6 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
                 <span className="font-pixel text-[8px] text-gray-500">{t("igCorrectCount")}</span>
                 <span className="font-mono text-sm text-white text-right">{formatNumber(round)}</span>
               </div>
-              <DailyPercentile performance={Math.min(1, score / 1500)} />
               <EndScreenActions
                 slug="peaks-valleys"
                 gameTitle="PEAKS & VALLEYS"
@@ -402,7 +400,6 @@ function PeaksValleysStandalone({ onExit }: { onExit: () => void }) {
                   {formatNumber(score)} PTS
                 </span>
               </div>
-              <DailyPercentile performance={1} />
               <EndScreenActions
                 slug="peaks-valleys"
                 gameTitle="PEAKS & VALLEYS"

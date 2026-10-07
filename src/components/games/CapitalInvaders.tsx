@@ -8,7 +8,6 @@ import { splitByDifficulty, tierForLevel, type Difficulty } from "@/data/difficu
 import { useGameStore } from "@/store/gameStore";
 import { saveHighScore } from "@/lib/supabase/scores";
 import { gameRng, seededShuffle, seededPick, createSeededRng, type Rng } from "@/lib/daily";
-import { DailyPercentile } from "@/components/ui/DailyPercentile";
 import { EndScreenActions } from "@/components/ui/EndScreenActions";
 import { GameBackButton } from "@/components/ui/GameBackButton";
 import { HowToPlayButton } from "@/components/ui/HowToPlay";
@@ -47,17 +46,17 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
   const tiers = useMemo(() => splitByDifficulty(COUNTRIES.filter((c) => COUNTRY_META[c.numeric])), []);
   const allPool = useMemo(() => COUNTRIES.filter((c) => COUNTRY_META[c.numeric]), []);
 
-  const rngRef = useRef<Rng>(gameRng("capital-invaders", useGameStore.getState().mode));
-  const usedRef = useRef<Set<number>>(new Set());
+  const [sessionRng] = useState<Rng>(() => gameRng("capital-invaders", useGameStore.getState().mode));
+  const [used] = useState(() => new Set<number>());
 
   const makeQuestion = useCallback((level: number): Question => {
     const tier = tierForLevel(level, useGameStore.getState().mode);
-    const rng = rngRef.current;
+    const rng = sessionRng;
     const pool = tiers[tier];
-    let available = pool.filter((c) => !usedRef.current.has(c.numeric));
+    let available = pool.filter((c) => !used.has(c.numeric));
     if (available.length === 0) available = pool;
     const correct = seededPick(available, rng);
-    usedRef.current.add(correct.numeric);
+    used.add(correct.numeric);
     let distractors = seededShuffle(pool.filter((c) => c.numeric !== correct.numeric), rng).slice(0, 3);
     if (distractors.length < 3) {
       const extra = seededShuffle(
@@ -72,7 +71,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
       options: seededShuffle([correct, ...distractors], rng),
       tier,
     };
-  }, [tiers, allPool]);
+  }, [tiers, allPool, sessionRng, used]);
 
   const [level, setLevel] = useState(1);
   const [question, setQuestion] = useState<Question>(() => makeQuestion(1));
@@ -81,7 +80,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
   const [status, setStatus] = useState<"playing" | "done">("playing");
   const [cleared, setCleared] = useState(0);
 
-  const questionStartRef = useRef(Date.now());
+  const questionStartRef = useRef(0);
   const scoreSavedRef = useRef(false);
   const isAnswered = chosen !== null;
 
@@ -146,8 +145,7 @@ function CapitalInvadersStandalone({ onExit }: { onExit: () => void }) {
           <p className="font-pixel text-[8px] text-gray-500">
             {t("igLevelsCleared").replace("{X}", `${cleared}${isDaily ? ` / ${DAILY_LEVELS}` : ""}`)}
           </p>
-          <DailyPercentile performance={performance} />
-        </div>
+</div>
         <EndScreenActions
           slug="capital-invaders"
           gameTitle="CAPITAL STRIKE"

@@ -17,6 +17,10 @@ const Globe = dynamic(() => import("./GlobeInner"), { ssr: false });
 const FLY_ALTITUDE = 1.5;
 const FLY_MS = 1200;
 
+function cameraFlightDuration() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : FLY_MS;
+}
+
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 // High-contrast palette: the page background is near-black (#080810), so a deep
 // blue ocean with clearly lighter land reads strongly in dark or light mode.
@@ -132,14 +136,14 @@ export function WorldMapGlobe({ colorMap, mysteryNumeric, zoomTarget, flyTo }: P
     if (!c) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f = geo?.features?.find((x: any) => x.properties?.id === zoomTarget);
-    globeRef.current?.pointOfView({ lat: c.lat, lng: c.lng, altitude: altitudeFor(f) }, FLY_MS);
+    globeRef.current?.pointOfView({ lat: c.lat, lng: c.lng, altitude: altitudeFor(f) }, cameraFlightDuration());
   }, [zoomTarget, geo]);
 
   // Action B — click-to-fly: a fresh flyTo object (new identity per guess-list
   // click) re-triggers this, so clicking the same row twice still flies.
   useEffect(() => {
     if (!flyTo) return;
-    globeRef.current?.pointOfView({ lat: flyTo.lat, lng: flyTo.lng, altitude: FLY_ALTITUDE }, FLY_MS);
+    globeRef.current?.pointOfView({ lat: flyTo.lat, lng: flyTo.lng, altitude: FLY_ALTITUDE }, cameraFlightDuration());
   }, [flyTo]);
 
   // Measure the container in a layout effect (before paint) so the FIRST

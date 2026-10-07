@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { safeInternalPath } from "@/lib/security/trust";
 
 /**
  * OAuth / PKCE callback.
@@ -12,26 +13,25 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   // if "next" is in param, use it as the redirect URL
-  const next = searchParams.get("next") ?? "/";
+  const next = safeInternalPath(searchParams.get("next"), "/", origin);
 
   if (code) {
     try {
       const supabase = await createSupabaseServerClient();
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (!error) {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(new URL(next, origin));
       }
-      console.error("Auth callback error:", error.message);
-    } catch (err) {
+    } catch {
       // Covers AuthSessionMissingError, cookie-store failures and network drops.
-      console.error("Unexpected error in auth callback:", err);
+      console.error("Unexpected error in auth callback.");
     }
   }
 
   // If we get here, either no code was provided or the exchange failed.
   // Graceful degradation: redirect home with an error parameter instead of
   // throwing a 500.
-  return NextResponse.redirect(`${origin}/?error=auth_failed`);
+  return NextResponse.redirect(new URL("/?error=auth_failed", origin));
 }
 
 // Supabase can be configured to POST to the callback (and some providers do);

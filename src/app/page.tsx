@@ -13,12 +13,15 @@ import { AtlasJackpotBanner } from "@/components/ui/AtlasJackpotBanner";
 import { DailyResultScreen } from "@/components/ui/DailyResultScreen";
 import { useDailyStore } from "@/store/dailyStore";
 import { useCoinStore } from "@/store/coinStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import Link from "next/link";
 
 export default function HomePage() {
   const { user } = useAuthStore();
   const { activeGame, mode, runId, highScores, pendingGame, openModeSelect, exitGame, retryGame } = useGameStore();
   const getDailyResult = useDailyStore((s) => s.getResult);
   const refundCoin = useCoinStore((s) => s.refund);
+  const lang = useSettingsStore((s) => s.lang);
   const t = useT();
 
   if (activeGame) {
@@ -51,7 +54,7 @@ export default function HomePage() {
     <div className="min-h-dvh flex flex-col">
       <ArcadeHeader />
       <main className="flex-1 flex flex-col items-center px-4 py-10 gap-10">
-        {/* Boss Stage hero — above the standard grid */}
+        {/* Boss Stage hero above the standard grid */}
         <AtlasJackpotBanner />
 
         <div className="text-center space-y-3">
@@ -77,13 +80,19 @@ export default function HomePage() {
           ))}
         </div>
 
-        <p className="font-pixel text-[8px] text-gray-700 tracking-widest">
-          © ATLAS ARCADE — {new Date().getFullYear()}
-        </p>
       </main>
 
       <ModeSelectModal title={pendingGame ? GAME_REGISTRY[pendingGame]?.title ?? "" : ""} />
       <OutOfCoinsModal />
+      <footer className="border-t border-arcade-border px-4 py-5">
+        <nav aria-label={lang === "pt" ? "Documentos do serviço" : "Service documents"} className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-5 gap-y-3">
+          <Link href="/privacy" className="min-h-11 py-3 font-pixel text-[7px] text-gray-400 light:text-gray-700 hover:text-arcade-neon-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-arcade-neon-cyan">{lang === "pt" ? "Privacidade" : "Privacy"}</Link>
+          <Link href="/terms" className="min-h-11 py-3 font-pixel text-[7px] text-gray-400 light:text-gray-700 hover:text-arcade-neon-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-arcade-neon-cyan">{lang === "pt" ? "Condições" : "Terms"}</Link>
+          <Link href="/cookies" className="min-h-11 py-3 font-pixel text-[7px] text-gray-400 light:text-gray-700 hover:text-arcade-neon-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-arcade-neon-cyan">{lang === "pt" ? "Cookies e armazenamento" : "Cookies and storage"}</Link>
+          <Link href="/credits" className="min-h-11 py-3 font-pixel text-[7px] text-gray-400 light:text-gray-700 hover:text-arcade-neon-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-arcade-neon-cyan">{lang === "pt" ? "Créditos" : "Credits"}</Link>
+        </nav>
+        <p className="mt-3 text-center font-pixel text-[7px] text-gray-400 light:text-gray-700 tracking-widest">© ATLAS ARCADE · {new Date().getFullYear()}</p>
+      </footer>
     </div>
   );
 }
