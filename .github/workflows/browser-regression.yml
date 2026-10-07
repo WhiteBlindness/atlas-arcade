@@ -3,6 +3,11 @@ name: Browser regression
 on:
   pull_request:
   push:
+    branches: [master]
+
+concurrency:
+  group: browser-regression-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -11,6 +16,10 @@ jobs:
   browser-regression:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    container:
+      # Keep the browser image aligned with the Playwright version in package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host --user 1001
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,7 +27,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npx tsc --noEmit
       - run: npm run lint
       - run: npm test
