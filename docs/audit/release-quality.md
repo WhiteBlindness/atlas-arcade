@@ -90,7 +90,7 @@ O texto de partilha e os resultados mostram a pontuação real, sem uma percenta
 
 ## Segurança
 
-A atualização compatível usa Next.js 16.3.6 e React/React DOM 19.2.8. Foram removidas as dependências MapLibre e react-map-gl sem implementação ativa correspondente. A auditoria das dependências de execução deste ramo não apresenta avisos; a auditoria completa identifica um aviso único de gravidade alta em `braces`, propagado por cinco pacotes de desenvolvimento, sem correção compatível disponível na análise.
+A atualização compatível usa Next.js 16.3.8 e React/React DOM 19.2.8. Foram removidas as dependências MapLibre e react-map-gl sem implementação ativa correspondente. A auditoria das dependências de execução deste ramo não apresenta avisos; a auditoria completa identifica um aviso único de gravidade alta em `braces`, propagado por cinco pacotes de desenvolvimento, sem correção compatível disponível na análise.
 
 O lockfile de `master`, que corresponde ao código publicado, mantém sete pacotes afetados nas dependências de execução: dois críticos, quatro altos e um moderado. Não foi demonstrada a exploração desses avisos nesta implantação. As correções de dependências deste ramo ainda não estão publicadas.
 

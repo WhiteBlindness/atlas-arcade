@@ -30,7 +30,7 @@ Os dois estados suportados de produção são `master + A`, durante a transiçã
 
 ## Ensaio reproduzível
 
-O laboratório usa PostgreSQL 17.10, Supabase Auth 2.197.0, PostgREST 16.4 e Chromium. Auth inicializa o esquema completo e emite sessões reais. Uma cópia de `master` usa o código e lockfile da revisão publicada; o PR usa o seu próprio código e dependências. O esquema público reproduz o catálogo remoto e reaplica as quatro migrações de produção. Não copia dados nem credenciais de produção.
+O laboratório usa PostgreSQL 17.10, Supabase Auth 2.197.0, PostgREST 16.4 e Chromium. Auth inicializa o esquema completo e emite sessões reais. Uma cópia de `master` usa o código e lockfile da revisão publicada; o PR usa o seu próprio código e dependências, com Next.js 16.3.8 e React 19.2.8. O esquema público reproduz o catálogo remoto e reaplica as quatro migrações de produção. Não copia dados nem credenciais de produção.
 
 As duas aplicações usam **a mesma base**, que avança de anterior para A e depois A+B. Os testes criam contas descartáveis e apagam-nas. Não usam asserções sobre a interface otimista como prova de persistência: verificam o estado remoto e os pedidos de rede. Os segredos locais ficam em memória. O laboratório só escuta na interface local.
 
@@ -39,13 +39,13 @@ As duas aplicações usam **a mesma base**, que avança de anterior para A e dep
 | Master anterior | Registo, entrada, perfil/estado, gasto, Jackpot premium, regeneração, pontuação/classificação, convite em maiúsculas, recarregamento e saída/nova entrada: PASS. |
 | Master com A | Mesmo percurso: PASS. Após convite, saldo 5 diárias/20 premium; partida deixa 4/20; Jackpot deixa 0/19. Duas horas simuladas produzem 1 diária, `granted_today=6` e 19 premium. Reload/nova entrada conservam o estado. PATCH de saldo: 204/200; UPSERT de pontuação: 201. |
 | PR com A e com A+B | Registo/entrada, perfil, atualização, gasto, Jackpot, pontuação, classificação, convite, recarregamento, saída/nova entrada e eliminação pela interface: PASS em ambas as fases. Saldos após convite 5/20, partida 4/20 e Jackpot 0/19. |
-| Rede do PR em cada fase suportada | `arcade_refresh_user_tokens` três POST 200; `arcade_consume_user_tokens` dois POST 200; `arcade_submit_high_score` um POST 200, resultado 0; `redeem_referral` POST 200, true. Zero mutações REST diretas nas três tabelas. |
+| Rede do PR em cada fase suportada | `arcade_refresh_user_tokens` quatro POST 200 em A e três em A+B; `arcade_consume_user_tokens` dois POST 200; `arcade_submit_high_score` um POST 200, resultado 0; `redeem_referral` POST 200, true. Zero mutações REST diretas nas três tabelas. |
 | Master após B | PATCH de saldo: três 403; POST de pontuação: 403. Saldo mantém 5/20; zero consumo remoto e nenhuma pontuação persistida. FAIL intencional das mutações antigas. |
 | Eliminação e JWT anterior | A e A+B: estado nulo, sem recriação, nova entrada recusada. No esquema anterior, o RPC antigo devolve FK 23503 ao tentar recriar a linha; essa limitação não é aceite nas fases novas. |
 | Segurança PostgreSQL | 16/16, sem testes omitidos; inclui A compatível, B sem sinal recusada e ROLLBACK de B após 5s de bloqueio. |
 | Unitários | 28/28. |
 
-A prova adicional com Auth/PostgREST em A+B resgatou um código armazenado em minúsculas com entrada em maiúsculas, devolveu true e confirmou 20 premium.
+A prova adicional com Auth/PostgREST em A e A+B resgatou um código armazenado em minúsculas com entrada em maiúsculas, devolveu true e confirmou 20 premium.
 
 Os ensaios concorrentes finais conservam 16 ligações independentes: 16 consumos autorizam exatamente cinco gastos com cinco fichas; 16 convites atribuem exatamente um prémio de 20 premium; 16 pontuações conservam o máximo 115; 12 gastos e quatro atualizações provocam uma reposição diária, cinco gastos e saldo zero.
 
