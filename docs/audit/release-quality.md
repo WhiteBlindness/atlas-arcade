@@ -42,7 +42,7 @@ Os testes abrangem os temas escuro e claro, computador de 1 440 × 900, telemóv
 | Remover avaliações falsas | NOT APPLICABLE | Não existe uma funcionalidade de avaliações ou testemunhos. |
 | Condições de utilização | APPLICABLE | Página acrescentada com regras de contas, pontuações e fichas sem valor monetário. |
 | Conteúdos e serviços externos | APPLICABLE | Inventário de destinatários, finalidades e implicações de pedidos no navegador. |
-| Direitos sobre as imagens | LEGAL REVIEW | Créditos por ficheiro; 185 registos condicionais e um com autorização desconhecida. |
+| Direitos sobre as imagens | LEGAL REVIEW | Créditos por ficheiro; 186 registos Wikimedia condicionais, sem autorização desconhecida. |
 | Política de cookies | APPLICABLE | Página descreve autenticação e as quatro chaves de armazenamento local. |
 | Verificar seguimento | APPLICABLE | O teste público identificou WMF-Uniq em imagens externas. Os pedidos de fotografias e o pré-carregamento passam a usar CORS sem credenciais. |
 | Consentimento nos formulários | LEGAL REVIEW | Ligações para as políticas; sem caixas de consentimento sem finalidade. Fundamentos jurídicos por definir. |
@@ -74,13 +74,13 @@ O resgate de convites ignora o prémio indicado pelo cliente, aceita códigos an
 
 Os resultados do Atlas Jackpot não autorizam prémios premium numa conta. As devoluções de fichas após falhas de carregamento só são anunciadas quando uma ficha local foi reposta. Uma devolução segura a contas exige prova do consumo e da tentativa. Os pedidos de consumo simultâneos são bloqueados para impedir cobranças repetidas de uma só partida. A perda da resposta após um débito continua ambígua, porque não há identificador persistente de tentativa nem devolução verificável para contas.
 
-A versão do cliente exige as novas funções: não deve ser publicada antes da validação e aplicação da migração. A falta do esquema completo e das funções remotas mantém a autoridade dos saldos de produção em estado bloqueado. A função de remoção `delete_own_user` também não está definida nas migrações registadas. Ver [auditoria de segurança](security-trust.md).
+A versão do cliente exige as novas funções: não deve ser publicada antes da aplicação aprovada da migração. O catálogo remoto confirmou o esquema, as permissões e as oito funções existentes. A migração ajustada passou numa base PostgreSQL isolada e no percurso autenticado da aplicação. A remoção da própria conta usa a identidade da sessão e elimina os dados associados por relações em cascata; falhas impedem a remoção parcial. A aplicação em produção continua por aprovar. Ver [validação Supabase](remote-supabase-validation.md) e [auditoria de segurança](security-trust.md).
 
 ## Conteúdos e direitos
 
-O inventário contém 229 referências de fotografias nos conjuntos de dados, correspondentes a 219 ficheiros Wikimedia únicos. As 73 fotografias de cidades servem dois jogos; por isso, o total de utilizações nos três jogos é 302. Foram identificados 33 ficheiros verificados, 185 condicionais e um desconhecido. Não houve substituição ou remoção em massa.
+O inventário contém 229 referências de fotografias nos conjuntos de dados, correspondentes a 219 ficheiros Wikimedia únicos. As 73 fotografias de cidades servem dois jogos; por isso, o total de utilizações nos três jogos é 302. Foram identificados 33 ficheiros verificados, 186 condicionais e nenhum desconhecido. Foi substituída uma única fotografia.
 
-O ficheiro desconhecido é `Lake Baikal.jpg`: a indicação de ausência de restrições conhecidas não estabelece uma licença afirmativa. Os registos condicionais incluem atribuição, ligações às licenças, partilha nos mesmos termos e possíveis direitos adicionais sobre emblemas, património, marcas ou pessoas.
+A fotografia `Lake Baikal.jpg` foi substituída por `Lake Baikal, Russia.jpg`, de Vyacheslav Argenberg, com licença CC BY 4.0. A indicação de ausência de restrições conhecidas do ficheiro anterior não estabelecia uma licença afirmativa. Os registos condicionais incluem atribuição, ligações às licenças, partilha nos mesmos termos e possíveis direitos adicionais sobre emblemas, património, marcas ou pessoas.
 
 A página de créditos apresenta autores, fontes, licenças e condições por ficheiro. O conjunto de dados dos países tem um exemplar público e avisos ODbL/MIT. Fontes, ícones, mapas e identidade Google têm os avisos ou regras próprios. Ver [proveniência](../asset-provenance.md) e [auditoria de licenças](asset-licensing.md).
 
@@ -106,15 +106,15 @@ Os componentes dos jogos carregam de forma diferida; o renderizador do globo est
 
 ## Validação e revisão
 
-A instalação limpa (`npm ci`), a análise de tipos, a verificação de estilo e a compilação passaram. Os testes unitários passaram 22/22; os testes locais de navegador passaram 39/39; a sessão pública passou 1/1. O axe não encontrou violações nos percursos abrangidos. Foram revistas as quatro capturas de ecrã dos temas, da passagem do rato e do telemóvel. Três fotografias reais carregaram sem cookies do fornecedor.
+A instalação limpa (`npm ci`), a análise de tipos, a verificação de estilo e a compilação passaram. Os testes unitários passaram 26/26; os testes reais PostgreSQL passaram 13/13, incluindo concorrência e falha atómica de remoção; o percurso autenticado numa base isolada passou; os testes locais de navegador passaram 39/39; a sessão pública passou 1/1. O axe não encontrou violações nos percursos abrangidos. Foram revistas as quatro capturas de ecrã dos temas, da passagem do rato e do telemóvel. Três fotografias reais carregaram sem cookies do fornecedor.
 
 A auditoria de execução apresenta zero avisos; a auditoria completa mantém cinco pacotes de desenvolvimento afetados por um único aviso alto em `braces`. A cobertura medida das funções puras selecionadas não representa cobertura global da aplicação.
 
 ## Decisões necessárias
 
-1. Rever o esquema e todas as funções remotas que podem alterar perfis, saldos e pontuações; validar a migração numa instância de teste e aprovar separadamente a aplicação em produção.
-2. Fornecer identidade e contacto público do responsável e definir fundamentos jurídicos, retenção, regras de idade e exercício de direitos. Confirmar o funcionamento da remoção de contas.
+1. Aprovar separadamente a aplicação da migração em produção, após repetir as verificações prévias de dados. O esquema remoto e os testes isolados já foram validados. O ramo desativa a publicação automática Vercel até existir aprovação.
+2. Fornecer identidade e contacto público do responsável e definir fundamentos jurídicos, retenção, regras de idade e exercício de direitos. Definir a retenção de registos e cópias de segurança, que não é resolvida pela remoção das linhas da conta.
 3. Obter a decisão jurídica sobre preferências e persistência de convites; implementar a escolha necessária ou remover a persistência se não existir exceção aplicável.
-4. Confirmar autorização para `Lake Baikal.jpg` ou substituí-la; cumprir as condições de atribuição, adaptações e direitos adicionais nos restantes registos.
+4. Cumprir as condições de atribuição, adaptações e direitos adicionais nos registos condicionais. A imagem de Baikal sem licença afirmativa já foi substituída.
 
 Estas condições impedem declarar a versão integralmente preparada para publicação.

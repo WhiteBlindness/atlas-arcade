@@ -1,5 +1,13 @@
 {
   "crons": [
-    { "path": "/api/cron/keep-alive", "schedule": "0 3 * * *" }
-  ]
+    {
+      "path": "/api/cron/keep-alive",
+      "schedule": "0 3 * * *"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "fix/release-quality-audit": false
+    }
+  }
 }

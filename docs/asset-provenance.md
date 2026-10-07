@@ -1,6 +1,6 @@
 # Asset provenance
 
-Atlas Arcade uses sourced photographs, national flags, map data, fonts, interface icons, and a local profile icon. The [Credits page](/credits) reads file-level records from [assetProvenance.json](../src/data/assetProvenance.json), exposed through [assetCredits.ts](../src/lib/assetCredits.ts). This document explains how those records are maintained.
+Atlas Arcade uses sourced photographs, national flags, map data, fonts, interface icons, and a local profile icon. The [Credits page](/credits) reads file-level records from [assetProvenance.json](../src/data/assetProvenance.json), exposed through [assetCredits.ts](../src/lib/assetCredits.ts). It shows the asset title and listed creator, separate links to the source and license, attribution text, modification status, restrictions, and notes. Record any display filter applied to an image. This document explains how those records are maintained.
 
 Reviewed: 07/10/2026
 
@@ -42,4 +42,4 @@ Before adding an image, font, flag, avatar style, or map dataset:
 4. Add the record to src/data/assetProvenance.json and confirm that the typed export and Credits page display it.
 5. Recheck versioned or remotely hosted assets when their URL or source version changes.
 
-For Creative Commons files, the credited author, source, license link, and modification notice should follow the exact license version on the file page. CC BY-SA, FAL, and GFDL terms can add obligations when material is adapted. The [CC BY deed](https://creativecommons.org/licenses/by/4.0/) and [CC BY-SA deed](https://creativecommons.org/licenses/by-sa/4.0/) summarize version 4.0; individual manifest rows link the license version for each file.
+For Creative Commons files, follow the exact license version recorded for each source. CC BY 4.0 requires appropriate credit, links to the material and license, and a notice of changes. CC BY-SA 4.0 has the same attribution terms and adds a share-alike duty for adaptations: contributions to an adaptation must use the same or a compatible license. The inventory records CSS filters but does not decide whether a particular on-screen filter is an adaptation. Copyright licenses do not automatically grant separate privacy, publicity, moral, trademark, or cultural-property rights; review any source restrictions and applicable law. The [CC BY deed](https://creativecommons.org/licenses/by/4.0/) and [CC BY-SA deed](https://creativecommons.org/licenses/by-sa/4.0/) summarize version 4.0; individual manifest rows link the license version for each file.

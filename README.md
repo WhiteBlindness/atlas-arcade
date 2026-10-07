@@ -1,37 +1,37 @@
 # Atlas Arcade
 
-Eleven geography mini-games and the Atlas Jackpot boss stage, in a retro arcade cabinet.
+Onze minijogos de geografia e o desafio Atlas Jackpot, numa recreativa com estética retro.
 
-[Play Atlas Arcade](https://atlasarcade.app)
+[Jogar Atlas Arcade](https://atlasarcade.app)
 
-Atlas Arcade is live. Guests can play without an account. Supabase supports sign-in, profiles, high scores and referrals. Daily challenges use a seed derived from the UTC date; arcade mode uses replenishing game coins. Coins and premium tokens have no cash value, and the app has no purchase flow.
+O Atlas Arcade está publicado. Os convidados podem jogar sem conta. A Supabase suporta autenticação, perfis, recordes e convites. Os desafios diários usam uma sequência determinada pela data UTC; o modo recreativa usa fichas que se regeneram. As fichas diárias e premium não têm valor monetário e não existe um percurso de compra.
 
-## Product and engineering
+## Produto e engenharia
 
-The games cover country locations, capitals, flags, elevation, borders, cities and geography statistics. A shared registry supplies the game grid, mode selector and Jackpot pool. Zustand stores session state and browser preferences; pure geography and token functions keep scoring and regeneration rules separate from the interface.
+Os jogos abrangem países, capitais, bandeiras, altitude, fronteiras, cidades e estatísticas geográficas. Um registo partilhado alimenta a grelha de jogos, a seleção de modos e o conjunto do Jackpot. O Zustand gere o estado da sessão e as preferências do navegador; funções puras mantêm as regras de pontuação e regeneração separadas da interface.
 
-The visual system uses pixel typography, square controls and a distinct accent for each game. Explicit foreground and background tokens preserve game-card readability across hover, focus and pressed states in dark and light themes. Modal keyboard support and focused Playwright/axe checks cover the shared shell. Reduced-motion preferences disable non-essential animation.
+O sistema visual usa tipografia pixelizada, controlos quadrados e uma cor por jogo. Cores explícitas de texto e fundo mantêm a legibilidade dos cartões nos estados de passagem do rato, foco e pressão, nos dois temas. Os diálogos suportam teclado; os testes Playwright e axe abrangem a estrutura partilhada. A preferência por movimento reduzido desativa animações decorativas.
 
-Game components load on demand. The globe renderer uses react-globe.gl and three.js. Peaks & Valleys preloads the next comparison image during the current round; reveal handlers use the current round data rather than waiting for a new question request. External images and map data still depend on their providers and the connection.
+Os componentes dos jogos carregam quando são necessários. O globo usa react-globe.gl e three.js. Peaks & Valleys pré-carrega a fotografia da comparação seguinte durante a ronda atual; a revelação usa os dados disponíveis. As imagens e os mapas externos continuam dependentes dos fornecedores e da ligação.
 
-## Stack
+## Tecnologias
 
-Next.js App Router, React, TypeScript, Zustand, Supabase, Tailwind, react-globe.gl, three.js, Press Start 2P and VT323. The app is hosted on Vercel and has English, Portuguese and Spanish game text.
+Next.js App Router, React, TypeScript, Zustand, Supabase, Tailwind, react-globe.gl, three.js, Press Start 2P e VT323. A Vercel aloja a aplicação, que disponibiliza textos dos jogos em inglês, português e espanhol.
 
-## Run locally
+## Executar localmente
 
-Use Node.js 24 and npm:
+Usar Node.js 24 e npm:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` before starting the app. The client initializes Supabase even for guest sessions; playing as a guest does not require creating an account. The repository does not yet contain the complete deployed database schema and RPC definitions; do not treat its migration directory as a complete fresh-project setup.
+Definir `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` em `.env.local`. O cliente inicializa a Supabase também nas sessões de convidados; jogar sem conta não exige registo. A pasta de migrações não constitui uma instalação completa de um projeto novo. A estrutura de teste reproduz o catálogo das tabelas e funções da aplicação, mas não todo o sistema Supabase Auth.
 
-Country data is regenerated with `node scripts/fetchCountries.mjs`.
+Os dados dos países são regenerados com `node scripts/fetchCountries.mjs`.
 
-## Checks
+## Verificações
 
 ```bash
 npm test
@@ -45,14 +45,16 @@ npm audit
 npm audit --omit=dev
 ```
 
-Local browser tests use an isolated Supabase test endpoint. The live smoke test reads the public site in a fresh browser context and does not submit account or score data. Card tests calculate contrast from browser-computed colors; screenshots supplement those assertions.
+Os testes de navegador usam um serviço de teste isolado. A verificação pública lê o site numa sessão limpa e não envia dados de contas ou pontuações. Os testes de contraste usam as cores calculadas pelo navegador; as capturas complementam as asserções.
 
-## Data, content and limits
+`npm run test:db` exige `ATLAS_TEST_DB_PORT` de uma instância PostgreSQL local e, se necessário, `ATLAS_TEST_DB_PASSWORD`. Aceita apenas a interface de rede local e cria e remove a sua própria base temporária. Testa permissões, migração, criação e remoção de contas, além de transações concorrentes. A CI executa esta verificação com PostgreSQL 17. O percurso `npm run test:auth:local` exige a aplicação e serviços reais Auth/PostgREST locais já configurados; os requisitos estão na [validação Supabase](docs/audit/remote-supabase-validation.md).
 
-Privacy, terms, storage information and source credits are available through the app footer. [Asset provenance](docs/asset-provenance.md) records image-level licences, attribution conditions and unresolved rights. Geography statistics and coordinates are curated snapshots; some are rounded or can become outdated. They are game data, rather than a reference source for current statistics.
+## Dados, conteúdos e limites
 
-Authenticated balance and score hardening includes guarded database RPCs and a migration with schema preflight checks. That migration requires review against the deployed schema and validation in a test database before production application. The client fails closed when these RPCs are missing. Scores are still reported by the browser; the server bounds submissions but does not verify each answer. Client-computed Jackpot rewards cannot authorize account token grants.
+O rodapé dá acesso à privacidade, às condições, à informação de armazenamento e aos créditos. A [proveniência](docs/asset-provenance.md) regista licenças e obrigações por imagem. As estatísticas e coordenadas são dados selecionados para os jogos; alguns valores são arredondados ou podem ficar desatualizados.
 
-The operator's public identity, privacy contact, retention schedule and deployed deletion behavior remain necessary policy decisions. Full application accessibility and third-party asset rights are not certified by the focused automated checks.
+A migração de proteção de saldos, pontuações e convites foi comparada com o catálogo remoto e testada numa base isolada com autenticação real. A aplicação em produção aguarda aprovação do responsável. O cliente recusa escritas quando as funções necessárias não existem; este ramo desativa a publicação automática Vercel até a base estar preparada. As pontuações continuam a ser declaradas pelo navegador: o servidor limita os valores, mas não valida todas as respostas. Os prémios do Jackpot calculados no cliente não autorizam fichas numa conta.
 
-[Design rules](DESIGN.md) and [product intent](PRODUCT.md) describe the interface. Read the installed Next.js guides under `node_modules/next/dist/docs/` before changing framework APIs.
+A identidade pública do responsável, o contacto de privacidade, os fundamentos jurídicos e os prazos de retenção continuam por definir. A remoção da conta elimina os dados associados pelas relações verificadas na base; não estabelece os prazos dos registos técnicos ou das cópias de segurança. Os testes selecionados não certificam a acessibilidade integral nem todos os direitos sobre conteúdos externos.
+
+As [regras de design](DESIGN.md) e a [intenção do produto](PRODUCT.md) descrevem a interface. Antes de alterar APIs do Next.js, consultar os guias da versão instalada em `node_modules/next/dist/docs/`.

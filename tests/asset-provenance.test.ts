@@ -27,3 +27,23 @@ test("Google Sans button font has a published OFL record", () => {
   assert.equal(googleSans[0].status, "VERIFIED");
   assert.equal(publicLicense, packageLicense);
 });
+
+test("Lake Baikal photo has an explicit license and complete credit", () => {
+  const records = JSON.parse(readFileSync(resolve(repositoryRoot, "src/data/assetProvenance.json"), "utf8"));
+  const baikalRecords = records.filter((record: { usedIn: string[] }) =>
+    record.usedIn.includes("Peaks & Valleys (entry: lake_baikal_depth)"),
+  );
+
+  assert.equal(baikalRecords.length, 1);
+  const [baikal] = baikalRecords;
+  assert.equal(baikal.asset, "Lake Baikal, Russia.jpg");
+  assert.equal(baikal.sourceUrl, "https://commons.wikimedia.org/wiki/File:Lake_Baikal%2C_Russia.jpg");
+  assert.equal(baikal.license, "CC BY 4.0");
+  assert.equal(baikal.licenseUrl, "https://creativecommons.org/licenses/by/4.0/");
+  assert.equal(baikal.creator, "Vyacheslav Argenberg");
+  assert.equal(baikal.attributionRequired, true);
+  assert.equal(baikal.commercialUse, "PERMITTED");
+  assert.equal(baikal.modifications, "CONDITIONAL");
+  assert.match(baikal.attribution, /CSS grayscale\/contrast filter/);
+  assert.equal(baikal.status, "CONDITIONAL");
+});

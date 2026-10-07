@@ -2457,36 +2457,30 @@
     "checkedOn": "07/10/2026"
   },
   {
-    "id": "wikimedia-commons-lake-baikal-jpg",
+    "id": "wikimedia-commons-lake-baikal-russia-jpg",
     "kind": "image",
-    "asset": "Lake Baikal.jpg",
-    "filename": "Lake_Baikal.jpg",
-    "assetUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Lake_Baikal.jpg?width=960",
+    "asset": "Lake Baikal, Russia.jpg",
+    "filename": "Lake_Baikal,_Russia.jpg",
+    "assetUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Lake_Baikal%2C_Russia.jpg?width=960",
     "assetUrls": [
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Lake_Baikal.jpg?width=960"
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Lake_Baikal%2C_Russia.jpg?width=960"
     ],
     "usedIn": [
       "Peaks & Valleys (entry: lake_baikal_depth)"
     ],
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lake_Baikal.jpg",
-    "license": "No known copyright restrictions (Flickr Commons rights statement; not an affirmative license)",
-    "sourceLicenseLabel": "No restrictions",
-    "licenseUrl": "https://www.flickr.com/commons/usage/",
-    "creator": "TWAM - Tyne & Wear Archives & Museums",
-    "attribution": "The source gives no affirmative license or verified copyright permission. The “no known copyright restrictions” statement is not treated here as permission.",
-    "attributionRequired": null,
-    "commercialUse": "UNKNOWN",
-    "modifications": "UNKNOWN",
-    "status": "UNKNOWN",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lake_Baikal%2C_Russia.jpg",
+    "license": "CC BY 4.0",
+    "sourceLicenseLabel": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "creator": "Vyacheslav Argenberg",
+    "attribution": "© Vyacheslav Argenberg. “Lake Baikal, Russia.” Displayed with a CSS grayscale/contrast filter.",
+    "attributionRequired": true,
+    "commercialUse": "PERMITTED",
+    "modifications": "CONDITIONAL",
+    "status": "CONDITIONAL",
     "restrictions": [],
-    "notes": "Used in Peaks & Valleys with a CSS grayscale/contrast filter. Flickr Commons explains that institutional “no known copyright restrictions” statements can have several meanings; commercial reuse and modifications remain unresolved.",
-    "checkedOn": "07/10/2026",
-    "additionalSources": [
-      {
-        "label": "Flickr Commons usage information",
-        "url": "https://www.flickr.com/commons/usage/"
-      }
-    ]
+    "notes": "CC BY 4.0 permits commercial use and adaptations with attribution, a link to the license, and a notice of changes. Peaks & Valleys displays this photo with a CSS grayscale/contrast filter. Whether that on-screen treatment is an adaptation is not determined here.",
+    "checkedOn": "07/10/2026"
   },
   {
     "id": "wikimedia-commons-lake-geneva-in-lausanne-jpg",

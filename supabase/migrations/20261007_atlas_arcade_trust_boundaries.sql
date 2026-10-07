@@ -30,6 +30,7 @@ begin
       ('high_scores', 'game_slug'),
       ('high_scores', 'score'),
       ('high_scores', 'updated_at'),
+      ('profiles', 'username'),
       ('profiles', 'id'),
       ('profiles', 'is_admin'),
       ('profiles', 'referral_code'),
@@ -58,6 +59,9 @@ begin
       ('high_scores', 'user_id', 'uuid'),
       ('high_scores', 'game_slug', 'text'),
       ('high_scores', 'score', 'integer'),
+      ('profiles', 'username', 'text'),
+      ('user_coins', 'updated_at', 'timestamp with time zone'),
+      ('high_scores', 'updated_at', 'timestamp with time zone'),
       ('profiles', 'id', 'uuid'),
       ('profiles', 'is_admin', 'boolean'),
       ('profiles', 'referral_code', 'text'),
@@ -132,8 +136,141 @@ begin
   ) then
     raise exception 'Trust migration requires valid unique indexes on user_coins.user_id, high_scores(user_id, game_slug), profiles.id, and profiles.referral_code';
   end if;
+
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema='public' and table_name in ('profiles','user_coins','high_scores')
+      and column_name in ('id','user_id','username','is_admin','coins','granted_today',
+        'accrual_at','last_reset','premium_tokens','updated_at','game_slug','score')
+      and is_nullable='YES'
+  ) then
+    raise exception 'Trust migration requires NOT NULL identity, balance, score, and authority columns';
+  end if;
+
+  if exists (select 1 from public.user_coins
+    where coins is null or coins not between 0 and 5
+      or granted_today is null or granted_today not between 5 and 10
+      or premium_tokens is null or premium_tokens < 0
+      or accrual_at is null or not isfinite(accrual_at) or accrual_at > now()
+      or last_reset is null or not isfinite(last_reset)
+      or last_reset > (now() at time zone 'utc')::date
+      or updated_at is null or not isfinite(updated_at)) then
+    raise exception 'Trust migration found an invalid token state; inspect aggregate anomalies before proceeding';
+  end if;
+
+  if exists (select 1 from public.profiles where referral_code is not null
+    and upper(referral_code) !~ '^[A-HJ-NP-Z0-9]{8}$') then
+    raise exception 'Trust migration found a malformed referral code';
+  end if;
+
+  if exists (
+    select 1 from (values ('profiles','id'),('user_coins','user_id'),('high_scores','user_id')) v(t,c)
+    where not exists (
+      select 1 from pg_constraint k join pg_attribute a
+        on a.attrelid=k.conrelid and a.attnum=k.conkey[1]
+      where k.conrelid=('public.'||v.t)::regclass and k.contype='f'
+        and k.confrelid='auth.users'::regclass and k.confdeltype='c'
+        and k.convalidated and cardinality(k.conkey)=1 and a.attname=v.c
+    )
+  ) then
+    raise exception 'Trust migration requires validated account foreign keys with ON DELETE CASCADE';
+  end if;
 end
 $preflight$;
+
+
+-- Reject malformed balances rather than silently repairing historical data.
+alter table public.user_coins add constraint user_coins_trust_bounds
+  check (coins between 0 and 5 and granted_today between 5 and 10 and premium_tokens >= 0
+    and isfinite(accrual_at) and isfinite(last_reset) and isfinite(updated_at));
+
+-- A deleted referrer's SET NULL relationship must not unlock a second reward.
+alter table public.profiles add column referral_redeemed boolean not null default false;
+update public.profiles set referral_redeemed = true where referred_by is not null;
+
+-- Signup is atomic: unexpected bootstrap failures abort account creation.
+-- User metadata supplies only the display name, never authority or balance.
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare
+  v_username text := nullif(trim(new.raw_user_meta_data ->> 'username'), '');
+  v_attempt integer := 0;
+begin
+  if v_username is null or length(v_username) > 64 then
+    v_username := 'player_' || substr(replace(new.id::text, '-', ''), 1, 8);
+  end if;
+  loop
+    begin
+      insert into public.profiles (id, username, is_admin, referral_code)
+      values (new.id, v_username, false, substr(replace(gen_random_uuid()::text, '-', ''), 1, 8))
+      on conflict (id) do nothing;
+      exit;
+    exception when unique_violation then
+      v_attempt := v_attempt + 1;
+      if v_attempt >= 5 then raise; end if;
+      v_username := left(v_username, 48) || '_' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 8);
+    end;
+  end loop;
+  insert into public.user_coins (user_id) values (new.id) on conflict (user_id) do nothing;
+  return new;
+end;
+$$;
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+-- Both observed triggers call this same idempotent function. Keep one.
+drop trigger if exists on_auth_user_created on auth.users;
+drop trigger if exists on_auth_user_created_profile on auth.users;
+create trigger on_auth_user_created after insert on auth.users
+  for each row execute function public.handle_new_user();
+alter function public.gen_referral_code() set search_path = '';
+alter function public.protect_admin_flag() set search_path = '';
+revoke all on function public.gen_referral_code() from public, anon, authenticated;
+revoke all on function public.protect_admin_flag() from public, anon, authenticated;
+
+create or replace function public.get_user_state()
+returns json language plpgsql security definer set search_path = '' as $$
+declare v_me uuid := auth.uid();
+begin
+  if v_me is null or not exists (select 1 from auth.users where id=v_me) then return null; end if;
+  insert into public.user_coins (user_id) values (v_me) on conflict (user_id) do nothing;
+  return (select json_build_object(
+    'coins',c.coins,'granted_today',c.granted_today,'accrual_at',c.accrual_at,
+    'last_reset',c.last_reset,'premium_tokens',c.premium_tokens,
+    'high_scores',coalesce((select json_agg(json_build_object('game_slug',s.game_slug,'score',s.score))
+      from public.high_scores s where s.user_id=v_me),'[]'::json)
+  ) from public.user_coins c where c.user_id=v_me);
+end;
+$$;
+revoke all on function public.get_user_state() from public, anon, authenticated;
+grant execute on function public.get_user_state() to authenticated;
+
+create or replace function public.delete_own_user()
+returns void language plpgsql security definer set search_path = '' as $$
+declare v_me uuid := auth.uid();
+begin
+  if v_me is null then raise insufficient_privilege using message='Authentication required'; end if;
+  delete from auth.users where id=v_me;
+  if not found then raise insufficient_privilege using message='Account unavailable'; end if;
+end;
+$$;
+revoke all on function public.delete_own_user() from public, anon, authenticated;
+grant execute on function public.delete_own_user() to authenticated;
+
+-- Public reads disclose only leaderboard names/scores and name availability.
+create or replace function public.get_leaderboard(p_game_slug text, p_limit integer default 20)
+returns table(username text, score integer) language sql stable security definer set search_path = '' as $$
+  select p.username,s.score from public.high_scores s join public.profiles p on p.id=s.user_id
+  where s.game_slug=p_game_slug order by s.score desc,p.username
+  limit greatest(1,least(coalesce(p_limit,20),100));
+$$;
+revoke all on function public.get_leaderboard(text,integer) from public, anon, authenticated;
+grant execute on function public.get_leaderboard(text,integer) to anon, authenticated;
+create or replace function public.is_username_taken(name text)
+returns boolean language sql security definer set search_path = '' as $$
+  select exists (select 1 from public.profiles where lower(username)=lower(name));
+$$;
+revoke all on function public.is_username_taken(text) from public, anon, authenticated;
+grant execute on function public.is_username_taken(text) to anon, authenticated;
 
 -- Existing referral codes include mixed-case hexadecimal values. Normalize
 -- lookups and prevent new case-only duplicates without changing stored codes.
@@ -188,6 +325,22 @@ revoke all on table public.user_coins from public, anon, authenticated;
 revoke all on table public.high_scores from public, anon, authenticated;
 revoke all on table public.profiles from public, anon, authenticated;
 
+
+-- Explicit column ACLs survive a table-level REVOKE.
+do $column_grants$
+declare v_column record;
+begin
+  for v_column in select c.relname,a.attname from pg_attribute a
+    join pg_class c on c.oid=a.attrelid join pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='public' and c.relname in ('profiles','user_coins','high_scores')
+      and a.attnum>0 and not a.attisdropped
+  loop
+    execute format('revoke all (%I) on table public.%I from public, anon, authenticated',
+      v_column.attname,v_column.relname);
+  end loop;
+end;
+$column_grants$;
+
 grant select on table public.user_coins to authenticated;
 grant select on table public.high_scores to authenticated;
 grant select on table public.profiles to authenticated;
@@ -223,7 +376,7 @@ declare
   v_ticks numeric := 0;
   v_grant integer := 0;
 begin
-  if v_me is null then
+  if v_me is null or not exists (select 1 from auth.users where id=v_me) then
     return null;
   end if;
 
@@ -419,7 +572,7 @@ begin
     else null
   end;
 
-  if v_me is null or v_cap is null or p_score is null or p_score < 0 or p_score > v_cap then
+  if v_me is null or not exists (select 1 from auth.users where id=v_me) or v_cap is null or p_score is null or p_score < 0 or p_score > v_cap then
     return null;
   end if;
 
@@ -453,6 +606,7 @@ declare
   v_me uuid := auth.uid();
   v_code text;
   v_referred_by uuid;
+  v_redeemed boolean;
   v_referrer uuid;
   v_referrer_admin boolean;
   v_bonus integer;
@@ -469,12 +623,12 @@ begin
     return false;
   end if;
 
-  select referred_by
-  into v_referred_by
+  select referred_by, referral_redeemed
+  into v_referred_by, v_redeemed
   from public.profiles
   where id = v_me
   for update;
-  if not found or v_referred_by is not null then
+  if not found or v_redeemed or v_referred_by is not null then
     return false;
   end if;
 
@@ -490,8 +644,8 @@ begin
   v_bonus := case when coalesce(v_referrer_admin, false) then 100 else 20 end;
 
   update public.profiles
-  set referred_by = v_referrer
-  where id = v_me and referred_by is null;
+  set referred_by = v_referrer, referral_redeemed = true
+  where id = v_me and not referral_redeemed and referred_by is null;
   get diagnostics v_updated = row_count;
   if v_updated <> 1 then
     return false;
@@ -537,6 +691,14 @@ begin
     or not (select relrowsecurity from pg_class where oid = 'public.high_scores'::regclass)
     or not (select relrowsecurity from pg_class where oid = 'public.profiles'::regclass) then
     raise exception 'RLS must remain enabled on account tables';
+  end if;
+
+
+  if has_function_privilege('anon','public.get_user_state()','EXECUTE')
+    or has_function_privilege('anon','public.delete_own_user()','EXECUTE')
+    or has_function_privilege('anon','public.handle_new_user()','EXECUTE')
+    or has_function_privilege('authenticated','public.handle_new_user()','EXECUTE') then
+    raise exception 'Private or trigger-only RPC remains anonymously executable';
   end if;
 
   if has_function_privilege('anon', 'public.arcade_refresh_user_tokens()', 'EXECUTE')

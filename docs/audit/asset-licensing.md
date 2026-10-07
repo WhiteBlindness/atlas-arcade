@@ -9,19 +9,19 @@ The source scan found 229 Wikimedia image entries in the source datasets: 73 cit
 | Wikimedia file-level status | Records | Meaning |
 | --- | ---: | --- |
 | VERIFIED | 33 | CC0 or public-domain status with no separate restriction marker |
-| CONDITIONAL | 185 | Identified licenses with compliance requirements, or separate rights markers |
-| UNKNOWN | 1 | Permission is not established by the source evidence |
+| CONDITIONAL | 186 | Identified licenses with compliance requirements, or separate rights markers |
+| UNKNOWN | 0 | No current Wikimedia file row has unresolved permission evidence |
 | REMOVE_OR_REPLACE | 0 | No current row has this status |
 
-The source metadata labels break down into 9 CC0, 31 public-domain, 50 CC BY-family, 123 CC BY-SA-family, 2 FAL, and 2 GFDL records, plus one Flickr Commons "No known copyright restrictions" record and one ESA record whose API label was only "Attribution". ESA's asset page explicitly offers CC BY-SA 3.0 IGO or ESA Standard Licence. This inventory relies on the CC BY-SA option and records the required ESA/Copernicus credit. Within the 31 public-domain rows, seven have a separate flag or insignia restrictions marker and remain conditional. The complete manifest contains 227 entries: 219 unique Wikimedia file records and eight other source, brand, font, icon, map or dataset records.
+The source metadata labels break down into 9 CC0, 31 public-domain, 51 CC BY-family, 123 CC BY-SA-family, 2 FAL, and 2 GFDL records, plus one ESA record whose API label was only "Attribution". The ESA asset page explicitly offers CC BY-SA 3.0 IGO or ESA Standard Licence. This inventory relies on the CC BY-SA option and records the required ESA/Copernicus credit. Within the 31 public-domain rows, seven have a separate flag or insignia restrictions marker and remain conditional. The complete manifest contains 227 entries: 219 unique Wikimedia file records and eight other source, brand, font, icon, map or dataset records.
 
-The single UNKNOWN file is [Lake Baikal.jpg](https://commons.wikimedia.org/wiki/File:Lake_Baikal.jpg). Its source describes the image as having "no known copyright restrictions", which is not an affirmative license or a verified grant of commercial and modification rights. The manifest records that distinction rather than treating the image as public domain.
+The Lake Baikal entry uses [Lake Baikal, Russia.jpg](https://commons.wikimedia.org/wiki/File:Lake_Baikal%2C_Russia.jpg), a landscape photograph by Vyacheslav Argenberg. The Commons file page identifies Argenberg as the author and states that he publishes the image under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The Credits entry names the author and image, links the file page and license, and discloses the CSS grayscale/contrast filter used in Peaks & Valleys. CC BY 4.0 permits commercial reuse and adaptations when users provide appropriate credit, link to the material and license, and indicate changes. This audit does not decide whether the on-screen filter is an adaptation.
 
 ## Conditions that need attention
 
-CC BY and CC BY-SA files permit commercial reuse under their license terms, with required credit, a source and license link, and change disclosure where the exact version requires it. CC BY-SA adds share-alike terms when a use creates an adaptation. FAL and GFDL files have their own attribution and license conditions. Public-domain and CC0 records do not acquire those copyright conditions, though a Commons restrictions marker can point to other rights.
+CC BY and CC BY-SA licenses permit commercial reuse and adaptations subject to their terms. Both require appropriate attribution, a link to the material and license, and a notice of changes. CC BY-SA also requires adaptations to be shared under the same or a compatible license. FAL and GFDL have their own attribution and license conditions. These copyright licenses do not grant separate privacy, publicity, moral, trademark, or cultural-property rights; Commons markers and source terms may identify additional conditions.
 
-The code applies display filters to the sourced images: Skyline Silhouette uses brightness and contrast until the answer is revealed; Peaks & Valleys uses grayscale and contrast. No filtered image file is stored. Whether a particular on-screen filter is an adaptation is not determined by this inventory. The manifest records the effect so a release owner can review it against the exact file license.
+The code applies display filters to the sourced images: Skyline Silhouette uses brightness and contrast until the answer is revealed; Peaks & Valleys uses grayscale and contrast. No filtered image file is stored. The manifest records these effects, but this audit does not determine whether a particular on-screen filter is an adaptation under its source license.
 
 Wikimedia returned separate restriction markers for seven national flags or insignia, the Hollywood sign, an Italian cultural-property image, and a photograph tagged for personality rights. Copyright status does not settle trademark, national-emblem, cultural-property, privacy, or personality rights. Each marker is listed with its exact asset row.
 
@@ -48,9 +48,9 @@ The current profile uses a local Lucide User icon. The former DiceBear 9.x image
 
 ## Verification sources
 
-- [Wikimedia Commons reuse guidance](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia) and [MediaWiki API](https://commons.wikimedia.org/wiki/Commons:API/MediaWiki)
+- [Lake Baikal, Russia.jpg source page](https://commons.wikimedia.org/wiki/File:Lake_Baikal%2C_Russia.jpg) and [CC BY 4.0 deed](https://creativecommons.org/licenses/by/4.0/)
 - [ESA Great Barrier Reef source page](https://www.esa.int/ESA_Multimedia/Images/2025/04/Earth_from_Space_Great_Barrier_Reef_Australia), [Commons file page](https://commons.wikimedia.org/wiki/File:Earth_from_Space-_Great_Barrier_Reef,_Australia_ESA508080.jpg), and [CC BY-SA 3.0 IGO](https://creativecommons.org/licenses/by-sa/3.0/igo/)
-- [Flickr Commons use information](https://www.flickr.com/commons/usage/)
+- [Wikimedia Commons reuse guidance](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia), [MediaWiki API](https://commons.wikimedia.org/wiki/Commons:API/MediaWiki), and [CC BY-SA 4.0 deed](https://creativecommons.org/licenses/by-sa/4.0/)
 - [Flagpedia terms](https://flagpedia.net/terms)
 - [World Atlas data README](https://github.com/topojson/world-atlas/blob/master/README.md), [World Atlas license](https://github.com/topojson/world-atlas/blob/master/LICENSE), and [Natural Earth terms](https://www.naturalearthdata.com/about/terms-of-use/)
 - [mledoze countries license](https://github.com/mledoze/countries/blob/master/LICENSE), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/), and [samayo country-json](https://github.com/samayo/country-json)
