@@ -5,10 +5,10 @@ import test from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
 const fixture = readFileSync(join(process.cwd(), "tests", "fixtures", "security-trust-schema.sql"), "utf8");
-const migration = readFileSync(
-  join(process.cwd(), "supabase", "migrations", "20261007_atlas_arcade_trust_boundaries.sql"),
-  "utf8",
-);
+const expansion = readFileSync(join(process.cwd(), "supabase", "migrations", "20261007224924_atlas_arcade_trust_expand.sql"), "utf8");
+const lockdown = readFileSync(join(process.cwd(), "supabase", "migrations", "20261007224929_atlas_arcade_trust_lockdown.sql"), "utf8");
+// Combining the files is only for final-state tests; production applies them separately.
+const migration = expansion + "\nset local atlas.rollout.lockdown_approved='on';\n" + lockdown;
 
 const IDS = {
   invited: "11111111-1111-4111-8111-111111111111",
@@ -226,5 +226,47 @@ test("invalid token states abort atomically instead of being silently rewritten"
     await assert.rejects(db.exec("begin;\n" + migration + "\ncommit;"), /invalid token state/i);
     await db.exec("rollback");
     assert.equal((await db.query<{ allowed: boolean }>("select has_table_privilege('authenticated','public.user_coins','UPDATE') as allowed")).rows[0].allowed,true);
+  } finally { await db.close(); }
+});
+
+test("expansion preserves the legacy own-row mutation paths", async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(fixture);
+    await db.query("insert into auth.users(id,raw_user_meta_data) values($1,$2::jsonb)", [IDS.player, JSON.stringify({username:"compat_player"})]);
+    await db.query("insert into public.profiles(id,username,referral_code) values($1,'compat_player','12345678') on conflict(id) do nothing",[IDS.player]);
+    await db.exec("begin;\n" + expansion + "\ncommit;");
+    assert.equal((await db.query<{ rpc: string | null }>("select to_regprocedure('public.arcade_consume_user_tokens(integer)')::text as rpc")).rows[0].rpc, "arcade_consume_user_tokens(integer)");
+    const grants = await db.query<{ update_balance: boolean; insert_score: boolean; update_profile: boolean; policies: number }>(
+      "select has_table_privilege('authenticated','public.user_coins','UPDATE') as update_balance," +
+      "has_table_privilege('authenticated','public.high_scores','INSERT') as insert_score," +
+      "has_table_privilege('authenticated','public.profiles','UPDATE') as update_profile," +
+      "(select count(*)::integer from pg_policies where schemaname='public') as policies");
+    assert.deepEqual(grants.rows[0], {update_balance:true,insert_score:true,update_profile:true,policies:9});
+    await runAsAuthenticated(db,IDS.player,"update user_coins set coins=4,premium_tokens=20 where user_id=$1",[IDS.player]);
+    await runAsAuthenticated(db,IDS.player,"insert into high_scores(user_id,game_slug,score) values($1,'one-strike',10) on conflict(user_id,game_slug) do update set score=excluded.score",[IDS.player]);
+    const state=await runAsAuthenticated<{ state: {coins:number;premium_tokens:number} }>(db,IDS.player,"select get_user_state() as state");
+    assert.equal(state.rows[0].state.coins,4);
+    assert.equal(state.rows[0].state.premium_tokens,20);
+    await db.query("insert into auth.users(id,raw_user_meta_data) values($1,$2::jsonb)",[IDS.referrer,JSON.stringify({username:"compat_referrer"})]);
+    await db.query("update profiles set referral_code='cafebabe' where id=$1",[IDS.referrer]);
+    assert.equal((await runAsAuthenticated<{ok:boolean}>(db,IDS.player,"select redeem_referral('CAFEBABE',99999) as ok")).rows[0].ok,true);
+    await runAsAuthenticated(db,IDS.player,"update profiles set referral_redeemed=false,referred_by=null where id=$1",[IDS.player]);
+    assert.equal((await db.query<{used:boolean}>("select referral_redeemed as used from profiles where id=$1",[IDS.player])).rows[0].used,true);
+    assert.equal((await runAsAuthenticated<{ok:boolean}>(db,IDS.player,"select redeem_referral('CAFEBABE',99999) as ok")).rows[0].ok,false);
+
+  } finally { await db.close(); }
+});
+
+test("lockdown requires an explicit transition gate and rolls back safely", async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(fixture);
+    await db.exec("begin;\n" + expansion + "\ncommit;");
+    await assert.rejects(db.exec("begin;\n" + lockdown + "\ncommit;"), /lockdown requires verified client adoption/i);
+    await db.exec("rollback");
+    assert.equal((await db.query<{allowed:boolean}>("select has_table_privilege('authenticated','public.user_coins','UPDATE') as allowed")).rows[0].allowed,true);
+    await db.exec("begin;\nset local atlas.rollout.lockdown_approved='on';\n" + lockdown + "\ncommit;");
+    assert.equal((await db.query<{allowed:boolean}>("select has_table_privilege('authenticated','public.user_coins','UPDATE') as allowed")).rows[0].allowed,false);
   } finally { await db.close(); }
 });

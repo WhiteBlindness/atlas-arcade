@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "test:e2e:live": "playwright test --config=playwright.live.config.ts",
     "test:db": "node --test tests/security-postgres.test.mjs",
-    "test:auth:local": "node tests/authenticated-local.smoke.mjs"
+    "test:auth:local": "node tests/authenticated-local.smoke.mjs",
+    "test:rollout:local": "node tests/rollout-compatibility.smoke.mjs"
   },
   "dependencies": {
     "@fontsource/google-sans": "5.3.1",

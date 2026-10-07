@@ -1,10 +1,10 @@
 # Auditoria de qualidade da versão: Atlas Arcade
 
-Data: 07/10/2026. Ramo: `fix/release-quality-audit`.
+Data: 08/10/2026. Ramo: `fix/release-quality-audit`.
 
 ## Estado da versão
 
-As correções de interface, os testes de regressão e a documentação reforçam o produto público. A versão continua condicionada pela base de dados remota, pelos dados do responsável e pelas permissões de alguns conteúdos. A migração de saldos está preparada e testada numa base isolada; não foi aplicada em produção. O site publicado mantém a versão de `master` indicada abaixo.
+As correções de interface, os testes de regressão e a documentação reforçam o produto público. A versão continua condicionada pela base de dados remota, pelos dados do responsável e pelas permissões de alguns conteúdos. As migrações de expansão e bloqueio de saldos foram testadas numa base isolada; nenhuma foi aplicada em produção. O site publicado mantém a versão de `master` indicada abaixo.
 
 ## Repositório e produção
 
@@ -68,13 +68,13 @@ Não foi acrescentada uma faixa genérica de consentimento. O artigo 5.º da Lei
 
 ## Saldos, pontuações e confiança
 
-Os convidados mantêm o saldo no navegador; este não tem valor numa conta. As contas passam a consumir e atualizar fichas por funções da base de dados, com relógio do servidor, bloqueio da linha e consumo das fichas diárias antes das premium. A migração revoga escritas diretas conhecidas e protege as funções com a identidade da sessão.
+Os convidados mantêm o saldo no navegador; este não tem valor numa conta. As contas passam a consumir e atualizar fichas por funções da base de dados, com relógio do servidor, bloqueio da linha e consumo das fichas diárias antes das premium. A fase B revoga escritas diretas conhecidas, depois da publicação e adoção do cliente novo, e protege as funções com a identidade da sessão.
 
 O resgate de convites ignora o prémio indicado pelo cliente, aceita códigos antigos em minúsculas e impede duplicações sem distinguir maiúsculas. A migração deteta colisões antes de alterar permissões. As pontuações aceitam apenas jogos conhecidos e valores inteiros limitados, mas continuam a ser declaradas pelo navegador. Não existe validação de todas as respostas no servidor.
 
 Os resultados do Atlas Jackpot não autorizam prémios premium numa conta. As devoluções de fichas após falhas de carregamento só são anunciadas quando uma ficha local foi reposta. Uma devolução segura a contas exige prova do consumo e da tentativa. Os pedidos de consumo simultâneos são bloqueados para impedir cobranças repetidas de uma só partida. A perda da resposta após um débito continua ambígua, porque não há identificador persistente de tentativa nem devolução verificável para contas.
 
-A versão do cliente exige as novas funções: não deve ser publicada antes da aplicação aprovada da migração. O catálogo remoto confirmou o esquema, as permissões e as oito funções existentes. A migração ajustada passou numa base PostgreSQL isolada e no percurso autenticado da aplicação. A remoção da própria conta usa a identidade da sessão e elimina os dados associados por relações em cascata; falhas impedem a remoção parcial. A aplicação em produção continua por aprovar. Ver [validação Supabase](remote-supabase-validation.md) e [auditoria de segurança](security-trust.md).
+A versão do cliente exige as novas funções. A expansão deve preceder a publicação do cliente; o bloqueio só sucede à sua adoção verificada. Até B, master conserva as escritas antigas. A remoção da própria conta usa a identidade da sessão e relações em cascata; falhas impedem remoção parcial. Nenhuma fase foi aplicada em produção. Ver [procedimento e recuperação](supabase-rollout.md), [validação Supabase](remote-supabase-validation.md) e [segurança](security-trust.md).
 
 ## Conteúdos e direitos
 
@@ -106,13 +106,16 @@ Os componentes dos jogos carregam de forma diferida; o renderizador do globo est
 
 ## Validação e revisão
 
-A instalação limpa (`npm ci`), a análise de tipos, a verificação de estilo e a compilação passaram. Os testes unitários passaram 26/26; os testes reais PostgreSQL passaram 13/13, incluindo concorrência e falha atómica de remoção; o percurso autenticado numa base isolada passou; os testes locais de navegador passaram 39/39; a sessão pública passou 1/1. O axe não encontrou violações nos percursos abrangidos. Foram revistas as quatro capturas de ecrã dos temas, da passagem do rato e do telemóvel. Três fotografias reais carregaram sem cookies do fornecedor.
+A instalação limpa (`npm ci`), a análise de tipos, a verificação de estilo e a compilação passaram. Os testes unitários passaram 28/28; os testes reais PostgreSQL passaram 16/16, incluindo concorrência e falha atómica de remoção; o percurso autenticado numa base isolada passou; os testes locais de navegador passaram 39/39; a sessão pública passou 1/1. O axe não encontrou violações nos percursos abrangidos. Foram revistas as quatro capturas de ecrã dos temas, da passagem do rato e do telemóvel. Três fotografias reais carregaram sem cookies do fornecedor.
 
 A auditoria de execução apresenta zero avisos; a auditoria completa mantém cinco pacotes de desenvolvimento afetados por um único aviso alto em `braces`. A cobertura medida das funções puras selecionadas não representa cobertura global da aplicação.
 
+
+A matriz executou master e PR na mesma base anterior, após A e após A+B. Master passou antes e após A; o PR passou após A e A+B. As duas combinações não suportadas falharam como esperado: função ausente para o PR anterior e escritas diretas 403 para master após B. Métodos, saldos e condições estão no [procedimento faseado](supabase-rollout.md).
+
 ## Decisões necessárias
 
-1. Aprovar separadamente a aplicação da migração em produção, após repetir as verificações prévias de dados. O esquema remoto e os testes isolados já foram validados. O ramo desativa a publicação automática Vercel até existir aprovação.
+1. Aprovar A separadamente, repetir as verificações prévias e confirmar master depois da expansão. Publicar o cliente apenas após esse ensaio; aprovar B só depois da adoção verificada e da preparação de recuperação por funções remotas. O ramo mantém a publicação automática Vercel desativada. Ver [procedimento faseado](supabase-rollout.md).
 2. Fornecer identidade e contacto público do responsável e definir fundamentos jurídicos, retenção, regras de idade e exercício de direitos. Definir a retenção de registos e cópias de segurança, que não é resolvida pela remoção das linhas da conta.
 3. Obter a decisão jurídica sobre preferências e persistência de convites; implementar a escolha necessária ou remover a persistência se não existir exceção aplicável.
 4. Cumprir as condições de atribuição, adaptações e direitos adicionais nos registos condicionais. A imagem de Baikal sem licença afirmativa já foi substituída.

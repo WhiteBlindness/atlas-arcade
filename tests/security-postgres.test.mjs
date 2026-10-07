@@ -11,13 +11,15 @@ const enabled = Number.isInteger(port) && port > 1024 && port < 65536;
 // It never consumes a production URL or credentials from application env files.
 const config = { host: "127.0.0.1", port, user: "postgres", password: process.env.ATLAS_TEST_DB_PASSWORD ?? "", database: "postgres" };
 const fixture = readFileSync(new URL("./fixtures/security-trust-schema.sql", import.meta.url), "utf8");
-const migration = readFileSync(new URL("../supabase/migrations/20261007_atlas_arcade_trust_boundaries.sql", import.meta.url), "utf8");
+const expansion = readFileSync(new URL("../supabase/migrations/20261007224924_atlas_arcade_trust_expand.sql", import.meta.url), "utf8");
+const lockdown = readFileSync(new URL("../supabase/migrations/20261007224929_atlas_arcade_trust_lockdown.sql", import.meta.url), "utf8");
+const approvedLockdown = "set local atlas.rollout.lockdown_approved='on';\n" + lockdown;
 
 test("real PostgreSQL trust boundary and concurrent transactions", { skip: !enabled, timeout: 90000 }, async (t) => {
   const owner = new pg.Client(config);
   await owner.connect();
   const database = "atlas_trust_" + randomUUID().replaceAll("-", "");
-  await owner.query('create database "' + database + '"');
+  await owner.query('create database "' + database + '"' + " template template0 encoding 'UTF8'");
   const admin = new pg.Client({ ...config, database });
   await admin.connect();
   const openClients = new Set();
@@ -67,6 +69,11 @@ test("real PostgreSQL trust boundary and concurrent transactions", { skip: !enab
     }
     await admin.query("create schema extensions; create extension pgcrypto with schema extensions");
     await admin.query(fixture.replace(/^create role .*;$/gm, ""));
+    // A fixture supplies the base catalog absent from the historical migrations.
+    // Replay the four deployed files before applying either new phase.
+    for (const file of ["20260726_admin_and_referrals.sql","20260727_repair_signup_trigger.sql","20260728_fix_username_constraint.sql","20260729_tiered_referral_bonus.sql"]) {
+      await admin.query("begin;\n" + readFileSync(new URL("../supabase/migrations/"+file,import.meta.url),"utf8") + "\ncommit;");
+    }
     for (let i = 0; i < 2; i++) {
       await admin.query("insert into auth.users(id,raw_user_meta_data) values($1,$2::jsonb)", [ids[i], JSON.stringify({ username: "legacy_" + i })]);
     }
@@ -74,17 +81,47 @@ test("real PostgreSQL trust boundary and concurrent transactions", { skip: !enab
     const before = (await admin.query("select user_id,coins,granted_today,accrual_at,last_reset,premium_tokens,updated_at from user_coins order by user_id")).rows;
     await t.test("invalid data and case collisions abort before privileges change", async () => {
       await admin.query("update user_coins set premium_tokens=-1 where user_id=$1", [ids[0]]);
-      await assert.rejects(admin.query("begin;\n" + migration + "\ncommit;"), /invalid token state/i);
+      await assert.rejects(admin.query("begin;\n" + expansion + "\ncommit;"), /invalid token state/i);
       await admin.query("rollback");
       assert.equal((await admin.query("select has_table_privilege('authenticated','public.user_coins','UPDATE') as allowed")).rows[0].allowed, true);
       await admin.query("update user_coins set premium_tokens=0 where user_id=$1", [ids[0]]);
       await admin.query("update profiles set referral_code=case when id=$1 then 'deadbeef' else 'DEADBEEF' end", [ids[0]]);
-      await assert.rejects(admin.query("begin;\n" + migration + "\ncommit;"), /collide when compared without case/i);
+      await assert.rejects(admin.query("begin;\n" + expansion + "\ncommit;"), /collide when compared without case/i);
       await admin.query("rollback");
       await admin.query("update profiles set referral_code=case when id=$1 then 'deadbeef' else 'cafebabe' end", [ids[0]]);
     });
     await admin.query("grant update(premium_tokens),insert(user_id) on user_coins to authenticated");
-    await admin.query("begin;\n" + migration + "\ncommit;");
+    await admin.query("begin;\n" + expansion + "\ncommit;");
+    await t.test("phase A preserves policies and legacy own-row writes while adding RPCs", async () => {
+      assert.equal((await admin.query("select count(*)::integer as n from pg_policies where schemaname='public'")).rows[0].n,9);
+      for(const table of ["profiles","user_coins","high_scores"]) {
+        assert.equal((await admin.query("select has_table_privilege('authenticated',$1,'INSERT') as i,has_table_privilege('authenticated',$1,'UPDATE') as u",["public."+table])).rows[0].i,true);
+        assert.equal((await admin.query("select has_table_privilege('authenticated',$1,'UPDATE') as u",["public."+table])).rows[0].u,true);
+      }
+      assert.equal((await as("authenticated",ids[0],"update user_coins set coins=coins,premium_tokens=premium_tokens where user_id=$1",[ids[0]])).rowCount,1);
+      await as("authenticated",ids[0],"insert into high_scores(user_id,game_slug,score) values($1,'globle',10) on conflict(user_id,game_slug) do update set score=excluded.score",[ids[0]]);
+      await as("authenticated",ids[0],"update profiles set referral_redeemed=true where id=$1",[ids[0]]);
+      assert.equal((await admin.query("select referral_redeemed from profiles where id=$1",[ids[0]])).rows[0].referral_redeemed,false);
+      for(const sql of ["select arcade_refresh_user_tokens()","select arcade_consume_user_tokens(1)","select arcade_submit_high_score('globle',1)"]) await denied("anon",null,sql);
+      assert.equal((await as("authenticated",ids[0],"select get_user_state() as state")).rows[0].state.coins,5);
+    });
+    await t.test("phase B cannot execute before explicit approval", async () => {
+      await assert.rejects(admin.query("begin;\n"+lockdown+"\ncommit;"),/lockdown requires verified client adoption/i);
+      await admin.query("rollback");
+      assert.equal((await admin.query("select has_table_privilege('authenticated','public.user_coins','UPDATE') as allowed")).rows[0].allowed,true);
+      assert.equal((await admin.query("select count(*)::integer as n from pg_policies where schemaname='public'")).rows[0].n,9);
+    });
+    await t.test("phase B lock timeout rolls back instead of blocking live queries indefinitely", async () => {
+      const blocker=new pg.Client({...config,database});await blocker.connect();
+      try {
+        await blocker.query("begin; lock table public.high_scores in access share mode");
+        await assert.rejects(admin.query("begin;\n"+approvedLockdown+"\ncommit;"),error=>error.code==="55P03");
+        await admin.query("rollback");
+        assert.equal((await admin.query("select has_table_privilege('authenticated','public.user_coins','UPDATE') as allowed")).rows[0].allowed,true);
+        assert.equal((await admin.query("select count(*)::integer as n from pg_policies where schemaname='public'")).rows[0].n,9);
+      } finally {await blocker.query("rollback");await blocker.end();}
+    });
+    await admin.query("begin;\n"+approvedLockdown+"\ncommit;");
     await t.test("valid existing rows and scores survive migration", async () => {
       assert.deepEqual((await admin.query("select user_id,coins,granted_today,accrual_at,last_reset,premium_tokens,updated_at from user_coins order by user_id")).rows, before);
       assert.equal((await admin.query("select count(*)::integer as n from high_scores")).rows[0].n, 5);

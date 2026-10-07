@@ -1,6 +1,6 @@
 # Validação das fronteiras de confiança Supabase
 
-Data: 07/10/2026. Aplicação: Atlas Arcade. Migração: `20261007_atlas_arcade_trust_boundaries.sql`.
+Data: 08/10/2026. Aplicação: Atlas Arcade. Fases: `20261007224924_atlas_arcade_trust_expand.sql` e `20261007224929_atlas_arcade_trust_lockdown.sql`.
 
 ## Base remota e âmbito
 
@@ -8,7 +8,7 @@ O projeto `ilxdvpdssyhkziwozzlw` foi confirmado pela ferramenta Supabase como **
 
 A inspeção remota usou apenas consultas SELECT ao catálogo e contagens agregadas, além de operações de leitura das migrações, ramos e avisos de segurança. Não foram executadas funções da aplicação em produção: algumas funções de leitura também inicializam linhas. Não houve escrita, migração, criação de conta, alteração de configuração ou criação de ramo remoto. O único ramo Supabase devolvido era o principal; os ensaios decorreram localmente.
 
-As migrações remotas registadas são 20260726, 20260727, 20260728 e 20260729. A migração de confiança de 07/10/2026 ainda não está aplicada.
+As migrações remotas registadas são 20260726, 20260727, 20260728 e 20260729. As fases de expansão e bloqueio ainda não estão aplicadas.
 
 ## Autoridade existente, antes da migração
 
@@ -116,14 +116,14 @@ Só foram consultadas contagens agregadas, sem nomes, e-mails, UUID de contas ou
 
 Os dados observados não provocam rejeição do preflight corrigido. Não foram copiados para os ensaios. As fixtures reproduzem a estrutura e usam apenas contas e valores sintéticos. A fotografia do catálogo não garante que os dados permaneçam iguais até à aplicação: o preflight transacional volta a validar as condições relevantes nessa altura.
 
-## Alterações da migração
+## Alterações por fase
 
-Classificação: **SAFE WITH SMALL CHANGES**, com as alterações incluídas neste ramo.
+A fase A preserva o contrato e as permissões do cliente publicado; a fase B retira a autoridade de escrita antiga. A ordem e as condições estão no [procedimento faseado](supabase-rollout.md).
 
 1. Acrescenta verificações de dados, NOT NULL e chaves externas de conta; estados inválidos abortam antes de alterar privilégios. Uma CHECK constraint impede futuros saldos premium negativos e estados fora dos limites.
 2. Regista as funções de criação, estado, classificação e eliminação no próprio ficheiro de migração, conserva as assinaturas usadas pelo cliente e fixa o caminho de pesquisa.
 3. Revoga EXECUTE anónimo das funções privadas e EXECUTE direto dos auxiliares de acionadores. Conserva as duas leituras públicas necessárias ao registo e à classificação.
-4. Revoga também eventuais ACL explícitas de coluna. As concessões diretas do serviço e do proprietário são conservadas.
+4. Apenas B revoga políticas de escrita, privilégios de tabela e eventuais ACL explícitas de coluna. As concessões diretas do serviço e do proprietário são conservadas.
 5. Acrescenta `profiles.referral_redeemed`, independente do FK referred_by. Liga-o aos resgates existentes que ainda têm associação e atualiza-o na mesma transação do prémio. Eliminar o autor do convite deixa de desbloquear um segundo prémio.
 6. Uma identidade cujo registo Auth foi eliminado recebe estado nulo e não pode voltar a criar pontuações ou saldos.
 
@@ -131,7 +131,7 @@ A eliminação remove auth.users, profiles, user_coins e high_scores da própria
 
 O proprietário postgres tem USAGE no esquema auth e SELECT/DELETE em auth.users; a tabela Auth pertence a supabase_auth_admin e tem RLS ativo. O proprietário das funções tem BYPASSRLS, pelo que a eliminação não depende de conceder acesso Auth ao cliente. postgres também tem TRIGGER em auth.users e CREATE no esquema public. Não herda a propriedade de supabase_auth_admin; a configuração remota supautils.drop_trigger_grants autoriza expressamente postgres a remover acionadores de auth.users. Isso confirma a permissão de consolidar os dois acionadores sem alterar a propriedade da tabela. Referência: [permissão Supautils para remover acionadores](https://github.com/supabase/supautils/blob/master/README.md#drop-triggers).
 
-A migração deve ser aplicada pelo fluxo transacional Supabase. Não deve ser executada instrução a instrução. Não foi aplicada remotamente.
+Cada fase exige uma transação separada. A deve ser verificada com master antes de publicar o cliente. B exige adoção do cliente novo e confirmação explícita na transação. Não executar todos os ficheiros pendentes como uma única publicação. Nenhuma fase foi aplicada remotamente.
 
 ## Resultado isolado e segurança
 
@@ -151,7 +151,7 @@ A migração deve ser aplicada pelo fluxo transacional Supabase. Não deve ser e
 | Eliminação do autor de um convite seguida de outro resgate | PASS; segundo prémio recusado |
 | Token de acesso anterior após eliminação | PASS; estado nulo, sem recriação de saldo/pontuação |
 
-A suite real tem **13 testes**, incluindo o teste principal e 12 subtestes. A suite normal tem **26 testes**. As regressões de permissões privadas, resgate após eliminação do autor e dados inválidos falharam antes das correções e passaram depois.
+A suite real tem **16 testes**, incluindo o teste principal e 15 subtestes. A suite normal tem **28 testes**. As regressões de permissões privadas, resgate após eliminação do autor e dados inválidos falharam antes das correções e passaram depois.
 
 ### Concorrência real
 
@@ -174,9 +174,12 @@ Após sair e voltar a entrar com um convite pendente, a aplicação atribuiu 20 
 
 Google OAuth, envio real de e-mails, retenção de logs/cópias de segurança e configuração de cookies em produção não fazem parte deste ensaio isolado.
 
+
+A matriz executou master e PR na mesma base anterior, após A e após A+B. Master passou antes e após A; o PR passou após A e A+B. As duas combinações não suportadas falharam como esperado: função ausente para o PR anterior e escritas diretas 403 para master após B. Métodos, saldos e condições estão no [procedimento faseado](supabase-rollout.md).
+
 ## Riscos restantes
 
-- **BLOCK RELEASE:** aplicar esta migração exige aprovação separada, nova confirmação do preflight e ordem base de dados antes do cliente. O cliente exige funções que ainda não existem em produção.
+- **Publicação sujeita a aprovação:** repetir o preflight, aplicar apenas A e verificar master; depois publicar e verificar o cliente novo; só então aprovar B. Separadores antigos ativos precisam de atualização antes do bloqueio. Ver [critérios de aborto e recuperação](supabase-rollout.md).
 - **FOLLOW-UP, ambiguidade do débito:** se o débito confirmar e a resposta se perder, a partida não começa e uma nova ação pode debitar outra ficha. O cliente não repete automaticamente o pedido nem faz reembolso arbitrário. Para fichas gratuitas, sem compra, conversão monetária ou prémios competitivos, esta limitação é proporcionalmente um seguimento, não um motivo adicional para redesenhar esta migração.
 - Uma futura solução idempotente deve usar attempt_id UUID, unicidade por utilizador/tentativa, quantia e jogo associados, registo de resultado na mesma transação do débito e recuperação do resultado para uma repetição. Reutilizar um identificador com outros parâmetros deve falhar. Não foi implementada neste marco.
 - As pontuações continuam declaradas pelo navegador. Os limites, identidade e conservação do máximo reduzem entradas malformadas; não provam as respostas. Para a oferta gratuita e sem prémios, o seguimento proporcional é validar tentativas/respostas nos jogos que precisarem de uma classificação mais fiável.
@@ -200,7 +203,7 @@ npm run test:auth:local
 
 O teste SQL cria e remove a sua própria base `atlas_trust_*`; só aceita loopback e nunca usa uma ligação de produção. A ausência da variável de porta marca a suite como não executada, não como validação bem-sucedida. A tarefa database-trust da CI define a porta e exige execução real.
 
-O teste de autenticação gera contas sintéticas, usa as credenciais públicas observadas nos pedidos do próprio navegador e mantém sessões apenas em memória. Exige confirmação automática local e interface em inglês. Ao preparar um ambiente novo, inicialize o esquema completo do serviço Auth **antes** de aplicar a fixture da aplicação; as tabelas Auth mínimas da fixture servem apenas aos testes SQL. Numa instalação local Supabase que já tenha anon/authenticated/service_role, omita as três instruções CREATE ROLE da fixture. Aplique depois a migração, numa transação, só nessa base isolada.
+O teste de autenticação gera contas sintéticas, usa as credenciais públicas observadas nos pedidos do próprio navegador e mantém sessões apenas em memória. Exige confirmação automática local e interface em inglês. Ao preparar um ambiente novo, inicialize o esquema completo do serviço Auth **antes** de aplicar a fixture da aplicação; as tabelas Auth mínimas da fixture servem apenas aos testes SQL. Numa instalação local Supabase que já tenha anon/authenticated/service_role, omita as três instruções CREATE ROLE da fixture. Reaplique as quatro migrações históricas e execute os dois clientes no estado anterior. Aplique A numa transação e volte a testar ambos. Só depois aplique B, noutra transação com o sinal explícito, e repita a matriz. Isto aplica-se apenas ao laboratório isolado.
 
 A fotografia de Baikal e as obrigações dos restantes conteúdos estão em [licenciamento dos conteúdos](asset-licensing.md). A versão do cliente e a migração continuam sujeitas a aprovação de publicação.
 
